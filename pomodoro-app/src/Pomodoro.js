@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
+import TaskList from "./TaskList";
+import Stats from "./Stats";
 
 const defaultTimes = {
   work: 25 * 60,
@@ -14,7 +16,7 @@ function Pomodoro() {
   const [cycles, setCycles] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
   const [customTimes, setCustomTimes] = useState(defaultTimes);
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState([]); // [{text: string, completed: bool}]
   const [taskInput, setTaskInput] = useState("");
   const [stats, setStats] = useState({
     totalWork: 0,
@@ -109,13 +111,21 @@ function Pomodoro() {
 
   const handleAddTask = () => {
     if (taskInput.trim()) {
-      setTasks([...tasks, taskInput.trim()]);
+      setTasks([...tasks, { text: taskInput.trim(), completed: false }]);
       setTaskInput("");
     }
   };
 
   const handleRemoveTask = (idx) => {
     setTasks(tasks.filter((_, i) => i !== idx));
+  };
+
+  const handleEditTask = (idx, newText) => {
+    setTasks(tasks.map((task, i) => i === idx ? { ...task, text: newText } : task));
+  };
+
+  const handleToggleComplete = (idx) => {
+    setTasks(tasks.map((task, i) => i === idx ? { ...task, completed: !task.completed } : task));
   };
 
   const formatTime = (secs) => {
@@ -154,15 +164,11 @@ function Pomodoro() {
           Reiniciar
         </button>
       </div>
-      <div className="stats">
-        <span>Ciclos completados: {cycles}</span>
-        <br />
-        <span>Trabajo total: {stats.totalWork} min</span>
-        <br />
-        <span>Descanso total: {stats.totalBreak} min</span>
-        <br />
-        <span>Ciclos totales: {stats.totalCycles}</span>
-      </div>
+      <Stats stats={{
+        totalWork: stats.totalWork,
+        totalBreak: stats.totalBreak,
+        totalCycles: stats.totalCycles
+      }} />
       <div className="settings">
         <h4>Personalizar tiempos (minutos):</h4>
         <label>
@@ -207,20 +213,12 @@ function Pomodoro() {
         <button className="control-btn" onClick={handleAddTask}>
           Añadir
         </button>
-        <ul>
-          {tasks.map((task, idx) => (
-            <li key={idx} className="task-item">
-              {task}
-              <button
-                className="control-btn"
-                style={{ marginLeft: 8, padding: "2px 8px" }}
-                onClick={() => handleRemoveTask(idx)}
-              >
-                ✖
-              </button>
-            </li>
-          ))}
-        </ul>
+        <TaskList
+          tasks={tasks}
+          onRemove={handleRemoveTask}
+          onEdit={handleEditTask}
+          onToggleComplete={handleToggleComplete}
+        />
       </div>
     </div>
   );
