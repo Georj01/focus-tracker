@@ -1,3 +1,10 @@
+/*
+ Componente App (creado por Create React App)
+ - Archivo presentacional simple que importa el logo y los estilos.
+ - Muestra un encabezado con el logo, un mensaje y un enlace a la documentación de React.
+ - No contiene lógica de estado compleja; sirve como punto de partida o contenedor.
+*/
+
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';

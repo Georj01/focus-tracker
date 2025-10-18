@@ -1,3 +1,9 @@
+/*
+ Estilos globales y específicos de la aplicación
+ - Define estilos del contenedor App, encabezados, botones y animaciones del temporizador.
+ - Se puede migrar a CSS Modules o styled-components para mayor escalabilidad.
+*/
+
 .App {
   text-align: center;
 }

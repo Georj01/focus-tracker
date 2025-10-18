@@ -1,5 +1,11 @@
 /* eslint-disable no-restricted-globals */
 
+/*
+ Service worker (archivo generado por CRA para PWA opcional)
+ - Contiene la lógica para cacheo y funcionamiento offline si se registra.
+ - Normalmente no necesita modificaciones para apps sencillas, pero puede personalizarse para controlar el caché y la actualización.
+*/
+
 // This service worker can be customized!
 // See https://developers.google.com/web/tools/workbox/modules
 // for the list of available Workbox modules, or add any other

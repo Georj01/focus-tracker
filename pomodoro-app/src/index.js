@@ -1,3 +1,10 @@
+/*
+ Punto de entrada de la aplicación React
+ - Crea la raíz React y renderiza el componente `App` dentro del elemento DOM con id 'root'.
+ - Registra/Desregistra el service worker según la configuración (por defecto `unregister`).
+ - Inicializa reportWebVitals para métricas de rendimiento opcionales.
+*/
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';

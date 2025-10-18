@@ -1,3 +1,27 @@
+/*
+ Componente Pomodoro
+ - Contiene la lógica principal del temporizador Pomodoro.
+ - Hooks usados:
+    - mode: modo actual ('work', 'shortBreak', 'longBreak')
+    - seconds: segundos restantes del temporizador
+    - isRunning: si el temporizador está en marcha
+    - cycles: contador de ciclos de trabajo completados
+    - darkMode: bandera para tema oscuro
+    - customTimes: tiempos configurables para cada modo (en segundos)
+    - tasks: lista de tareas (objetos con {text, completed})
+    - stats: estadísticas acumuladas (trabajo, descanso, ciclos)
+    - audioRef: referencia para reproducir sonido al terminar un ciclo
+ - Efectos principales:
+    - useEffect para decrementar `seconds` cada segundo cuando `isRunning` es true.
+    - useEffect para pedir permiso de notificaciones al cargar.
+ - Funciones importantes:
+    - handleCycleEnd: se ejecuta cuando el temporizador llega a 0 (reproduce sonido, notifica, actualiza estadísticas y cambia modo).
+    - handleStart / handlePause / handleReset: controles del temporizador.
+    - handleAddTask / handleEditTask / handleToggleComplete / handleRemoveTask: CRUD básico de tareas.
+    - handleTimeChange: actualizar tiempos personalizados (en minutos en la UI, internamente en segundos).
+ - Renderiza: audio, toggle de modo oscuro, display del temporizador, controles, ajustes, listas de tareas y estadísticas.
+*/
+
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import TaskList from "./TaskList";

@@ -1,3 +1,10 @@
+/*
+ serviceWorkerRegistration
+ - Helper para registrar o desregistrar el service worker.
+ - `register()` activará el service worker para permitir comportamiento PWA (offline, carga más rápida).
+ - `unregister()` revierte ese comportamiento. Mantener `unregister()` si no se desea PWA en producción.
+*/
+
 // This optional code is used to register a service worker.
 // register() is not called by default.
 

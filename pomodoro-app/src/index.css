@@ -1,3 +1,9 @@
+/*
+ Estilos base de la aplicación
+ - Normalmente contiene reset/normalización y variables de diseño globales.
+ - Se aplica en `index.js` y afecta a toda la app.
+*/
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

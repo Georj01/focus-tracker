@@ -1,3 +1,10 @@
+/*
+ Componente TaskList
+ - Presenta la lista de tareas provista por `Pomodoro`.
+ - Cada tarea puede marcarse como completada, editarse o eliminarse.
+ - Recibe props: `tasks` (array), `onRemove`, `onEdit`, `onToggleComplete`.
+ - Las tareas completadas se muestran con `text-decoration: line-through`.
+*/
 
 import React, { useState } from "react";
 

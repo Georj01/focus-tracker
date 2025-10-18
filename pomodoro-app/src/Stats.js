@@ -1,5 +1,14 @@
 import React from "react";
 
+/*
+ Componente Stats
+ - Muestra estadísticas simples calculadas por `Pomodoro`:
+    - Tiempo total de trabajo (minutos)
+    - Tiempo total de descanso (minutos)
+    - Ciclos completados
+ - Es un componente de presentación que recibe `stats` por props.
+*/
+
 function Stats({ stats }) {
   return (
     <div className="stats">
