@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
 
 function TaskList({ tasks, onRemove, onEdit, onToggleComplete }) {
-  const { t } = useTranslation();
   const [editId, setEditId] = useState(null);
   const [editValue, setEditValue] = useState("");
 
-  const handleEdit = (id, value) => {
-    setEditId(id);
-    setEditValue(value);
+  const handleEditStart = (task) => {
+    setEditId(task.id);
+    setEditValue(task.text);
   };
 
   const handleEditSave = (id) => {
@@ -19,82 +17,41 @@ function TaskList({ tasks, onRemove, onEdit, onToggleComplete }) {
     setEditValue("");
   };
 
-  const handleKeyPress = (e, id) => {
-    if (e.key === 'Enter') {
-      handleEditSave(id);
-    } else if (e.key === 'Escape') {
-      setEditId(null);
-      setEditValue("");
-    }
+  const handleCancel = () => {
+    setEditId(null);
+    setEditValue("");
   };
 
-  if (tasks.length === 0) {
-    return (
-      <p className="empty-tasks">{t('labels.noTasks')}</p>
-    );
-  }
-
   return (
-    <ul className="task-items">
+    <ul className="task-list">
       {tasks.map((task) => (
-        <li key={task.id} className="task-item">
+        /* CORRECCIÓN: Usamos task.id en lugar de idx */
+        <li key={task.id} className="task-item" style={{ textDecoration: task.completed ? "line-through" : "none" }}>
           {editId === task.id ? (
-            <div className="task-edit-mode">
+            <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="text"
-                value={editValue}
-                onChange={e => setEditValue(e.target.value)}
-                onKeyDown={e => handleKeyPress(e, task.id)}
                 autoFocus
-                maxLength="100"
-                aria-label="Editar tarea"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleEditSave(task.id)}
               />
-              <button 
-                onClick={() => handleEditSave(task.id)}
-                className="task-btn save-btn"
-                aria-label="Guardar cambios"
-              >
-                ✓
-              </button>
-              <button 
-                onClick={() => setEditId(null)}
-                className="task-btn cancel-btn"
-                aria-label="Cancelar edición"
-              >
-                ✕
-              </button>
+              <button className="control-btn small" onClick={() => handleEditSave(task.id)}>💾</button>
+              <button className="control-btn small cancel" onClick={handleCancel}>❌</button>
             </div>
           ) : (
-            <div className="task-view-mode">
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => onToggleComplete(task.id)}
-                id={`task-${task.id}`}
-                aria-label={`Marcar tarea "${task.text}" como ${task.completed ? 'incompleta' : 'completada'}`}
-              />
-              <label 
-                htmlFor={`task-${task.id}`}
-                className={task.completed ? "completed" : ""}
-              >
-                {task.text}
-              </label>
-              <div className="task-actions">
-                <button 
-                  onClick={() => handleEdit(task.id, task.text)}
-                  className="task-btn edit-btn"
-                  aria-label="Editar tarea"
-                  disabled={task.completed}
-                >
-                  ✏️
-                </button>
-                <button 
-                  onClick={() => onRemove(task.id)}
-                  className="task-btn delete-btn"
-                  aria-label="Eliminar tarea"
-                >
-                  🗑️
-                </button>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => onToggleComplete(task.id)}
+                />
+                <span>{task.text}</span>
+              </div>
+              <div>
+                <button onClick={() => handleEditStart(task)} style={{ marginRight: '8px' }}>✏️</button>
+                <button onClick={() => onRemove(task.id)}>🗑️</button>
               </div>
             </div>
           )}
