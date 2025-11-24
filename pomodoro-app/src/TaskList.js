@@ -1,54 +1,102 @@
-/*
- Componente TaskList
- - Presenta la lista de tareas provista por `Pomodoro`.
- - Cada tarea puede marcarse como completada, editarse o eliminarse.
- - Recibe props: `tasks` (array), `onRemove`, `onEdit`, `onToggleComplete`.
- - Las tareas completadas se muestran con `text-decoration: line-through`.
-*/
-
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function TaskList({ tasks, onRemove, onEdit, onToggleComplete }) {
-  const [editIdx, setEditIdx] = useState(null);
+  const { t } = useTranslation();
+  const [editId, setEditId] = useState(null);
   const [editValue, setEditValue] = useState("");
 
-  const handleEdit = (idx, value) => {
-    setEditIdx(idx);
+  const handleEdit = (id, value) => {
+    setEditId(id);
     setEditValue(value);
   };
 
-  const handleEditSave = (idx) => {
-    onEdit(idx, editValue);
-    setEditIdx(null);
+  const handleEditSave = (id) => {
+    if (editValue.trim()) {
+      onEdit(id, editValue.trim());
+    }
+    setEditId(null);
     setEditValue("");
   };
 
+  const handleKeyPress = (e, id) => {
+    if (e.key === 'Enter') {
+      handleEditSave(id);
+    } else if (e.key === 'Escape') {
+      setEditId(null);
+      setEditValue("");
+    }
+  };
+
+  if (tasks.length === 0) {
+    return (
+      <p className="empty-tasks">{t('labels.noTasks')}</p>
+    );
+  }
+
   return (
-    <ul className="task-list">
-      {tasks.map((task, idx) => (
-        <li key={idx} style={{ textDecoration: task.completed ? "line-through" : "none" }}>
-          {editIdx === idx ? (
-            <>
+    <ul className="task-items">
+      {tasks.map((task) => (
+        <li key={task.id} className="task-item">
+          {editId === task.id ? (
+            <div className="task-edit-mode">
               <input
                 type="text"
                 value={editValue}
                 onChange={e => setEditValue(e.target.value)}
+                onKeyDown={e => handleKeyPress(e, task.id)}
+                autoFocus
+                maxLength="100"
+                aria-label="Editar tarea"
               />
-              <button onClick={() => handleEditSave(idx)}>Guardar</button>
-              <button onClick={() => setEditIdx(null)}>Cancelar</button>
-            </>
+              <button 
+                onClick={() => handleEditSave(task.id)}
+                className="task-btn save-btn"
+                aria-label="Guardar cambios"
+              >
+                ✓
+              </button>
+              <button 
+                onClick={() => setEditId(null)}
+                className="task-btn cancel-btn"
+                aria-label="Cancelar edición"
+              >
+                ✕
+              </button>
+            </div>
           ) : (
-            <>
+            <div className="task-view-mode">
               <input
                 type="checkbox"
                 checked={task.completed}
-                onChange={() => onToggleComplete(idx)}
-                style={{ marginRight: 8 }}
+                onChange={() => onToggleComplete(task.id)}
+                id={`task-${task.id}`}
+                aria-label={`Marcar tarea "${task.text}" como ${task.completed ? 'incompleta' : 'completada'}`}
               />
-              {task.text}
-              <button onClick={() => handleEdit(idx, task.text)} style={{ marginLeft: 8 }}>Editar</button>
-              <button onClick={() => onRemove(idx)} style={{ marginLeft: 8 }}>Eliminar</button>
-            </>
+              <label 
+                htmlFor={`task-${task.id}`}
+                className={task.completed ? "completed" : ""}
+              >
+                {task.text}
+              </label>
+              <div className="task-actions">
+                <button 
+                  onClick={() => handleEdit(task.id, task.text)}
+                  className="task-btn edit-btn"
+                  aria-label="Editar tarea"
+                  disabled={task.completed}
+                >
+                  ✏️
+                </button>
+                <button 
+                  onClick={() => onRemove(task.id)}
+                  className="task-btn delete-btn"
+                  aria-label="Eliminar tarea"
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
           )}
         </li>
       ))}

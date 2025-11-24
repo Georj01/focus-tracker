@@ -1,20 +1,43 @@
+
 import React from "react";
 
-/*
- Componente Stats
- - Muestra estadísticas simples calculadas por `Pomodoro`:
-    - Tiempo total de trabajo (minutos)
-    - Tiempo total de descanso (minutos)
-    - Ciclos completados
- - Es un componente de presentación que recibe `stats` por props.
-*/
+function Stats({ stats, onReset }) {
+  const formatMinutes = (mins) => {
+    const hours = Math.floor(mins / 60);
+    const minutes = Math.floor(mins % 60);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}min`;
+    }
+    return `${minutes} min`;
+  };
 
-function Stats({ stats }) {
   return (
     <div className="stats">
-      <p>Trabajo total: {Math.floor(stats.totalWork / 60)} min</p>
-      <p>Descanso total: {Math.floor(stats.totalBreak / 60)} min</p>
-      <p>Ciclos completados: {stats.totalCycles}</p>
+      <h4>📊 Estadísticas</h4>
+      <div className="stats-grid">
+        <div className="stat-item">
+          <span className="stat-label">⏱️ Trabajo total:</span>
+          <span className="stat-value">{formatMinutes(stats.totalWork)}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">☕ Descanso total:</span>
+          <span className="stat-value">{formatMinutes(stats.totalBreak)}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">🔄 Ciclos completados:</span>
+          <span className="stat-value">{stats.totalCycles}</span>
+        </div>
+      </div>
+      {(stats.totalWork > 0 || stats.totalBreak > 0 || stats.totalCycles > 0) && (
+        <button 
+          className="reset-stats-btn"
+          onClick={onReset}
+          aria-label="Reiniciar estadísticas"
+        >
+          Reiniciar estadísticas
+        </button>
+      )}
     </div>
   );
 }

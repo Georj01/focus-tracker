@@ -4,9 +4,12 @@
   "private": true,
   "dependencies": {
     "cra-template-pwa": "2.0.0",
+    "i18next": "^25.6.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-scripts": "5.0.1"
+    "react-i18next": "^16.3.5",
+    "react-scripts": "5.0.1",
+    "recharts": "^3.5.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -31,5 +34,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0"
   }
 }
