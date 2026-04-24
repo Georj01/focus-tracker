@@ -9,14 +9,14 @@ const defaultTimes = {
   longBreak: 15 * 60,
 };
 
-// Función para IDs únicos (CORRECCIÓN CRÍTICA)
+// Utility function for unique IDs (CRITICAL FIX)
 const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
 function Pomodoro() {
-  // --- ESTADO CON PERSISTENCIA (LocalStorage) ---
+  // --- PERSISTENT STATE (LocalStorage) ---
   const [mode, setMode] = useState("work");
   
-  // Cargar datos guardados o usar valores por defecto
+  // Load saved data or initialize with default values
   const [tasks, setTasks] = useState(() => {
     const saved = localStorage.getItem("pomodoro_tasks");
     return saved ? JSON.parse(saved) : [];
@@ -34,22 +34,22 @@ function Pomodoro() {
 
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("pomodoro_dark") === "true");
 
-  // Estado del temporizador
+  // Timer state management
   const [timeLeft, setTimeLeft] = useState(defaultTimes.work);
   const [isRunning, setIsRunning] = useState(false);
   const [cycles, setCycles] = useState(0);
   
-  // Refs para lógica precisa
+  // Refs for precise execution logic
   const endTimeRef = useRef(null);
   const audioRef = useRef(null);
 
-  // --- GUARDADO AUTOMÁTICO ---
+  // --- AUTO-SAVE EFFECTS ---
   useEffect(() => localStorage.setItem("pomodoro_tasks", JSON.stringify(tasks)), [tasks]);
   useEffect(() => localStorage.setItem("pomodoro_stats", JSON.stringify(stats)), [stats]);
   useEffect(() => localStorage.setItem("pomodoro_times", JSON.stringify(customTimes)), [customTimes]);
   useEffect(() => localStorage.setItem("pomodoro_dark", darkMode), [darkMode]);
 
-  // --- TEMPORIZADOR PRECISO (Sin retrasos) ---
+  // --- PRECISE TIMER LOGIC (Prevents background throttling drift) ---
   useEffect(() => {
     let animationFrameId;
 
@@ -57,7 +57,7 @@ function Pomodoro() {
       if (!isRunning) return;
 
       const now = Date.now();
-      // Calculamos el tiempo restante real comparando con la hora de finalización
+      // Calculate real remaining time by comparing with the target end time
       const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
       
       setTimeLeft(remaining);
@@ -71,7 +71,7 @@ function Pomodoro() {
     };
 
     if (isRunning) {
-      // Si iniciamos o reanudamos, calculamos cuándo debe terminar
+      // If starting or resuming, calculate the exact timestamp it should end
       if (!endTimeRef.current || endTimeRef.current < Date.now()) {
         endTimeRef.current = Date.now() + timeLeft * 1000;
       }
@@ -81,9 +81,9 @@ function Pomodoro() {
     }
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [isRunning]); // Eliminada dependencia de timeLeft para evitar re-renders innecesarios
+  }, [isRunning]); // Dependency on timeLeft removed to prevent unnecessary re-renders
 
-  // Resetear tiempo al cambiar de modo manualmente
+  // Reset time when manually switching modes
   useEffect(() => {
     if (!isRunning) {
       setTimeLeft(customTimes[mode]);
@@ -91,7 +91,7 @@ function Pomodoro() {
   }, [mode, customTimes, isRunning]);
 
   const handleCycleEnd = () => {
-    if (audioRef.current) audioRef.current.play().catch(e => console.log("Audio error", e));
+    if (audioRef.current) audioRef.current.play().catch(e => console.log("Audio playback error", e));
     
     if ("Notification" in window && Notification.permission === "granted") {
       new Notification(mode === "work" ? "¡A descansar!" : "¡A trabajar!");
@@ -139,7 +139,7 @@ function Pomodoro() {
   const handleAddTask = () => {
     if (taskInput.trim()) {
       const newTask = { 
-        id: generateId(), // ID ÚNICO
+        id: generateId(), // UNIQUE ID
         text: taskInput.trim(), 
         completed: false 
       };
