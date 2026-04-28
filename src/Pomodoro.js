@@ -17,13 +17,13 @@ function Pomodoro() {
   const { t, i18n } = useTranslation();
   // --- PERSISTENT STATE (LocalStorage) ---
   const [mode, setMode] = useState("work");
-
+  
   // Load saved data or initialize with default values
   const [tasks, setTasks] = useState(() => {
     const saved = localStorage.getItem("pomodoro_tasks");
     return saved ? JSON.parse(saved) : [];
   });
-
+  
   const [stats, setStats] = useState(() => {
     const saved = localStorage.getItem("pomodoro_stats");
     return saved ? JSON.parse(saved) : { totalWork: 0, totalBreak: 0, totalCycles: 0 };
@@ -41,7 +41,7 @@ function Pomodoro() {
   const [timeLeft, setTimeLeft] = useState(defaultTimes.work);
   const [isRunning, setIsRunning] = useState(false);
   const [cycles, setCycles] = useState(0);
-
+  
   // Refs for precise execution logic
   const endTimeRef = useRef(null);
   const audioRef = useRef(null);
@@ -62,7 +62,7 @@ function Pomodoro() {
       const now = Date.now();
       // Calculate real remaining time by comparing with the target end time
       const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
-
+      
       setTimeLeft(remaining);
 
       if (remaining <= 0) {
@@ -95,7 +95,7 @@ function Pomodoro() {
 
   const handleCycleEnd = () => {
     if (audioRef.current) audioRef.current.play().catch(e => console.log("Audio playback error", e));
-
+    
     if ("Notification" in window && Notification.permission === "granted") {
       new Notification(mode === "work" ? t('timeToRest') : t('timeToWork'));
     }
@@ -141,10 +141,10 @@ function Pomodoro() {
 
   const handleAddTask = () => {
     if (taskInput.trim()) {
-      const newTask = {
+      const newTask = { 
         id: generateId(), // UNIQUE ID
-        text: taskInput.trim(),
-        completed: false
+        text: taskInput.trim(), 
+        completed: false 
       };
       setTasks([...tasks, newTask]);
       setTaskInput("");
@@ -180,17 +180,17 @@ function Pomodoro() {
   return (
     <div className={`pomodoro-container${darkMode ? " dark" : ""}`}>
       <audio ref={audioRef} src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto" />
-
-      <button
-        className="lang-toggle"
+      
+      <button 
+        className="lang-toggle" 
         onClick={() => i18n.changeLanguage((i18n.language || 'es').startsWith('es') ? 'en' : 'es')}
         style={{ position: 'absolute', top: '20px', right: '130px', background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', gap: '4px', color: darkMode ? '#fff' : '#000' }}
         title={t('changeLanguage')}
       >
         🌐 <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{(i18n.language || 'es').startsWith('es') ? 'ES' : 'EN'}</span>
       </button>
-      <button
-        className="focus-mode-toggle"
+      <button 
+        className="focus-mode-toggle" 
         onClick={() => setFocusMode(!focusMode)}
         style={{ position: 'absolute', top: '20px', right: '75px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', zIndex: 10 }}
         title={t('focusMode')}

@@ -1,24 +1,77 @@
-# Focus Tracker & Pomodoro Engine
+# Pomodoro App
 
-A high-performance productivity timer and task management application built with React. Designed to maintain strict focus cycles with precise timing execution and session persistence.
+Pequeña aplicación Pomodoro creada con Create React App.
 
-## 🎯 Technical Objective
+## Qué contiene
 
-This project demonstrates state management, local data persistence, and performance optimization in React. It moves beyond standard `setInterval` implementations by utilizing native browser APIs to ensure timer accuracy even when the application is running in an inactive or throttled browser tab.
+- `src/App.js` - Componente raíz de ejemplo (generado por CRA).
+- `src/Pomodoro.js` - Lógica principal del temporizador Pomodoro y UI.
+- `src/TaskList.js` - Componente que renderiza la lista de tareas (editar, marcar completadas, eliminar).
+- `src/Stats.js` - Componente presentacional que muestra estadísticas básicas.
+- `public/index.html` - HTML principal donde React monta la app.
+- Archivos de configuración y soporte: `serviceWorkerRegistration.js`, `reportWebVitals.js`, `setupTests.js`.
 
-## 🛠️ Core Architecture & Features
+> Los archivos contienen comentarios en español explicando su propósito y la lógica interna.
 
-- **Precise Timing Engine:** Implements `requestAnimationFrame` paired with delta timestamp comparison (`Date.now()`) to completely eliminate the timer drift commonly caused by browser background-tab throttling.
-- **State Persistence:** Seamless integration with `localStorage` to automatically preserve active tasks, custom timer configurations, and aggregate session statistics across browser reloads.
-- **Dynamic Task Management:** Real-time array state manipulation for adding, editing, completing, and removing tasks with unique identifier generation.
-- **Customizable Intervals:** User-defined duration settings for Work, Short Break, and Long Break cycles, with automatic logical progression (4 work cycles trigger a long break).
-- **UI/UX Enhancements:** Native browser notifications API integration, audio feedback on cycle completion, and an integrated dark mode toggle.
+## Funcionalidad implementada (resumen real)
 
-## ⚙️ Installation & Execution
+- Temporizador Pomodoro con modos: `work`, `shortBreak`, `longBreak`.
+- Controles de temporizador: iniciar, pausar y reiniciar.
+- Tiempos personalizables desde la UI (en minutos).
+- Tareas: añadir, editar, eliminar y marcar como completadas (persistencia en memoria - sesión actual).
+- Estadísticas básicas mostradas en `Stats` (trabajo/descanso/ciclos) — cálculo simple en memoria.
+- Toggle de modo oscuro (UI básica).
+- Comentarios explicativos añadidos en los archivos principales.
 
-The project is initialized via Create React App. No complex backend setup is required.
 
-1. Clone the repository and navigate to the project folder.
-2. Install dependencies:
-   ```bash
-   npm install
+## Funciones solicitadas (estado)
+
+Checklist de las funciones que pediste integrar:
+
+- [x] 1) Editar tareas — implementado (`TaskList`, handlers en `Pomodoro.js`).
+- [x] 2) Marcar tareas como completadas — implementado (`TaskList`, handlers en `Pomodoro.js`).
+- [ ] 3) Historial de sesiones — pendiente (se puede implementar guardando en `localStorage` o backend).
+- [ ] 4) Notificaciones personalizadas — pendiente (actualmente la app solicita permiso y envía notificaciones por defecto).
+- [ ] 5) Sonidos personalizados — pendiente (la app usa un sonido por defecto; se puede añadir selector y carga local/remota).
+- [ ] 6) Estadísticas avanzadas / gráficas — pendiente (se puede añadir con `chart.js` o `recharts`).
+- [ ] 8) Modo enfoque — pendiente (UI/UX para ocultar distracciones y bloquear acciones).
+- [ ] 10) Soporte multilingüe — pendiente (se puede integrar `react-i18next` con archivos de traducción).
+
+Si quieres que continúe, puedo priorizar e implementar los pendientes en el orden que prefieras.
+
+## Cómo ejecutar (Windows PowerShell)
+
+Abre una terminal en la carpeta `pomodoro-app` y ejecuta:
+
+```powershell
+npm install
+npm start
+```
+
+La app se abrirá en `http://localhost:3000` si no hay otro proceso usando ese puerto.
+
+## Desarrollo y pruebas
+
+- Tests básicos generados por CRA en `src/App.test.js`.
+- Para ejecutar tests:
+
+```powershell
+npm test
+```
+
+## Propuestas de implementación (siguientes pasos)
+
+Si quieres que implemente las funciones pendientes, propongo el siguiente orden de trabajo (rápido y con entregables pequeños):
+
+1. Persistencia de tareas e historial en `localStorage` (guardar sesión y ciclos por día).
+2. Selector de sonidos + UI para previsualizar alarmas.
+3. Notificaciones personalizables (mensajes editables) y opción para activarlas/desactivarlas.
+4. Estadísticas con gráficas semanales (añadir `recharts`).
+5. Modo foco: boton que oculta listas/controles y bloquea notificaciones adicionales.
+6. Internacionalización con `react-i18next` (es/ en primeros idiomas).
+
+Indica qué ítem quieres que haga ahora y lo implemento en el proyecto.
+
+---
+
+Si prefieres, también puedo extraer los comentarios actuales a documentación más extensa o crear archivos de ayuda dentro de `docs/`.
