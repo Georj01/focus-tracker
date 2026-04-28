@@ -494,7 +494,7 @@ body {
   }
 }
 
-/* Mejoras de accesibilidad */
+/* Accessibility Improvements */
 @media (prefers-reduced-motion: reduce) {
   .animate-timer {
     animation: none;
@@ -507,14 +507,14 @@ body {
   }
 }
 
-/* Focus visible para navegación por teclado */
+/* Visible focus for keyboard navigation */
 button:focus-visible,
 input:focus-visible {
   outline: 2px solid #61dafb;
   outline-offset: 2px;
 }
 
-/* Mejora de contraste en modo oscuro */
+/* Contrast improvement in dark mode */
 .pomodoro-container.dark .stat-label,
 .pomodoro-container.dark label {
   color: rgba(255, 255, 255, 0.95);
@@ -524,7 +524,7 @@ input:focus-visible {
   color: #fff;
 }
 
-/* Animación de entrada */
+/* Entrance animation */
 .pomodoro-container {
   animation: fadeIn 0.5s ease-in;
 }

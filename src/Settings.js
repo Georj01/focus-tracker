@@ -128,15 +128,15 @@ function Settings({ customTimes, onTimeChange, notifications, onNotificationChan
       </div>
 
       <div className="settings-section">
-        <h4>🌐 Language / Idioma</h4>
+        <h4>🌐 Language</h4>
         <label htmlFor="language-select">
           <select
             id="language-select"
             value={language}
             onChange={(e) => onLanguageChange(e.target.value)}
           >
-            <option value="es">Español</option>
             <option value="en">English</option>
+            <option value="es">Español</option>
           </select>
         </label>
       </div>

@@ -184,11 +184,11 @@ function Pomodoro() {
       
       <button 
         className="lang-toggle" 
-        onClick={() => i18n.changeLanguage((i18n.language || 'es').startsWith('es') ? 'en' : 'es')}
+        onClick={() => i18n.changeLanguage((i18n.language || 'en').startsWith('en') ? 'es' : 'en')}
         style={{ position: 'absolute', top: '20px', right: '130px', background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', gap: '4px', color: darkMode ? '#fff' : '#000' }}
         title={t('labels.changeLanguage')}
       >
-        🌐 <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{(i18n.language || 'es').startsWith('es') ? 'ES' : 'EN'}</span>
+        🌐 <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{(i18n.language || 'en').startsWith('en') ? 'EN' : 'ES'}</span>
       </button>
       <button 
         className="focus-mode-toggle" 

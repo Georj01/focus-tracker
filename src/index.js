@@ -22,7 +22,7 @@ root.render(
   </React.StrictMode>
 );
 
-// Registrar service worker para funcionalidad offline
+// Register service worker for offline functionality
 serviceWorkerRegistration.register();
 
 reportWebVitals();

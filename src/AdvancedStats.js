@@ -44,8 +44,8 @@ function AdvancedStats({ stats, dailyStats }) {
               <YAxis stroke="rgba(255,255,255,0.7)" />
               <Tooltip contentStyle={{ background: 'rgba(35, 39, 47, 0.9)', border: 'none', borderRadius: '8px', color: '#fff' }} />
               <Legend />
-              <Bar dataKey="cycles" fill="#61dafb" name="Ciclos" />
-              <Bar dataKey="workMin" fill="#4caf50" name="Min. Trabajo" />
+              <Bar dataKey="cycles" fill="#61dafb" name="Cycles" />
+              <Bar dataKey="workMin" fill="#4caf50" name="Work Min." />
             </BarChart>
           </ResponsiveContainer>
 
@@ -56,7 +56,7 @@ function AdvancedStats({ stats, dailyStats }) {
               <YAxis stroke="rgba(255,255,255,0.7)" />
               <Tooltip contentStyle={{ background: 'rgba(35, 39, 47, 0.9)', border: 'none', borderRadius: '8px', color: '#fff' }} />
               <Legend />
-              <Line type="monotone" dataKey="cycles" stroke="#61dafb" name="Ciclos acumulados" />
+              <Line type="monotone" dataKey="cycles" stroke="#61dafb" name="Accumulated cycles" />
             </LineChart>
           </ResponsiveContainer>
         </div>

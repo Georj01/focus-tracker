@@ -25,7 +25,7 @@ function TaskList({ tasks, onRemove, onEdit, onToggleComplete }) {
   return (
     <ul className="task-list">
       {tasks.map((task) => (
-        /* CORRECCIÓN: Usamos task.id en lugar de idx */
+        /* FIX: Using task.id instead of idx */
         <li key={task.id} className="task-item" style={{ textDecoration: task.completed ? "line-through" : "none" }}>
           {editId === task.id ? (
             <div style={{ display: 'flex', gap: '8px' }}>
