@@ -1,30 +1,32 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { useTranslation } from 'react-i18next';
 
 function Stats({ stats, onReset }) {
+  const { t } = useTranslation();
   const { totalWork, totalBreak, totalCycles } = stats;
 
   if (totalWork + totalBreak === 0) {
     return (
       <div className="stats" style={{ opacity: 0.6, textAlign: 'center', padding: '2rem 1rem' }}>
-        No hay datos de sesión todavía
+        {t('labels.noSessionData')}
       </div>
     );
   }
 
   const data = [
-    { name: "Trabajo", value: Math.round(totalWork) },
-    { name: "Descanso", value: Math.round(totalBreak) }
+    { name: t('modes.work'), value: Math.round(totalWork) },
+    { name: t('labels.break'), value: Math.round(totalBreak) }
   ];
 
   const COLORS = ['#4CAF50', '#2196F3'];
 
   return (
     <div className="stats">
-      <h4>📊 Estadísticas</h4>
+      <h4>{t('labels.statistics')}</h4>
       
       <div style={{ textAlign: 'center', margin: '0.5rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
-        Ciclos completados: <strong>{totalCycles}</strong>
+        {t('labels.completedCycles')} <strong>{totalCycles}</strong>
       </div>
 
       <div style={{ width: '100%', height: 300 }}>
@@ -58,10 +60,10 @@ function Stats({ stats, onReset }) {
         <button 
           className="reset-stats-btn"
           onClick={onReset}
-          aria-label="Reiniciar estadísticas"
+          aria-label={t('buttons.resetStats')}
           style={{ display: 'block', margin: '1rem auto 0' }}
         >
-          Reiniciar estadísticas
+          {t('buttons.resetStats')}
         </button>
       )}
     </div>

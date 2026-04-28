@@ -84,6 +84,7 @@ function Pomodoro() {
     }
 
     return () => cancelAnimationFrame(animationFrameId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning]); // Dependency on timeLeft removed to prevent unnecessary re-renders
 
   // Reset time when manually switching modes
@@ -97,7 +98,7 @@ function Pomodoro() {
     if (audioRef.current) audioRef.current.play().catch(e => console.log("Audio playback error", e));
     
     if ("Notification" in window && Notification.permission === "granted") {
-      new Notification(mode === "work" ? t('timeToRest') : t('timeToWork'));
+      new Notification(mode === "work" ? t('notifications.workFinished') : t('notifications.breakFinished'));
     }
 
     setStats(prev => ({
@@ -185,7 +186,7 @@ function Pomodoro() {
         className="lang-toggle" 
         onClick={() => i18n.changeLanguage((i18n.language || 'es').startsWith('es') ? 'en' : 'es')}
         style={{ position: 'absolute', top: '20px', right: '130px', background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', gap: '4px', color: darkMode ? '#fff' : '#000' }}
-        title={t('changeLanguage')}
+        title={t('labels.changeLanguage')}
       >
         🌐 <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{(i18n.language || 'es').startsWith('es') ? 'ES' : 'EN'}</span>
       </button>
@@ -193,7 +194,7 @@ function Pomodoro() {
         className="focus-mode-toggle" 
         onClick={() => setFocusMode(!focusMode)}
         style={{ position: 'absolute', top: '20px', right: '75px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', zIndex: 10 }}
-        title={t('focusMode')}
+        title={t('labels.focusMode')}
       >
         🎯
       </button>
@@ -202,7 +203,7 @@ function Pomodoro() {
       </button>
 
       <h2>
-        {mode === "work" ? t('work') : mode === "shortBreak" ? t('shortBreak') : t('longBreak')}
+        {mode === "work" ? t('modes.work') : mode === "shortBreak" ? t('modes.shortBreak') : t('modes.longBreak')}
       </h2>
 
       <div className="timer-display">
@@ -211,29 +212,29 @@ function Pomodoro() {
 
       <div className="controls">
         {!isRunning ? (
-          <button className="control-btn" onClick={handleStart}>{t('start')}</button>
+          <button className="control-btn" onClick={handleStart}>{t('buttons.start')}</button>
         ) : (
-          <button className="control-btn" onClick={handlePause}>{t('pause')}</button>
+          <button className="control-btn" onClick={handlePause}>{t('buttons.pause')}</button>
         )}
-        <button className="control-btn" onClick={handleReset}>{t('reset')}</button>
+        <button className="control-btn" onClick={handleReset}>{t('buttons.reset')}</button>
       </div>
 
       {!focusMode && <Stats stats={stats} />}
 
       {!focusMode && (
         <div className="settings">
-          <h4>{t('timesMinutes')}</h4>
+          <h4>{t('labels.customTimes')}</h4>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <label>
-              {t('work')}:
+              {t('modes.work')}:
               <input type="number" name="work" min="1" value={Math.floor(customTimes.work / 60)} onChange={handleTimeChange} />
             </label>
             <label>
-              {t('shortBreak')}:
+              {t('modes.shortBreak')}:
               <input type="number" name="shortBreak" min="1" value={Math.floor(customTimes.shortBreak / 60)} onChange={handleTimeChange} />
             </label>
             <label>
-              {t('longBreak')}:
+              {t('modes.longBreak')}:
               <input type="number" name="longBreak" min="1" value={Math.floor(customTimes.longBreak / 60)} onChange={handleTimeChange} />
             </label>
           </div>
@@ -242,14 +243,14 @@ function Pomodoro() {
 
       {!focusMode && (
         <div className="task-list">
-          <h4>{t('tasks')}</h4>
+          <h4>{t('labels.tasks')}</h4>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
             <input
               type="text"
               value={taskInput}
               onChange={(e) => setTaskInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
-              placeholder={t('addTaskPlaceholder')}
+              placeholder={t('labels.addTask')}
               style={{ flex: 1, padding: '8px' }}
             />
             <button className="control-btn" onClick={handleAddTask}>+</button>

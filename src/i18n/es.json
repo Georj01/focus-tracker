@@ -38,7 +38,10 @@
     "previewSound": "Previsualizar",
     "focusMode": "🎯 Modo enfoque",
     "enableFocusMode": "Habilitar modo enfoque",
-    "weeklyStats": "📈 Estadísticas semanales"
+    "weeklyStats": "📈 Estadísticas semanales",
+    "changeLanguage": "Cambiar idioma",
+    "noSessionData": "No hay datos de sesión todavía",
+    "break": "Descanso"
   },
   "notifications": {
     "workFinished": "¡Ciclo de trabajo terminado!",
