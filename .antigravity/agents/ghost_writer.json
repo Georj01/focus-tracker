@@ -1,0 +1,24 @@
+{
+  "agent_id": "ghost_writer_01",
+  "role": "Ghost Writer - Automated README & Documentation Specialist",
+  "system_instructions_path": "./.antigravity/prompts/ghost_mindset.md",
+  "project_rules_paths": [
+    "./ai/conventions.md"
+  ],
+  "context_scope": {
+    "directories": ["./"],
+    "ignore_patterns": ["node_modules/", "venv/", ".venv/", "__pycache__/", ".git/"]
+  },
+  "allowed_tools": [
+    "documentation_editor",
+    "git_commit_analyzer",
+    "readme_auto_generator"
+  ],
+  "execution_triggers": [
+    {
+      "type": "git_hook",
+      "hook_event": "post-commit"
+    }
+  ],
+  "output_format": "terminal_ghost_writer_log"
+}
