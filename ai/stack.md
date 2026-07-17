@@ -1,21 +1,19 @@
 # SYSTEM INSTRUCTIONS: TECHNICAL STACK
 
-> **[TEMPLATE WARNING - FOR THE DEVELOPER]**
-> Update this file for EVERY new project. The AI will strictly use these technologies and versions. Do not leave this blank or the AI will hallucinate outdated libraries.
-
 ## 1. CORE TECHNOLOGIES
-- **Language:** [e.g., Python 3.12, TypeScript 5.4]
-- **Framework:** [e.g., Next.js 14 (App Router), FastAPI 0.110]
-- **Runtime/Environment:** [e.g., Node 20.x, Bun, Browser only]
+- **Language:** HTML5, CSS3, ES6+ Vanilla JavaScript (100% native).
+- **Framework:** None. Pure DOM and HTML5 Canvas API.
+- **Runtime/Environment:** Modern Web Browsers only.
 
-## 2. FRONTEND & STYLING (If applicable)
-- **Styling:** [e.g., TailwindCSS 3.4, native CSS, None]
-- **UI Components:** [e.g., shadcn/ui, Radix, None (build from scratch)]
+## 2. FRONTEND & STYLING
+- **Styling:** Custom Vanilla CSS.
+- **UI Components:** Built from scratch on canvas and DOM (no third-party UI libraries).
 
-## 3. BACKEND & DATABASE (If applicable)
-- **Database:** [e.g., PostgreSQL 16, SQLite]
-- **ORM / Query Builder:** [e.g., Prisma, Drizzle, SQLAlchemy]
+## 3. BACKEND & DATABASE
+- **Database:** None. Memory-only central state.
+- **ORM / Query Builder:** None.
 
 ## 4. STRICT CONSTRAINTS
-- Do NOT use any technology, framework, or library not explicitly listed above without my direct authorization.
-- Favor native language features over third-party packages whenever possible to maintain minimalism.
+- Do NOT use React, Phaser, Unity, or any npm package dependencies at this stage.
+- Favor native browser features and Canvas rendering methods to maintain absolute minimalism.
+- Prevent external HTTP requests or unverified scripts.

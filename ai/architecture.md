@@ -1,26 +1,18 @@
 # SYSTEM INSTRUCTIONS: ARCHITECTURE & SYSTEM DESIGN
 
-> **[TEMPLATE WARNING - FOR THE DEVELOPER]**
-> Update this file for EVERY new project. Define the structural logic here so the AI doesn't hallucinate or mix design patterns. Remove these bracketed notes when starting a new project.
-
 ## 1. HIGH-LEVEL ARCHITECTURE
-- **Core Pattern:** [e.g., Client-Server SPA, Hexagonal Architecture, MVC, Serverless, Simple CLI script]
-- **Infrastructure:** [e.g., Deployed on Vercel, Dockerized backend, Local execution only]
+- **Core Pattern:** Single-page Canvas Game Loop with a decoupled state architecture.
+- **Infrastructure:** Client-side static browser execution.
 
 ## 2. DATA FLOW & STATE MANAGEMENT
-- **Source of Truth:** [e.g., PostgreSQL database via Supabase, Local JSON file, Memory-only]
-- **State Strategy:** [e.g., React Context for global state, Zustand, no global state needed]
-- **Data Fetching:** [e.g., Server Components only, SWR/React Query, native fetch]
-- **Strict Rule:** The UI layer MUST NOT mutate data directly. All mutations must pass through [e.g., designated services, controllers, or server actions].
+- **Source of Truth:** Centralized `gameState` object containing players (coordinates, states, visual characteristics).
+- **State Strategy:** Single-directional data flow. The input handlers capture key press events, the `update()` loop mutates the state, and the `draw()` loop reads directly from `gameState` to draw frames.
+- **Strict Rule:** The UI rendering layer MUST NOT mutate position data or trigger side-effects directly. All coordinate updates are centralized in the `update()` tick.
 
 ## 3. COMMUNICATION & API DESIGN
-- **Protocol:** [e.g., RESTful, GraphQL, tRPC, None (internal script)]
-- **Data Payload:** [e.g., Always return standard JSON objects with `{ data, error }` structure].
+- **Protocol:** None (local-first fake-backend architecture). State maps emulate network synchronization models (e.g. keyed by player IDs).
 
 ## 4. ERROR HANDLING STRATEGY
-- **Global Strategy:** [e.g., Use Error Boundaries in the frontend, global exception middleware in the backend].
-- **Failing Gracefully:** The application must NEVER crash completely for the user. Catch exceptions at the boundaries, log the error quietly, and display a fallback UI or clear terminal message.
-
-## 5. SECURITY & AUTHENTICATION
-- **Auth Flow:** [e.g., JWT stored in HTTP-only cookies, OAuth2 via Google, None required].
-- **Boundaries:** [e.g., All API routes must verify user session before executing any logic].
+- **Global Strategy:** Validate all state keys before accessing players to prevent crashes from missing IDs.
+- **Failing Gracefully:** Clamp coordinate movements to canvas limits to prevent players from moving off-screen or triggering arithmetic errors.
+- **Math Safety:** Prevent division-by-zero during diagonal movement normalization by verifying vector lengths are greater than zero before dividing.
