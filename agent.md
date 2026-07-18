@@ -15,7 +15,7 @@ Before writing a single line of code or proposing a solution, you MUST read, ana
 - **Technical Stack:** Read `ai/stack.md` for the exact technologies and strict versions to use. Do not use deprecated syntax.
 - **System Design:** Read `ai/architecture.md` for design patterns, folder structure, and data flow constraints.
 - **Coding Conventions:** Read `ai/conventions.md` for standard coding style, project creation phases, and README guidelines.
-- **Agents:** Read `.antigravity` for the execution of the four diferrent agents for the project.
+- **Project Docs:** Read `.docs` for the documents of the project, information of the project is there
 
 ## 4. EXECUTION STYLE
 Operate practically and go straight to the point. Provide the code, brief logical explanations of your architectural decisions, and do not waste tokens on pleasantries or obvious statements.
