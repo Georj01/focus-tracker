@@ -36,7 +36,7 @@ canvas {
 }
 
 /* Main Menu Glassmorphic Card */
-#main-menu {
+#main-menu, #mode-menu, #solo-config-menu {
     pointer-events: auto; /* Capture pointers inside the menu box */
     background-color: rgba(15, 23, 42, 0.95);
     border: 2px solid #334155;
@@ -108,4 +108,81 @@ canvas {
 
 .menu-link:hover {
     color: #60a5fa;
+}
+
+/* Visibility toggling utility */
+.hidden {
+    display: none !important;
+}
+
+/* Config form layout */
+.config-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.form-group {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.form-group label {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    text-align: left;
+}
+
+.form-group input, .form-group select {
+    width: 110px;
+    padding: 0.4rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    color: #e2e8f0;
+    background-color: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 4px;
+    outline: none;
+    text-align: center;
+}
+
+.form-group input:focus, .form-group select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+}
+
+/* Button variants */
+.secondary-btn {
+    background-color: #334155;
+    border-color: #475569;
+}
+
+.secondary-btn:hover {
+    background-color: #475569;
+    border-color: #64748b;
+    box-shadow: 0 0 8px rgba(100, 116, 139, 0.3);
+}
+
+.primary-btn {
+    background-color: #2563eb;
+    border-color: #3b82f6;
+}
+
+.primary-btn:hover {
+    background-color: #3b82f6;
+    border-color: #60a5fa;
+}
+
+.menu-btn:disabled {
+    background-color: #0f172a;
+    border-color: #1e293b;
+    color: #475569;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
 }

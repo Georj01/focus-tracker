@@ -10,6 +10,7 @@
     <canvas id="gameCanvas"></canvas>
 
     <div id="ui-layer">
+        <!-- 1. Main Menu -->
         <div id="main-menu">
             <h1 class="menu-title">Pomodoro World</h1>
             <nav class="menu-buttons">
@@ -18,6 +19,51 @@
                 <button id="btn-settings" class="menu-btn">Settings</button>
                 <a href="https://github.com/Georj01/focus-tracker" target="_blank" rel="noopener noreferrer" class="menu-link">About the project</a>
             </nav>
+        </div>
+
+        <!-- 2. Mode Selection Menu -->
+        <div id="mode-menu" class="hidden">
+            <h1 class="menu-title">Select Mode</h1>
+            <nav class="menu-buttons">
+                <button id="btn-solo" class="menu-btn">Solo Play</button>
+                <button id="btn-multiplayer" class="menu-btn" disabled>Multiplayer (Soon)</button>
+                <button id="btn-mode-back" class="menu-btn secondary-btn">Back</button>
+            </nav>
+        </div>
+
+        <!-- 3. Solo Configuration Settings Menu -->
+        <div id="solo-config-menu" class="hidden">
+            <h1 class="menu-title">Solo Settings</h1>
+            <div class="config-form">
+                <div class="form-group">
+                    <label for="focus-time">Focus Duration (min):</label>
+                    <input type="number" id="focus-time" value="25" min="1" max="180">
+                </div>
+                <div class="form-group">
+                    <label for="break-time">Break Duration (min):</label>
+                    <input type="number" id="break-time" value="5" min="1" max="60">
+                </div>
+                <div class="form-group">
+                    <label for="cycles">Session Cycles:</label>
+                    <input type="number" id="cycles" value="4" min="1" max="12">
+                </div>
+                <div class="form-group">
+                    <label for="map-select">Select Map:</label>
+                    <select id="map-select">
+                        <option value="cafeteria">Virtual Cafeteria</option>
+                        <option value="library">Quiet Library</option>
+                        <option value="garden">Zen Garden</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="npc-count">NPC Count:</label>
+                    <input type="number" id="npc-count" value="5" min="0" max="20">
+                </div>
+                <nav class="menu-buttons" style="margin-top: 1.5rem;">
+                    <button id="btn-start-game" class="menu-btn primary-btn">Start Game</button>
+                    <button id="btn-config-back" class="menu-btn secondary-btn">Back</button>
+                </nav>
+            </div>
         </div>
     </div>
 
