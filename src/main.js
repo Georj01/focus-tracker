@@ -1,14 +1,28 @@
 import { keys }   from './engine/input.js';
 import { Camera } from './engine/camera.js';
 
-const canvas        = document.getElementById('gameCanvas');
-const ctx           = canvas.getContext('2d');
-const CANVAS_WIDTH  = 800;
-const CANVAS_HEIGHT = 600;
-canvas.width        = CANVAS_WIDTH;
-canvas.height       = CANVAS_HEIGHT;
+const canvas = document.getElementById('gameCanvas');
+const ctx    = canvas.getContext('2d');
 
-const camera        = new Camera(CANVAS_WIDTH, CANVAS_HEIGHT);
+// Initialize camera viewport tracking using dynamic boundaries
+const camera = new Camera(window.innerWidth, window.innerHeight);
+
+// Implement responsive full-screen canvas sizing
+function resizeCanvas() {
+    if (canvas) {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        if (camera) {
+            camera.viewportWidth  = canvas.width;
+            camera.viewportHeight = canvas.height;
+        }
+    }
+}
+
+// Call on startup to establish correct resolution bounds
+resizeCanvas();
+
+window.addEventListener('resize', resizeCanvas);
 
 const DEFAULT_CONFIG = {
     focusTime: 25,
@@ -48,9 +62,11 @@ function initGameWorld() {
 
     // Populate custom configuration defined NPC entities
     for (let i = 1; i <= currentConfig.npcCount; i++) {
-        const id = `npc_${i}`;
-        const x  = 150 + (i * 100) % (CANVAS_WIDTH - 200);
-        const y  = 150 + (i * 80) % (CANVAS_HEIGHT - 200);
+        const id   = `npc_${i}`;
+        const xDiv = Math.max(1, canvas.width - 200);
+        const yDiv = Math.max(1, canvas.height - 200);
+        const x    = 150 + (i * 100) % xDiv;
+        const y    = 150 + (i * 80) % yDiv;
         gameState.players[id] = {
             id:     id,
             x:      x,
@@ -86,8 +102,9 @@ function update(deltaTime) {
     player.x    += dx * SPEED * deltaTime;
     player.y    += dy * SPEED * deltaTime;
     
-    player.x     = Math.max(0, Math.min(CANVAS_WIDTH - player.width, player.x));
-    player.y     = Math.max(0, Math.min(CANVAS_HEIGHT - player.height, player.y));
+    // Contain player within dynamic canvas dimensions
+    player.x     = Math.max(0, Math.min(canvas.width - player.width, player.x));
+    player.y     = Math.max(0, Math.min(canvas.height - player.height, player.y));
     player.state = (dx !== 0 || dy !== 0) ? 'WALKING' : 'IDLE';
     
     camera.update(player.x, player.y, player.width, player.height);
@@ -145,7 +162,7 @@ function drawPomodoro() {
     const timeStr      = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     const hudW         = 220;
     const hudH         = 65;
-    const hudX         = (CANVAS_WIDTH - hudW) * 0.5;
+    const hudX         = (canvas.width - hudW) * 0.5;
     const hudY         = 20;
     
     ctx.fillStyle      = '#1e293b';
@@ -157,11 +174,11 @@ function drawPomodoro() {
     ctx.fillStyle      = timer.mode === 'WORK' ? '#f43f5e' : '#10b981';
     ctx.font           = 'bold 11px Courier New';
     ctx.textAlign      = 'center';
-    ctx.fillText(timer.mode === 'WORK' ? 'STUDY / WORK SESSION' : 'SHORT REST BREAK', CANVAS_WIDTH * 0.5, hudY + 22);
+    ctx.fillText(timer.mode === 'WORK' ? 'STUDY / WORK SESSION' : 'SHORT REST BREAK', canvas.width * 0.5, hudY + 22);
     
     ctx.fillStyle      = '#ffffff';
     ctx.font           = 'bold 24px Courier New';
-    ctx.fillText(timeStr, CANVAS_WIDTH * 0.5, hudY + 48);
+    ctx.fillText(timeStr, canvas.width * 0.5, hudY + 48);
     
     const maxSeconds   = timer.mode === 'WORK' ? currentConfig.focusTime * 60 : currentConfig.breakTime * 60;
     const progress     = timer.timerSeconds / maxSeconds;
@@ -308,6 +325,9 @@ if (startGameBtn) {
         // Hide overlay and log parameters
         if (uiLayer) uiLayer.classList.add('hidden');
         console.log('Game config initialized:', gameConfig);
+
+        // Reset game loop time baseline to prevent menu-lag teleportation jumps
+        lastTime = performance.now();
 
         // Kickstart the game rendering loop if not already running
         if (!gameLoopStarted) {
