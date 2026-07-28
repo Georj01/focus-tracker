@@ -35,46 +35,47 @@ canvas {
     align-items: center;
 }
 
-/* Main Menu Glassmorphic Card */
-#main-menu, #mode-menu, #solo-config-menu {
+/* Glassmorphic Card Panels */
+#main-menu, #mode-menu, #solo-config-menu, #custom-menu {
     pointer-events: auto; /* Capture pointers inside the menu box */
     background-color: rgba(15, 23, 42, 0.95);
     border: 2px solid #334155;
     border-radius: 12px;
-    padding: 2.5rem;
-    width: 380px;
+    padding: 2.2rem 2rem;
+    width: 400px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 10px 10px -5px rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.8), 0 10px 10px -5px rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
 }
 
 /* Menu Typography */
 .menu-title {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 2.2rem;
+    font-size: 1.8rem;
     font-weight: bold;
     color: #f8fafc;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
     letter-spacing: 1px;
+    text-align: center;
 }
 
 .menu-buttons {
     display: flex;
     flex-direction: column;
     width: 100%;
-    gap: 1rem;
+    gap: 0.8rem;
     align-items: center;
 }
 
 /* Interactive Menu Buttons */
 .menu-btn {
     width: 100%;
-    padding: 0.8rem;
+    padding: 0.75rem;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: bold;
     color: #e2e8f0;
     background-color: #1e293b;
@@ -98,9 +99,9 @@ canvas {
 
 /* Redirection Link */
 .menu-link {
-    margin-top: 1.5rem;
+    margin-top: 1.2rem;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #94a3b8;
     text-decoration: none;
     transition: color 0.2s ease;
@@ -120,7 +121,7 @@ canvas {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.75rem;
 }
 
 .form-group {
@@ -128,21 +129,21 @@ canvas {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
+    gap: 0.8rem;
 }
 
 .form-group label {
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.85rem;
-    color: #94a3b8;
+    color: #cbd5e1;
     text-align: left;
 }
 
 .form-group input, .form-group select {
-    width: 110px;
-    padding: 0.4rem;
+    width: 130px;
+    padding: 0.45rem;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #e2e8f0;
     background-color: #1e293b;
     border: 1px solid #475569;
@@ -185,4 +186,26 @@ canvas {
     cursor: not-allowed;
     transform: none !important;
     box-shadow: none !important;
+}
+
+/* ESC Key Pause Hint Badge */
+#esc-hint {
+    position: absolute;
+    bottom: 16px;
+    right: 20px;
+    z-index: 20;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    background-color: rgba(15, 23, 42, 0.85);
+    border: 1px solid #334155;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    pointer-events: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+}
+
+#esc-hint span {
+    color: #60a5fa;
+    font-weight: bold;
 }

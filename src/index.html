@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Canvas Multiplayer Game</title>
+    <title>Pomodoro World 2D</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,9 +14,9 @@
         <div id="main-menu">
             <h1 class="menu-title">Pomodoro World</h1>
             <nav class="menu-buttons">
-                <button id="btn-play" class="menu-btn">Play</button>
+                <button id="btn-play" class="menu-btn primary-btn">Play Game</button>
                 <button id="btn-custom" class="menu-btn">User Customization</button>
-                <button id="btn-settings" class="menu-btn">Settings</button>
+                <button id="btn-settings" class="menu-btn">Solo Settings</button>
                 <a href="https://github.com/Georj01/focus-tracker" target="_blank" rel="noopener noreferrer" class="menu-link">About the project</a>
             </nav>
         </div>
@@ -25,7 +25,7 @@
         <div id="mode-menu" class="hidden">
             <h1 class="menu-title">Select Mode</h1>
             <nav class="menu-buttons">
-                <button id="btn-solo" class="menu-btn">Solo Play</button>
+                <button id="btn-solo" class="menu-btn primary-btn">Solo Play</button>
                 <button id="btn-multiplayer" class="menu-btn" disabled>Multiplayer (Soon)</button>
                 <button id="btn-mode-back" class="menu-btn secondary-btn">Back</button>
             </nav>
@@ -59,13 +59,41 @@
                     <label for="npc-count">NPC Count:</label>
                     <input type="number" id="npc-count" value="5" min="0" max="20">
                 </div>
-                <nav class="menu-buttons" style="margin-top: 1.5rem;">
+                <nav class="menu-buttons" style="margin-top: 1.2rem;">
                     <button id="btn-start-game" class="menu-btn primary-btn">Start Game</button>
                     <button id="btn-config-back" class="menu-btn secondary-btn">Back</button>
                 </nav>
             </div>
         </div>
+
+        <!-- 4. User Customization Menu -->
+        <div id="custom-menu" class="hidden">
+            <h1 class="menu-title">Character Customization</h1>
+            <div class="config-form">
+                <div class="form-group">
+                    <label for="player-name">Player Name Tag:</label>
+                    <input type="text" id="player-name" value="my_id" maxlength="12">
+                </div>
+                <div class="form-group">
+                    <label for="player-color">Avatar Color:</label>
+                    <select id="player-color">
+                        <option value="#3b82f6">Sapphire Blue</option>
+                        <option value="#8b5cf6">Vivid Purple</option>
+                        <option value="#ec4899">Rose Pink</option>
+                        <option value="#f59e0b">Amber Gold</option>
+                        <option value="#10b981">Emerald Green</option>
+                    </select>
+                </div>
+                <nav class="menu-buttons" style="margin-top: 1.2rem;">
+                    <button id="btn-save-custom" class="menu-btn primary-btn">Save Avatar</button>
+                    <button id="btn-custom-back" class="menu-btn secondary-btn">Back</button>
+                </nav>
+            </div>
+        </div>
     </div>
+
+    <!-- ESC Key Pause Hint Badge -->
+    <div id="esc-hint" class="hidden">Press <span>[ESC]</span> for Menu / Pause</div>
 
     <script type="module" src="./main.js"></script>
 </body>
