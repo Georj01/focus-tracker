@@ -1,6 +1,6 @@
 import { keys } from './engine/input.js';
 import { Camera } from './engine/camera.js';
-import { assets } from './engine/assets.js';
+import { SPRITES, drawPixelSprite } from './engine/sprites.js';
 import { renderScenarioFloor, renderScenarioEnvironment, scenarioConfigs } from './engine/scenarios.js';
 
 const canvas = document.getElementById('gameCanvas');
@@ -141,10 +141,12 @@ function update(deltaTime) {
     
     camera.update(player.x, player.y, player.width, player.height);
     
-    const timer  = gameState.pomodoro;
-    if (timer.isActive && (timer.timerSeconds -= deltaTime) <= 0) {
-        timer.mode         = timer.mode === 'WORK' ? 'BREAK' : 'WORK';
-        timer.timerSeconds = timer.mode === 'WORK' ? currentConfig.focusTime * 60 : currentConfig.breakTime * 60;
+    if (!isMenuOpen) {
+        const timer  = gameState.pomodoro;
+        if (timer.isActive && (timer.timerSeconds -= deltaTime) <= 0) {
+            timer.mode         = timer.mode === 'WORK' ? 'BREAK' : 'WORK';
+            timer.timerSeconds = timer.mode === 'WORK' ? currentConfig.focusTime * 60 : currentConfig.breakTime * 60;
+        }
     }
 }
 
@@ -179,47 +181,18 @@ function drawCharacterSprite(ctx, p) {
     ctx.ellipse(p.x + p.width * 0.5, p.y + p.height - 2, p.width * 0.4, 6, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Use loaded pixel art image asset if available
-    const imgAsset = isPlayer ? assets.player : assets.npc;
-
-    if (imgAsset) {
-        ctx.save();
-        // Rounded circular sprite clipping for pixel avatar
-        ctx.beginPath();
-        ctx.arc(p.x + p.width * 0.5, p.y + p.height * 0.5, p.width * 0.48, 0, Math.PI * 2);
-        ctx.clip();
-        
-        ctx.drawImage(imgAsset, p.x, p.y, p.width, p.height);
-        ctx.restore();
-
-        // Border ring
-        ctx.strokeStyle = isPlayer ? (currentConfig.playerColor || '#3b82f6') : '#10b981';
-        ctx.lineWidth   = 2;
-        ctx.beginPath();
-        ctx.arc(p.x + p.width * 0.5, p.y + p.height * 0.5, p.width * 0.48, 0, Math.PI * 2);
-        ctx.stroke();
-    } else {
-        // Procedural pixel art character avatar fallback
-        ctx.fillStyle   = isPlayer ? (currentConfig.playerColor || p.color) : p.color;
-        ctx.fillRect(p.x, p.y, p.width, p.height);
-        
-        // Character face & eyes
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(p.x + 8, p.y + 10, 5, 5);
-        ctx.fillRect(p.x + p.width - 13, p.y + 10, 5, 5);
-        
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(p.x + 10, p.y + 12, 2, 2);
-        ctx.fillRect(p.x + p.width - 11, p.y + 12, 2, 2);
-
-        // Headphones for player
-        if (isPlayer) {
-            ctx.fillStyle = '#f43f5e';
-            ctx.fillRect(p.x + 2, p.y + 8, 4, 10);
-            ctx.fillRect(p.x + p.width - 6, p.y + 8, 4, 10);
-            ctx.fillRect(p.x + 4, p.y + 4, p.width - 8, 3);
-        }
+    // Pixel Art Sprite Animation
+    let frame = SPRITES.CHAR_IDLE;
+    if (p.state === 'WALKING') {
+        const time = performance.now();
+        // Toggle walk frames every 200ms
+        frame = (Math.floor(time / 200) % 2 === 0) ? SPRITES.CHAR_WALK_1 : SPRITES.CHAR_WALK_2;
     }
+
+    const mainColor = isPlayer ? (currentConfig.playerColor || '#3b82f6') : '#10b981';
+    const accentColor = isPlayer ? '#f43f5e' : '#34d399';
+
+    drawPixelSprite(ctx, frame, p.x, p.y, p.width, p.height, mainColor, accentColor);
 
     // Character status label badge
     const labelText = `${p.id} (${p.state})`;
@@ -299,7 +272,12 @@ const mainMenuPanel    = document.getElementById('main-menu');
 const modeMenuPanel    = document.getElementById('mode-menu');
 const configMenuPanel  = document.getElementById('solo-config-menu');
 const customMenuPanel  = document.getElementById('custom-menu');
+const pauseMenuPanel   = document.getElementById('pause-menu');
 const escHint          = document.getElementById('esc-hint');
+
+const resumeBtn        = document.getElementById('btn-resume');
+const pauseSettingsBtn = document.getElementById('btn-pause-settings');
+const exitMainBtn      = document.getElementById('btn-exit-main');
 
 const focusInput       = document.getElementById('focus-time');
 const breakInput       = document.getElementById('break-time');
@@ -309,13 +287,14 @@ const npcInput         = document.getElementById('npc-count');
 const playerNameInput  = document.getElementById('player-name');
 const playerColorSelect = document.getElementById('player-color');
 
-// Menu Panel Router Helper ('main', 'mode', 'config', 'custom', 'none')
+// Menu Panel Router Helper ('main', 'mode', 'config', 'custom', 'pause', 'none')
 function showPanel(target) {
     const panels = {
         'main':   mainMenuPanel,
         'mode':   modeMenuPanel,
         'config': configMenuPanel,
-        'custom': customMenuPanel
+        'custom': customMenuPanel,
+        'pause':  pauseMenuPanel
     };
 
     if (target === 'none') {
@@ -387,6 +366,8 @@ initGameWorld();
 // Immediately kickstart background rendering loop so the scenario is visible behind menu
 requestAnimationFrame(gameLoop);
 
+let lastMenuPanel = 'main';
+
 // UI Screen Navigation Event Listeners
 if (playBtn) {
     playBtn.addEventListener('click', () => {
@@ -402,18 +383,20 @@ if (modeBackBtn) {
 
 if (soloBtn) {
     soloBtn.addEventListener('click', () => {
+        lastMenuPanel = 'mode';
         showPanel('config');
     });
 }
 
 if (configBackBtn) {
     configBackBtn.addEventListener('click', () => {
-        showPanel('mode');
+        showPanel(lastMenuPanel);
     });
 }
 
 if (settingsBtn) {
     settingsBtn.addEventListener('click', () => {
+        lastMenuPanel = 'main';
         showPanel('config');
     });
 }
@@ -490,14 +473,39 @@ if (startGameBtn) {
     });
 }
 
+if (resumeBtn) {
+    resumeBtn.addEventListener('click', () => {
+        lastTime = performance.now();
+        showPanel('none');
+    });
+}
+
+if (pauseSettingsBtn) {
+    pauseSettingsBtn.addEventListener('click', () => {
+        lastMenuPanel = 'pause';
+        showPanel('config');
+    });
+}
+
+if (exitMainBtn) {
+    exitMainBtn.addEventListener('click', () => {
+        showPanel('main');
+    });
+}
+
 // ESC Key listener to toggle Pause / Menu during gameplay
 window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if (uiLayer) {
             if (uiLayer.classList.contains('hidden')) {
-                showPanel('config');
+                showPanel('pause');
             } else {
-                showPanel('none');
+                if (pauseMenuPanel && !pauseMenuPanel.classList.contains('hidden')) {
+                    lastTime = performance.now();
+                    showPanel('none');
+                } else if (configMenuPanel && !configMenuPanel.classList.contains('hidden') && lastMenuPanel === 'pause') {
+                    showPanel('pause');
+                }
             }
         }
     }

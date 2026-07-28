@@ -1,4 +1,4 @@
-import { assets } from './assets.js';
+import { SPRITES, drawPixelSprite } from './sprites.js';
 
 // Map scenario definitions
 export const scenarioConfigs = {
@@ -72,17 +72,6 @@ export const scenarioConfigs = {
 export function renderScenarioFloor(ctx, width, height, mapKey = 'cafeteria') {
     const config = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
     const tileSize = 60;
-
-    // Use loaded image texture if available for cafe
-    if (mapKey === 'cafeteria' && assets.floorCafe) {
-        const pattern = ctx.createPattern(assets.floorCafe, 'repeat');
-        if (pattern) {
-            ctx.fillStyle = pattern;
-            ctx.fillRect(0, 0, width, height);
-            return;
-        }
-    }
-
     // Procedural pixel art floor tiles fallback
     ctx.fillStyle = config.floorColor;
     ctx.fillRect(0, 0, width, height);
@@ -149,21 +138,7 @@ export function renderScenarioEnvironment(ctx, width, height, mapKey = 'cafeteri
         ctx.fillRect(d.x + 4, d.y + 4, d.w, d.h);
 
         // Desk body
-        if (assets.desk) {
-            ctx.drawImage(assets.desk, d.x, d.y, d.w, d.h);
-        } else {
-            ctx.fillStyle   = '#451a03';
-            ctx.fillRect(d.x, d.y, d.w, d.h);
-            ctx.strokeStyle = '#b45309';
-            ctx.lineWidth   = 2;
-            ctx.strokeRect(d.x, d.y, d.w, d.h);
-
-            // Laptop prop on desk
-            ctx.fillStyle = '#94a3b8';
-            ctx.fillRect(d.x + d.w * 0.3, d.y + d.h * 0.25, d.w * 0.4, d.h * 0.5);
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillRect(d.x + d.w * 0.33, d.y + d.h * 0.3, d.w * 0.34, d.h * 0.4); // Screen glow
-        }
+        drawPixelSprite(ctx, SPRITES.DESK, d.x, d.y, d.w, d.h, config.themeColor);
 
         // Desk Label
         ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
@@ -179,14 +154,6 @@ export function renderScenarioEnvironment(ctx, width, height, mapKey = 'cafeteri
         ctx.arc(p.x + 3, p.y + 3, p.r, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = '#065f46';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#10b981';
-        ctx.beginPath();
-        ctx.arc(p.x - p.r * 0.3, p.y - p.r * 0.3, p.r * 0.5, 0, Math.PI * 2);
-        ctx.fill();
+        drawPixelSprite(ctx, SPRITES.PLANT, p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
     });
 }
