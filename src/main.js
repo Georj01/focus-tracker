@@ -63,8 +63,8 @@ function initGameWorld() {
             id:     pId,
             x:      150,
             y:      150,
-            width:  36,
-            height: 36,
+            width:  32,
+            height: 40,
             color:  currentConfig.playerColor || '#3b82f6',
             state:  'IDLE'
         }
@@ -94,8 +94,8 @@ function initGameWorld() {
             id:     id,
             x:      x,
             y:      y,
-            width:  36,
-            height: 36,
+            width:  32,
+            height: 40,
             color:  '#10b981',
             state:  'STUDYING'
         };
