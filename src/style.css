@@ -29,25 +29,32 @@ canvas {
     width: 100vw;
     height: 100vh;
     z-index: 10;
-    pointer-events: none; /* Let background interactions pass through by default */
+    pointer-events: none;
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: background-color 0.2s ease;
 }
 
-/* Glassmorphic Card Panels */
-#main-menu, #mode-menu, #solo-config-menu, #custom-menu {
-    pointer-events: auto; /* Capture pointers inside the menu box */
-    background-color: rgba(15, 23, 42, 0.95);
-    border: 2px solid #334155;
+#ui-layer:not(.hidden) {
+    background-color: rgba(10, 15, 29, 0.65);
+    backdrop-filter: blur(4px);
+    pointer-events: auto;
+}
+
+/* EarthBound-Inspired Retro Card Panels */
+#main-menu, #mode-menu, #solo-config-menu, #custom-menu, #pause-menu {
+    pointer-events: auto;
+    background-color: rgba(15, 23, 42, 0.96);
+    border: 3px solid #334155;
     border-radius: 12px;
     padding: 2.2rem 2rem;
-    width: 400px;
+    width: 420px;
+    max-width: 90vw;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.8), 0 10px 10px -5px rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(96, 165, 250, 0.2);
 }
 
 /* Menu Typography */
