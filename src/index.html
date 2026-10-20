@@ -3,16 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro World 2D</title>
+    <title>Pomodoro World 2D — Virtual Focus Cafe</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
 
+    <!-- Top In-Game HUD Controls & Active Task Banner -->
+    <div id="hud-overlay" class="hidden">
+        <div id="hud-task-banner">
+            <span class="hud-tag">CURRENT FOCUS</span>
+            <span id="hud-task-text">Deep work session</span>
+        </div>
+        <div id="hud-actions">
+            <button id="btn-hud-play" class="hud-btn" title="Toggle Play / Pause [Space]">⏸ Pause</button>
+            <button id="btn-hud-skip" class="hud-btn" title="Skip Session [Tab]">⏭ Skip</button>
+            <button id="btn-hud-tasks" class="hud-btn" title="Toggle To-Do Tasks [T]">📋 Tasks (T)</button>
+            <button id="btn-hud-sound" class="hud-btn" title="Toggle Audio Mute [M]">🔊 Audio</button>
+        </div>
+    </div>
+
+    <!-- Collapsible EarthBound-Style Task Drawer -->
+    <div id="task-drawer" class="hidden">
+        <div class="drawer-header">
+            <h2 class="drawer-title">📋 Focus Tasks</h2>
+            <button id="btn-close-tasks" class="icon-btn" title="Close [T]">✕</button>
+        </div>
+        <form id="task-form">
+            <input type="text" id="task-input" placeholder="What are you focusing on?" maxlength="50" autocomplete="off">
+            <button type="submit" id="btn-add-task" class="primary-btn menu-btn" style="width: auto; padding: 0.5rem 1rem;">+ Add</button>
+        </form>
+        <div id="task-list" class="task-items-container">
+            <!-- Dynamic task items injected via JS -->
+        </div>
+        <div class="drawer-footer">
+            <small>Click task to pin as active focus • ✓ to complete</small>
+        </div>
+    </div>
+
+    <!-- UI Modal Layer -->
     <div id="ui-layer">
         <!-- 1. Main Menu -->
         <div id="main-menu">
             <h1 class="menu-title">Pomodoro World</h1>
+            <p class="menu-subtitle">Virtual Shared Study Space</p>
             <nav class="menu-buttons">
                 <button id="btn-play" class="menu-btn primary-btn">Play Game</button>
                 <button id="btn-custom" class="menu-btn">User Customization</button>
@@ -25,8 +59,8 @@
         <div id="mode-menu" class="hidden">
             <h1 class="menu-title">Select Mode</h1>
             <nav class="menu-buttons">
-                <button id="btn-solo" class="menu-btn primary-btn">Solo Play</button>
-                <button id="btn-multiplayer" class="menu-btn" disabled>Multiplayer (Soon)</button>
+                <button id="btn-solo" class="menu-btn primary-btn">Solo Study Space</button>
+                <button id="btn-multiplayer" class="menu-btn" disabled>Multiplayer (Coming Soon)</button>
                 <button id="btn-mode-back" class="menu-btn secondary-btn">Back</button>
             </nav>
         </div>
@@ -56,8 +90,20 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="npc-count">NPC Count:</label>
-                    <input type="number" id="npc-count" value="5" min="0" max="20">
+                    <label for="npc-count">NPC Study Buddies:</label>
+                    <input type="number" id="npc-count" value="5" min="0" max="14">
+                </div>
+                <div class="form-group">
+                    <label for="ambient-select">Ambient Sound:</label>
+                    <select id="ambient-select">
+                        <option value="off">Off (Quiet)</option>
+                        <option value="rain">Gentle Rain 🌧️</option>
+                        <option value="cafe">Cafe Ambiance ☕</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="volume-slider">Master Volume:</label>
+                    <input type="range" id="volume-slider" min="0" max="100" value="70">
                 </div>
                 <nav class="menu-buttons" style="margin-top: 1.2rem;">
                     <button id="btn-start-game" class="menu-btn primary-btn">Start Game</button>
@@ -75,7 +121,7 @@
                     <input type="text" id="player-name" value="Ness" maxlength="12">
                 </div>
                 <div class="form-group">
-                    <label for="player-color">Avatar Color:</label>
+                    <label for="player-color">Avatar Shirt Color:</label>
                     <select id="player-color">
                         <option value="#3b82f6">Ness Blue</option>
                         <option value="#ec4899">Paula Pink</option>
@@ -91,19 +137,48 @@
                 </nav>
             </div>
         </div>
+
         <!-- 5. Pause Menu -->
         <div id="pause-menu" class="hidden">
-            <h1 class="menu-title">Paused</h1>
+            <h1 class="menu-title">Game Paused</h1>
+            <!-- Daily Productivity Stats Card -->
+            <div class="stats-card">
+                <div class="stat-item">
+                    <span class="stat-val" id="stat-today-min">0</span>
+                    <span class="stat-lbl">Today's Min</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-val" id="stat-sessions">0</span>
+                    <span class="stat-lbl">Completed</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-val" id="stat-streak">0</span>
+                    <span class="stat-lbl">Day Streak 🔥</span>
+                </div>
+            </div>
             <nav class="menu-buttons">
                 <button id="btn-resume" class="menu-btn primary-btn">Resume</button>
+                <button id="btn-pause-tasks" class="menu-btn">Focus Tasks (T)</button>
                 <button id="btn-pause-settings" class="menu-btn">Settings</button>
                 <button id="btn-exit-main" class="menu-btn secondary-btn">Exit to Main Menu</button>
             </nav>
         </div>
     </div>
 
-    <!-- ESC Key Pause Hint Badge -->
-    <div id="esc-hint" class="hidden">Press <span>[ESC]</span> for Menu / Pause</div>
+    <!-- Bottom Keyboard Navigation Bar -->
+    <div id="controls-legend" class="hidden">
+        <span>[WASD / Arrows] Move</span>
+        <span>•</span>
+        <span>[E] Sit / Interact</span>
+        <span>•</span>
+        <span>[Space] Pause</span>
+        <span>•</span>
+        <span>[T] Tasks</span>
+        <span>•</span>
+        <span>[M] Mute</span>
+        <span>•</span>
+        <span>[ESC] Menu</span>
+    </div>
 
     <script type="module" src="./main.js"></script>
 </body>

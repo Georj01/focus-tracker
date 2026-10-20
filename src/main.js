@@ -8,18 +8,20 @@ import {
     getStudySeats,
     getObstacles
 } from './engine/scenarios.js';
+import { sound } from './engine/audio.js';
+import { taskManager } from './engine/tasks.js';
+import { statsTracker } from './engine/stats.js';
+import { dialogSystem } from './engine/dialog.js';
+import { interactionManager } from './engine/interactions.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx    = canvas.getContext('2d');
 
-// World size dimensions for all scenarios
 const WORLD_WIDTH  = 1200;
 const WORLD_HEIGHT = 800;
 
-// Initialize camera viewport tracking with boundary clamping
 const camera = new Camera(window.innerWidth, window.innerHeight);
 
-// Responsive canvas sizing
 function resizeCanvas() {
     if (canvas) {
         canvas.width  = window.innerWidth;
@@ -35,77 +37,6 @@ resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
 // ----------------------------------------------------------------------------
-// Retro Web Audio Sound Chimes (EarthBound / SNES 16-bit Style)
-// ----------------------------------------------------------------------------
-let audioCtx = null;
-function getAudioContext() {
-    if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) audioCtx = new AudioContextClass();
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
-    return audioCtx;
-}
-
-function playRetroChime(type) {
-    try {
-        const actx = getAudioContext();
-        if (!actx) return;
-
-        if (type === 'focus_start') {
-            // Bright cheerful 4-note arpeggio (C5 -> E5 -> G5 -> C6)
-            const notes = [523.25, 659.25, 783.99, 1046.50];
-            notes.forEach((freq, i) => {
-                const osc  = actx.createOscillator();
-                const gain = actx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq, actx.currentTime + i * 0.08);
-                gain.gain.setValueAtTime(0.12, actx.currentTime + i * 0.08);
-                gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + i * 0.08 + 0.22);
-                osc.connect(gain);
-                gain.connect(actx.destination);
-                osc.start(actx.currentTime + i * 0.08);
-                osc.stop(actx.currentTime + i * 0.08 + 0.24);
-            });
-        } else if (type === 'break_start') {
-            // Soothing gentle chord (E5 -> D5 -> B4 -> G4)
-            const notes = [659.25, 587.33, 493.88, 392.00];
-            notes.forEach((freq, i) => {
-                const osc  = actx.createOscillator();
-                const gain = actx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, actx.currentTime + i * 0.12);
-                gain.gain.setValueAtTime(0.14, actx.currentTime + i * 0.12);
-                gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + i * 0.12 + 0.35);
-                osc.connect(gain);
-                gain.connect(actx.destination);
-                osc.start(actx.currentTime + i * 0.12);
-                osc.stop(actx.currentTime + i * 0.12 + 0.38);
-            });
-        } else if (type === 'cycle_complete') {
-            // Triumphant 16-bit fanfare
-            const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
-            notes.forEach((freq, i) => {
-                const osc  = actx.createOscillator();
-                const gain = actx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(freq, actx.currentTime + i * 0.1);
-                gain.gain.setValueAtTime(0.08, actx.currentTime + i * 0.1);
-                gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + i * 0.1 + 0.3);
-                osc.connect(gain);
-                gain.connect(actx.destination);
-                osc.start(actx.currentTime + i * 0.1);
-                osc.stop(actx.currentTime + i * 0.1 + 0.32);
-            });
-        }
-    } catch (_) {
-        // Audio playback error fallback
-    }
-}
-
-// ----------------------------------------------------------------------------
 // Configurations & Global State
 // ----------------------------------------------------------------------------
 const DEFAULT_CONFIG = {
@@ -115,7 +46,9 @@ const DEFAULT_CONFIG = {
     map:         'cafeteria',
     npcCount:    5,
     playerName:  'Ness',
-    playerColor: '#3b82f6'
+    playerColor: '#3b82f6',
+    ambientType: 'off',
+    volume:      70
 };
 
 const currentConfig = { ...DEFAULT_CONFIG };
@@ -131,11 +64,14 @@ const gameState = {
     }
 };
 
-// Populate map entities and reset timers dynamically
+let gameStarted     = false;
+let nearbyInteract  = null;
+
+// Initialize map entities and study buddy NPCs
 function initGameWorld() {
     const pId = (currentConfig.playerName && currentConfig.playerName.trim()) || 'Ness';
 
-    // Spawn player near center of the room in open walking space
+    // Reset local player node
     gameState.players = {
         'my_id': {
             id:        pId,
@@ -149,10 +85,11 @@ function initGameWorld() {
         }
     };
 
-    // Obtain designated study seats for current scenario
+    interactionManager.currentSeat = null;
+
+    // Retrieve study seats for current scenario
     const seats = getStudySeats(currentConfig.map);
 
-    // Populate custom configuration defined NPC entities with non-overlapping seats
     const archetypes = ['NPC_SCHOLAR', 'NPC_GIRL', 'CHAR_SIT'];
     const npcColors  = ['#10b981', '#ec4899', '#f59e0b', '#8b5cf6', '#06b6d4'];
 
@@ -166,7 +103,6 @@ function initGameWorld() {
             y      = seat.y;
             facing = seat.facing || 'down';
         } else {
-            // Spillover seats around cafe perimeter without overlapping desks
             const col = (i - seats.length - 1) % 4;
             const row = Math.floor((i - seats.length - 1) / 4);
             x      = 280 + col * 180;
@@ -190,18 +126,17 @@ function initGameWorld() {
         };
     }
 
-    // Initialize timer parameters
+    // Reset Pomodoro timer
     const timer        = gameState.pomodoro;
     timer.mode         = 'WORK';
     timer.timerSeconds = currentConfig.focusTime * 60;
     timer.isActive     = true;
     timer.currentCycle = 1;
     timer.totalCycles  = currentConfig.cycles || 4;
+
+    updateHUDActiveTask();
 }
 
-// ----------------------------------------------------------------------------
-// Physics & AABB Collision System
-// ----------------------------------------------------------------------------
 function checkAABB(x, y, w, h, box) {
     return (
         x < box.x + box.w &&
@@ -211,92 +146,103 @@ function checkAABB(x, y, w, h, box) {
     );
 }
 
+// ----------------------------------------------------------------------------
+// Main Update & Physics Loop
+// ----------------------------------------------------------------------------
 function update(deltaTime) {
+    dialogSystem.update(deltaTime);
+
     const player = gameState.players['my_id'];
     if (!player) return;
 
-    // Lock character controls if menu overlay is currently visible
     const isMenuOpen = uiLayer && !uiLayer.classList.contains('hidden');
+    const npcs = Object.values(gameState.players).filter(p => p.id !== player.id);
+
+    // Track nearby interactive triggers (chairs, counter, books, NPCs)
+    if (!isMenuOpen) {
+        nearbyInteract = interactionManager.getNearbyInteraction(player, currentConfig.map, npcs);
+    } else {
+        nearbyInteract = null;
+    }
 
     let dx = 0;
     let dy = 0;
 
-    if (!isMenuOpen) {
+    // Movement allowed only when menu & dialogs are closed
+    if (!isMenuOpen && !dialogSystem.isOpen) {
         const SPEED = 160.0;
         const rawDx = (keys.d || keys.ArrowRight) - (keys.a || keys.ArrowLeft);
         const rawDy = (keys.s || keys.ArrowDown) - (keys.w || keys.ArrowUp);
 
-        // Normalize velocity vector
-        const len = Math.hypot(rawDx, rawDy);
-        if (len > 0) {
-            dx = (rawDx / len) * SPEED;
-            dy = (rawDy / len) * SPEED;
+        // If player is currently seated studying, any movement key stands up
+        if (interactionManager.currentSeat && (rawDx !== 0 || rawDy !== 0)) {
+            interactionManager.handleInteraction(player, { type: 'stand' });
+        }
 
-            // Track character facing direction based on movement vector
-            if (Math.abs(rawDx) >= Math.abs(rawDy)) {
-                player.direction = rawDx > 0 ? 'right' : 'left';
+        if (!interactionManager.currentSeat) {
+            const len = Math.hypot(rawDx, rawDy);
+            if (len > 0) {
+                dx = (rawDx / len) * SPEED;
+                dy = (rawDy / len) * SPEED;
+
+                if (Math.abs(rawDx) >= Math.abs(rawDy)) {
+                    player.direction = rawDx > 0 ? 'right' : 'left';
+                } else {
+                    player.direction = rawDy > 0 ? 'down' : 'up';
+                }
+                player.state = 'WALKING';
             } else {
-                player.direction = rawDy > 0 ? 'down' : 'up';
+                player.state = 'IDLE';
             }
-            player.state = 'WALKING';
-        } else {
-            player.state = 'IDLE';
-        }
 
-        // Retrieve scenario solid collision bounding boxes
-        const obstacles = getObstacles(currentConfig.map, WORLD_WIDTH, WORLD_HEIGHT);
+            const obstacles = getObstacles(currentConfig.map, WORLD_WIDTH, WORLD_HEIGHT);
 
-        // Character hitbox inset for pleasing top-down depth (feet area)
-        const hitboxMarginX = 6;
-        const hitboxTopY    = 20; // Only check lower body for collisions
-        const hitboxW       = player.width - hitboxMarginX * 2;
-        const hitboxH       = player.height - hitboxTopY;
+            const hitboxMarginX = 6;
+            const hitboxTopY    = 20;
+            const hitboxW       = player.width - hitboxMarginX * 2;
+            const hitboxH       = player.height - hitboxTopY;
 
-        // Move horizontally with obstacle collision check
-        if (dx !== 0) {
-            const nextX = player.x + dx * deltaTime;
-            const testHitboxX = nextX + hitboxMarginX;
-            const testHitboxY = player.y + hitboxTopY;
+            // X-Axis Movement with AABB Collision
+            if (dx !== 0) {
+                const nextX = player.x + dx * deltaTime;
+                const testHitboxX = nextX + hitboxMarginX;
+                const testHitboxY = player.y + hitboxTopY;
 
-            let blockedX = false;
-            for (let i = 0; i < obstacles.length; i++) {
-                if (checkAABB(testHitboxX, testHitboxY, hitboxW, hitboxH, obstacles[i])) {
-                    blockedX = true;
-                    break;
+                let blockedX = false;
+                for (let i = 0; i < obstacles.length; i++) {
+                    if (checkAABB(testHitboxX, testHitboxY, hitboxW, hitboxH, obstacles[i])) {
+                        blockedX = true;
+                        break;
+                    }
                 }
+                if (!blockedX) player.x = nextX;
             }
-            if (!blockedX) {
-                player.x = nextX;
-            }
-        }
 
-        // Move vertically with obstacle collision check
-        if (dy !== 0) {
-            const nextY = player.y + dy * deltaTime;
-            const testHitboxX = player.x + hitboxMarginX;
-            const testHitboxY = nextY + hitboxTopY;
+            // Y-Axis Movement with AABB Collision
+            if (dy !== 0) {
+                const nextY = player.y + dy * deltaTime;
+                const testHitboxX = player.x + hitboxMarginX;
+                const testHitboxY = nextY + hitboxTopY;
 
-            let blockedY = false;
-            for (let i = 0; i < obstacles.length; i++) {
-                if (checkAABB(testHitboxX, testHitboxY, hitboxW, hitboxH, obstacles[i])) {
-                    blockedY = true;
-                    break;
+                let blockedY = false;
+                for (let i = 0; i < obstacles.length; i++) {
+                    if (checkAABB(testHitboxX, testHitboxY, hitboxW, hitboxH, obstacles[i])) {
+                        blockedY = true;
+                        break;
+                    }
                 }
-            }
-            if (!blockedY) {
-                player.y = nextY;
+                if (!blockedY) player.y = nextY;
             }
         }
     }
 
-    // Clamp player to inner scenario bounds
+    // Contain inside perimeter
     player.x = Math.max(20, Math.min(WORLD_WIDTH - 20 - player.width, player.x));
     player.y = Math.max(20, Math.min(WORLD_HEIGHT - 20 - player.height, player.y));
 
-    // Smooth camera viewport boundary clamping
     camera.update(player.x, player.y, player.width, player.height, WORLD_WIDTH, WORLD_HEIGHT);
 
-    // Pomodoro Timer Update & Full Cycle Management
+    // Pomodoro Timer Logic & Productivity Tracking
     if (!isMenuOpen) {
         const timer = gameState.pomodoro;
         if (timer.isActive) {
@@ -304,26 +250,29 @@ function update(deltaTime) {
 
             if (timer.timerSeconds <= 0) {
                 if (timer.mode === 'WORK') {
-                    // Check if all work cycles completed
+                    // Record completed focus session in analytics
+                    statsTracker.recordCompletedSession(currentConfig.focusTime);
+                    updateStatsDisplay();
+
                     if (timer.currentCycle >= timer.totalCycles) {
                         timer.mode         = 'LONG_BREAK';
-                        timer.timerSeconds = currentConfig.breakTime * 60 * 2; // Long break is double break duration
-                        playRetroChime('cycle_complete');
+                        timer.timerSeconds = currentConfig.breakTime * 60 * 2;
+                        sound.play('cycle_complete');
+                        dialogSystem.show('Cycle Finished!', '🎉 Outstanding work! You completed all scheduled cycles. Enjoy your well-earned Long Break!');
                     } else {
                         timer.mode         = 'BREAK';
                         timer.timerSeconds = currentConfig.breakTime * 60;
-                        playRetroChime('break_start');
+                        sound.play('break_start');
                     }
                 } else {
-                    // Break completed -> advance cycle & start next focus session
                     if (timer.mode === 'BREAK') {
                         timer.currentCycle++;
                     } else {
-                        timer.currentCycle = 1; // Long break resets cycle
+                        timer.currentCycle = 1;
                     }
                     timer.mode         = 'WORK';
                     timer.timerSeconds = currentConfig.focusTime * 60;
-                    playRetroChime('focus_start');
+                    sound.play('focus_start');
                 }
             }
         }
@@ -339,25 +288,32 @@ function draw() {
     ctx.save();
     ctx.translate(-camera.x, -camera.y);
 
-    // 1. Render scenario environment floor tiles
+    // 1. Scenario Floor
     renderScenarioFloor(ctx, WORLD_WIDTH, WORLD_HEIGHT, currentConfig.map);
 
-    // 2. Render scenario furniture, props, and chairs
+    // 2. Scenario Environment Furniture & Decor
     renderScenarioEnvironment(ctx, WORLD_WIDTH, WORLD_HEIGHT, currentConfig.map);
 
-    // 3. Render characters with proper Y-depth sorting
-    const sortedCharacters = Object.values(gameState.players).sort((a, b) => (a.y + a.height) - (b.y + b.height));
-    sortedCharacters.forEach(p => {
+    // 3. Characters with Y-Depth Sorting
+    const sortedChars = Object.values(gameState.players).sort((a, b) => (a.y + a.height) - (b.y + b.height));
+    sortedChars.forEach(p => {
         drawCharacterSprite(ctx, p);
     });
 
+    // 4. Interactive Proximity Prompt
+    if (nearbyInteract) {
+        interactionManager.drawPrompt(ctx, nearbyInteract);
+    }
+
     ctx.restore();
 
-    // 4. Render EarthBound-inspired retro HUD
+    // 5. EarthBound Retro Pomodoro HUD
     drawPomodoro();
+
+    // 6. Retro Dialogue Box
+    dialogSystem.draw(ctx, canvas.width, canvas.height);
 }
 
-// Render EarthBound-style 4-directional character sprite with badge
 function drawCharacterSprite(ctx, p) {
     const isPlayer = p.id === currentConfig.playerName || p.id === 'Ness' || p.id === 'my_id';
 
@@ -367,16 +323,21 @@ function drawCharacterSprite(ctx, p) {
     ctx.ellipse(p.x + p.width * 0.5, p.y + p.height - 2, p.width * 0.45, 6, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    const dir   = p.direction || 'down';
+    const dir      = p.direction || 'down';
     const isMoving = p.state === 'WALKING';
-    const time  = performance.now();
+    const isSitting = p.state === 'STUDYING' && isPlayer;
+    const time     = performance.now();
     const walkFrame = Math.floor(time / 200) % 2 === 0;
 
     let spriteData = SPRITES.CHAR_DOWN_IDLE;
     let flipX      = false;
 
     if (isPlayer) {
-        if (dir === 'down') {
+        if (isSitting) {
+            spriteData = SPRITES.CHAR_SIT;
+            if (dir === 'left') flipX = false;
+            if (dir === 'right') flipX = true;
+        } else if (dir === 'down') {
             spriteData = isMoving ? (walkFrame ? SPRITES.CHAR_DOWN_WALK_1 : SPRITES.CHAR_DOWN_WALK_2) : SPRITES.CHAR_DOWN_IDLE;
         } else if (dir === 'up') {
             spriteData = isMoving ? (walkFrame ? SPRITES.CHAR_UP_WALK_1 : SPRITES.CHAR_UP_WALK_2) : SPRITES.CHAR_UP_IDLE;
@@ -388,7 +349,6 @@ function drawCharacterSprite(ctx, p) {
             flipX = true;
         }
     } else {
-        // NPC archetypes
         if (p.archetype === 'NPC_SCHOLAR') {
             spriteData = SPRITES.NPC_SCHOLAR;
         } else if (p.archetype === 'NPC_GIRL') {
@@ -396,7 +356,6 @@ function drawCharacterSprite(ctx, p) {
         } else {
             spriteData = SPRITES.CHAR_SIT;
         }
-
         if (dir === 'right') flipX = true;
     }
 
@@ -405,7 +364,7 @@ function drawCharacterSprite(ctx, p) {
 
     drawPixelSprite(ctx, spriteData, p.x, p.y, p.width, p.height, mainColor, accentColor, flipX);
 
-    // EarthBound Dialogue Badge / Name Tag
+    // Badge / Name Tag
     const tagText   = isPlayer ? p.id : (p.state === 'STUDYING' ? `📖 ${p.id}` : p.id);
     ctx.font        = 'bold 11px Courier New';
     const textWidth = ctx.measureText(tagText).width;
@@ -425,7 +384,6 @@ function drawCharacterSprite(ctx, p) {
     ctx.fillText(tagText, p.x + p.width * 0.5, badgeY + 13);
 }
 
-// Render EarthBound Retro Pomodoro HUD
 function drawPomodoro() {
     const timer        = gameState.pomodoro;
     const isMenuOpen   = uiLayer && !uiLayer.classList.contains('hidden');
@@ -439,23 +397,22 @@ function drawPomodoro() {
     const hudX = (canvas.width - hudW) * 0.5;
     const hudY = 16;
 
-    // SNES EarthBound Double-Border HUD Frame
+    // SNES Double-Border Frame
     ctx.fillStyle   = 'rgba(24, 20, 37, 0.96)';
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth   = 2;
     ctx.fillRect(hudX, hudY, hudW, hudH);
     ctx.strokeRect(hudX, hudY, hudW, hudH);
 
-    // Inner accent line
     const themeColor = timer.mode === 'WORK' ? '#ef4444' : (timer.mode === 'LONG_BREAK' ? '#38bdf8' : '#10b981');
-    ctx.strokeStyle = themeColor;
-    ctx.lineWidth   = 1;
+    ctx.strokeStyle  = themeColor;
+    ctx.lineWidth    = 1;
     ctx.strokeRect(hudX + 3, hudY + 3, hudW - 6, hudH - 6);
 
     // Session Status Label
     const scenarioName = (scenarioConfigs[currentConfig.map] || scenarioConfigs.cafeteria).name;
     let modeText = '● FOCUS SESSION';
-    if (isMenuOpen) {
+    if (!timer.isActive || isMenuOpen) {
         modeText = '⏸ PAUSED';
     } else if (timer.mode === 'BREAK') {
         modeText = '☕ SHORT BREAK';
@@ -463,32 +420,29 @@ function drawPomodoro() {
         modeText = '🎉 LONG BREAK';
     }
 
-    ctx.fillStyle = isMenuOpen ? '#facc15' : themeColor;
+    ctx.fillStyle = (!timer.isActive || isMenuOpen) ? '#facc15' : themeColor;
     ctx.font      = 'bold 11px Courier New';
     ctx.textAlign = 'center';
     ctx.fillText(`${scenarioName} • ${modeText}`, canvas.width * 0.5, hudY + 20);
 
-    // Big Digital Clock
+    // Digital Clock
     ctx.fillStyle = '#ffffff';
     ctx.font      = 'bold 26px Courier New';
     ctx.fillText(timeStr, canvas.width * 0.5, hudY + 48);
 
-    // Cycle Tracker & Progress Bar
+    // Cycle & Progress
     let maxSeconds = currentConfig.focusTime * 60;
     if (timer.mode === 'BREAK') maxSeconds = currentConfig.breakTime * 60;
     if (timer.mode === 'LONG_BREAK') maxSeconds = currentConfig.breakTime * 60 * 2;
 
     const progress = Math.max(0, Math.min(1, timer.timerSeconds / Math.max(1, maxSeconds)));
 
-    // Progress Bar Background
     ctx.fillStyle = '#334155';
     ctx.fillRect(hudX + 12, hudY + hudH - 12, hudW - 24, 6);
 
-    // Progress Bar Fill
     ctx.fillStyle = themeColor;
     ctx.fillRect(hudX + 12, hudY + hudH - 12, (hudW - 24) * progress, 6);
 
-    // Cycle Indicators (e.g. Cycle 1 of 4)
     const cycleText = `CYCLE ${timer.currentCycle}/${timer.totalCycles}`;
     ctx.fillStyle   = '#94a3b8';
     ctx.font        = 'bold 9px Courier New';
@@ -496,11 +450,7 @@ function drawPomodoro() {
     ctx.fillText(cycleText, hudX + hudW - 12, hudY + 46);
 }
 
-// ----------------------------------------------------------------------------
-// Game Loop Engine
-// ----------------------------------------------------------------------------
 let lastTime = 0;
-
 function gameLoop(currentTime) {
     if (!lastTime) lastTime = currentTime;
     let deltaTime = (currentTime - lastTime) * 0.001;
@@ -513,7 +463,7 @@ function gameLoop(currentTime) {
 }
 
 // ----------------------------------------------------------------------------
-// DOM UI Controls & Navigation
+// DOM References & Event Handlers
 // ----------------------------------------------------------------------------
 const playBtn           = document.getElementById('btn-play');
 const customBtn         = document.getElementById('btn-custom');
@@ -531,9 +481,10 @@ const modeMenuPanel     = document.getElementById('mode-menu');
 const configMenuPanel   = document.getElementById('solo-config-menu');
 const customMenuPanel   = document.getElementById('custom-menu');
 const pauseMenuPanel    = document.getElementById('pause-menu');
-const escHint           = document.getElementById('esc-hint');
+const controlsLegend    = document.getElementById('controls-legend');
 
 const resumeBtn         = document.getElementById('btn-resume');
+const pauseTasksBtn     = document.getElementById('btn-pause-tasks');
 const pauseSettingsBtn  = document.getElementById('btn-pause-settings');
 const exitMainBtn       = document.getElementById('btn-exit-main');
 
@@ -544,11 +495,125 @@ const mapSelect         = document.getElementById('map-select');
 const npcInput          = document.getElementById('npc-count');
 const playerNameInput   = document.getElementById('player-name');
 const playerColorSelect = document.getElementById('player-color');
+const ambientSelect     = document.getElementById('ambient-select');
+const volumeSlider      = document.getElementById('volume-slider');
+
+// Top HUD Elements
+const hudOverlay        = document.getElementById('hud-overlay');
+const hudTaskText       = document.getElementById('hud-task-text');
+const btnHudPlay        = document.getElementById('btn-hud-play');
+const btnHudSkip        = document.getElementById('btn-hud-skip');
+const btnHudTasks       = document.getElementById('btn-hud-tasks');
+const btnHudSound       = document.getElementById('btn-hud-sound');
+
+// Task Drawer Elements
+const taskDrawer        = document.getElementById('task-drawer');
+const taskForm          = document.getElementById('task-form');
+const taskInput         = document.getElementById('task-input');
+const taskList          = document.getElementById('task-list');
+const btnCloseTasks     = document.getElementById('btn-close-tasks');
+
+// Pause Stats Elements
+const statTodayMin      = document.getElementById('stat-today-min');
+const statSessions      = document.getElementById('stat-sessions');
+const statStreak        = document.getElementById('stat-streak');
 
 let lastMenuPanel = 'main';
-let gameStarted   = false;
 
-// Menu Panel Router Helper ('main', 'mode', 'config', 'custom', 'pause', 'none')
+function updateStatsDisplay() {
+    const stats = statsTracker.getStats();
+    if (statTodayMin) statTodayMin.textContent = stats.todayFocusMinutes;
+    if (statSessions) statSessions.textContent = stats.completedSessions;
+    if (statStreak)   statStreak.textContent   = stats.currentStreak;
+}
+
+function updateHUDActiveTask() {
+    const active = taskManager.getActiveTask();
+    if (hudTaskText) {
+        hudTaskText.textContent = active ? active.text : 'Deep work session';
+    }
+}
+
+function renderTasks() {
+    if (!taskList) return;
+    taskList.innerHTML = '';
+    const tasks  = taskManager.getTasks();
+    const active = taskManager.getActiveTask();
+
+    tasks.forEach(t => {
+        const item = document.createElement('div');
+        item.className = `task-item ${t.completed ? 'completed' : ''} ${active && active.id === t.id ? 'active' : ''}`;
+
+        const chk = document.createElement('input');
+        chk.type      = 'checkbox';
+        chk.className = 'task-check';
+        chk.checked   = t.completed;
+        chk.addEventListener('change', () => {
+            taskManager.toggleTask(t.id);
+            renderTasks();
+            updateHUDActiveTask();
+        });
+
+        const span = document.createElement('span');
+        span.className   = 'task-text';
+        span.textContent = t.text;
+        span.title       = 'Click to set as active focus task';
+        span.addEventListener('click', () => {
+            taskManager.setActiveTask(t.id);
+            renderTasks();
+            updateHUDActiveTask();
+        });
+
+        const del = document.createElement('button');
+        del.className   = 'task-del';
+        del.textContent = '✕';
+        del.title       = 'Delete task';
+        del.addEventListener('click', () => {
+            taskManager.deleteTask(t.id);
+            renderTasks();
+            updateHUDActiveTask();
+        });
+
+        item.appendChild(chk);
+        item.appendChild(span);
+        item.appendChild(del);
+        taskList.appendChild(item);
+    });
+
+    updateHUDActiveTask();
+}
+
+function toggleTaskDrawer(show = null) {
+    if (!taskDrawer) return;
+    const isVisible = !taskDrawer.classList.contains('hidden');
+    const shouldShow = show !== null ? show : !isVisible;
+
+    if (shouldShow) {
+        taskDrawer.classList.remove('hidden');
+        renderTasks();
+        if (taskInput) taskInput.focus();
+    } else {
+        taskDrawer.classList.add('hidden');
+    }
+    sound.play('click');
+}
+
+function toggleTimerPlayPause() {
+    const timer = gameState.pomodoro;
+    timer.isActive = !timer.isActive;
+    if (btnHudPlay) {
+        btnHudPlay.textContent = timer.isActive ? '⏸ Pause' : '▶ Resume';
+    }
+    sound.play('click');
+}
+
+function skipPomodoroSession() {
+    const timer = gameState.pomodoro;
+    timer.timerSeconds = 0.5; // Force immediate transition in next frame
+    sound.play('click');
+}
+
+// Router for Menu Panels
 function showPanel(target) {
     const panels = {
         'main':   mainMenuPanel,
@@ -559,32 +624,33 @@ function showPanel(target) {
     };
 
     if (target === 'none') {
-        if (uiLayer) uiLayer.classList.add('hidden');
-        if (escHint) escHint.classList.remove('hidden');
+        if (uiLayer)        uiLayer.classList.add('hidden');
+        if (hudOverlay)     hudOverlay.classList.remove('hidden');
+        if (controlsLegend) controlsLegend.classList.remove('hidden');
         return;
     }
 
-    if (uiLayer) uiLayer.classList.remove('hidden');
-    if (escHint) escHint.classList.add('hidden');
+    if (uiLayer)        uiLayer.classList.remove('hidden');
+    if (hudOverlay)     hudOverlay.classList.add('hidden');
+    if (controlsLegend) controlsLegend.classList.add('hidden');
 
     Object.keys(panels).forEach(key => {
         const p = panels[key];
         if (p) {
-            if (key === target) {
-                p.classList.remove('hidden');
-            } else {
-                p.classList.add('hidden');
-            }
+            if (key === target) p.classList.remove('hidden');
+            else p.classList.add('hidden');
         }
     });
 
-    // Update config start button label contextually
+    if (target === 'pause') {
+        updateStatsDisplay();
+    }
+
     if (target === 'config' && startGameBtn) {
         startGameBtn.textContent = gameStarted && lastMenuPanel === 'pause' ? 'Apply & Resume' : 'Start Game';
     }
 }
 
-// Safe LocalStorage Configuration Loader
 function loadSavedSettings() {
     try {
         const saved = localStorage.getItem('pomodoroConfig');
@@ -602,7 +668,7 @@ function loadSavedSettings() {
                 if (!isNaN(focusVal) && focusVal >= 1 && focusVal <= 180)    currentConfig.focusTime   = focusVal;
                 if (!isNaN(breakVal) && breakVal >= 1 && breakVal <= 60)     currentConfig.breakTime   = breakVal;
                 if (!isNaN(cyclesVal) && cyclesVal >= 1 && cyclesVal <= 12)  currentConfig.cycles      = cyclesVal;
-                if (!isNaN(npcVal) && npcVal >= 0 && npcVal <= 20)          currentConfig.npcCount    = npcVal;
+                if (!isNaN(npcVal) && npcVal >= 0 && npcVal <= 14)          currentConfig.npcCount    = npcVal;
                 if (['cafeteria', 'library', 'garden'].includes(mapVal))     currentConfig.map         = mapVal;
                 if (typeof pName === 'string' && pName.trim())               currentConfig.playerName  = pName.trim();
                 if (typeof pColor === 'string' && pColor.startsWith('#'))    currentConfig.playerColor = pColor;
@@ -616,57 +682,32 @@ function loadSavedSettings() {
                 if (playerColorSelect) playerColorSelect.value = currentConfig.playerColor;
             }
         }
-    } catch (err) {
-        console.error('Failed to load saved settings:', err);
-    }
+    } catch (_) {}
+
+    if (ambientSelect) ambientSelect.value = sound.ambientType;
+    if (volumeSlider)  volumeSlider.value  = Math.round(sound.masterVolume * 100);
 }
 
 // ----------------------------------------------------------------------------
 // Event Listeners
 // ----------------------------------------------------------------------------
-if (playBtn) {
-    playBtn.addEventListener('click', () => {
-        showPanel('mode');
-    });
-}
-
-if (modeBackBtn) {
-    modeBackBtn.addEventListener('click', () => {
-        showPanel('main');
-    });
-}
-
+if (playBtn)     playBtn.addEventListener('click',     () => showPanel('mode'));
+if (modeBackBtn) modeBackBtn.addEventListener('click', () => showPanel('main'));
 if (soloBtn) {
     soloBtn.addEventListener('click', () => {
         lastMenuPanel = 'mode';
         showPanel('config');
     });
 }
-
-if (configBackBtn) {
-    configBackBtn.addEventListener('click', () => {
-        showPanel(lastMenuPanel);
-    });
-}
-
+if (configBackBtn) configBackBtn.addEventListener('click', () => showPanel(lastMenuPanel));
 if (settingsBtn) {
     settingsBtn.addEventListener('click', () => {
         lastMenuPanel = 'main';
         showPanel('config');
     });
 }
-
-if (customBtn) {
-    customBtn.addEventListener('click', () => {
-        showPanel('custom');
-    });
-}
-
-if (customBackBtn) {
-    customBackBtn.addEventListener('click', () => {
-        showPanel('main');
-    });
-}
+if (customBtn)     customBtn.addEventListener('click',     () => showPanel('custom'));
+if (customBackBtn) customBackBtn.addEventListener('click', () => showPanel('main'));
 
 if (saveCustomBtn) {
     saveCustomBtn.addEventListener('click', () => {
@@ -676,12 +717,9 @@ if (saveCustomBtn) {
         if (playerColorSelect) {
             currentConfig.playerColor = playerColorSelect.value;
         }
-
         try {
             localStorage.setItem('pomodoroConfig', JSON.stringify(currentConfig));
-        } catch (err) {
-            console.error('Failed to save customization:', err);
-        }
+        } catch (_) {}
 
         initGameWorld();
         showPanel('main');
@@ -702,22 +740,24 @@ if (startGameBtn) {
             breakTime: (!isNaN(breakVal) && breakVal >= 1 && breakVal <= 60) ? breakVal : 5,
             cycles:    (!isNaN(cyclesVal) && cyclesVal >= 1 && cyclesVal <= 12) ? cyclesVal : 4,
             map:       ['cafeteria', 'library', 'garden'].includes(mapVal) ? mapVal : 'cafeteria',
-            npcCount:  (!isNaN(npcVal) && npcVal >= 0 && npcVal <= 20) ? npcVal : 5
+            npcCount:  (!isNaN(npcVal) && npcVal >= 0 && npcVal <= 14) ? npcVal : 5
         };
 
         Object.assign(currentConfig, gameConfig);
 
         try {
             localStorage.setItem('pomodoroConfig', JSON.stringify(gameConfig));
-        } catch (err) {
-            console.error('Failed to persist settings:', err);
+        } catch (_) {}
+
+        if (ambientSelect) {
+            sound.setAmbientType(ambientSelect.value);
         }
 
         gameStarted = true;
         initGameWorld();
         showPanel('none');
         lastTime = performance.now();
-        playRetroChime('focus_start');
+        sound.play('focus_start');
     });
 }
 
@@ -725,6 +765,12 @@ if (resumeBtn) {
     resumeBtn.addEventListener('click', () => {
         lastTime = performance.now();
         showPanel('none');
+    });
+}
+
+if (pauseTasksBtn) {
+    pauseTasksBtn.addEventListener('click', () => {
+        toggleTaskDrawer(true);
     });
 }
 
@@ -737,20 +783,85 @@ if (pauseSettingsBtn) {
 
 if (exitMainBtn) {
     exitMainBtn.addEventListener('click', () => {
+        sound.stopAmbient();
         showPanel('main');
     });
 }
 
-// ESC Key listener to toggle Pause Menu cleanly during gameplay
+// Volume & Ambient Sound Listeners
+if (volumeSlider) {
+    volumeSlider.addEventListener('input', (e) => {
+        sound.setMasterVolume(e.target.value / 100);
+    });
+}
+
+if (ambientSelect) {
+    ambientSelect.addEventListener('change', (e) => {
+        sound.setAmbientType(e.target.value);
+    });
+}
+
+// Top HUD Buttons
+if (btnHudPlay)  btnHudPlay.addEventListener('click',  toggleTimerPlayPause);
+if (btnHudSkip)  btnHudSkip.addEventListener('click',  skipPomodoroSession);
+if (btnHudTasks) btnHudTasks.addEventListener('click', () => toggleTaskDrawer());
+if (btnHudSound) {
+    btnHudSound.addEventListener('click', () => {
+        const isMuted = sound.toggleMute();
+        btnHudSound.textContent = isMuted ? '🔇 Muted' : '🔊 Audio';
+        sound.play('click');
+    });
+}
+
+// Task Form Submit
+if (taskForm) {
+    taskForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (taskInput && taskInput.value.trim()) {
+            taskManager.addTask(taskInput.value.trim());
+            taskInput.value = '';
+            renderTasks();
+            updateHUDActiveTask();
+        }
+    });
+}
+
+if (btnCloseTasks) {
+    btnCloseTasks.addEventListener('click', () => toggleTaskDrawer(false));
+}
+
+// ----------------------------------------------------------------------------
+// Universal Keyboard Shortcuts
+// ----------------------------------------------------------------------------
 window.addEventListener('keydown', (e) => {
+    // Ignore gameplay shortcuts if typing in an input
+    const activeTag = document.activeElement ? document.activeElement.tagName : '';
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(activeTag)) {
+        if (e.key === 'Escape') {
+            document.activeElement.blur();
+            toggleTaskDrawer(false);
+        }
+        return;
+    }
+
+    // Dialogue advances on Space, Enter, or E
+    if (dialogSystem.isOpen && [' ', 'Enter', 'e', 'E'].includes(e.key)) {
+        e.preventDefault();
+        dialogSystem.advance();
+        return;
+    }
+
     if (e.key === 'Escape') {
+        if (taskDrawer && !taskDrawer.classList.contains('hidden')) {
+            toggleTaskDrawer(false);
+            return;
+        }
+
         if (uiLayer) {
             if (uiLayer.classList.contains('hidden')) {
-                // In game -> Pause
                 showPanel('pause');
             } else {
                 if (pauseMenuPanel && !pauseMenuPanel.classList.contains('hidden')) {
-                    // In Pause Menu -> Resume
                     lastTime = performance.now();
                     showPanel('none');
                 } else if (configMenuPanel && !configMenuPanel.classList.contains('hidden')) {
@@ -762,6 +873,43 @@ window.addEventListener('keydown', (e) => {
                 }
             }
         }
+        return;
+    }
+
+    // In-game hotkeys
+    const isGameActive = uiLayer && uiLayer.classList.contains('hidden');
+    if (!isGameActive) return;
+
+    // [E] Trigger Nearby Interaction
+    if (e.key === 'e' || e.key === 'E') {
+        const player = gameState.players['my_id'];
+        if (nearbyInteract && player) {
+            interactionManager.handleInteraction(player, nearbyInteract);
+        }
+    }
+
+    // [Space] Toggle Timer Play/Pause
+    if (e.key === ' ') {
+        e.preventDefault();
+        toggleTimerPlayPause();
+    }
+
+    // [T] Toggle Task Drawer
+    if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        toggleTaskDrawer();
+    }
+
+    // [M] Toggle Audio Mute
+    if (e.key === 'm' || e.key === 'M') {
+        const isMuted = sound.toggleMute();
+        if (btnHudSound) btnHudSound.textContent = isMuted ? '🔇 Muted' : '🔊 Audio';
+    }
+
+    // [Tab] Skip Session
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        skipPomodoroSession();
     }
 });
 
@@ -770,5 +918,7 @@ window.addEventListener('keydown', (e) => {
 // ----------------------------------------------------------------------------
 loadSavedSettings();
 initGameWorld();
+renderTasks();
+updateStatsDisplay();
 showPanel('main');
 requestAnimationFrame(gameLoop);
