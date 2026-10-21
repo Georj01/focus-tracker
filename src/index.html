@@ -12,7 +12,7 @@
     <!-- Top In-Game HUD Controls & Active Task Banner -->
     <div id="hud-overlay" class="hidden">
         <div id="hud-task-banner">
-            <span class="hud-tag">CURRENT FOCUS</span>
+            <span class="hud-tag" id="hud-tag">CURRENT FOCUS</span>
             <span id="hud-task-text">Deep work session</span>
         </div>
         <div id="hud-actions">
@@ -26,7 +26,7 @@
     <!-- Collapsible EarthBound-Style Task Drawer -->
     <div id="task-drawer" class="hidden">
         <div class="drawer-header">
-            <h2 class="drawer-title">📋 Focus Tasks</h2>
+            <h2 class="drawer-title" id="lbl-drawer-title">📋 Focus Tasks</h2>
             <button id="btn-close-tasks" class="icon-btn" title="Close [T]">✕</button>
         </div>
         <form id="task-form">
@@ -37,7 +37,7 @@
             <!-- Dynamic task items injected via JS -->
         </div>
         <div class="drawer-footer">
-            <small>Click task to pin as active focus • ✓ to complete</small>
+            <small id="lbl-drawer-footer">Click task to pin as active focus • ✓ to complete</small>
         </div>
     </div>
 
@@ -45,19 +45,26 @@
     <div id="ui-layer">
         <!-- 1. Main Menu -->
         <div id="main-menu">
-            <h1 class="menu-title">Pomodoro World</h1>
-            <p class="menu-subtitle">Virtual Shared Study Space</p>
+            <!-- Language Quick Switcher -->
+            <div class="lang-selector-bar">
+                <button class="lang-btn active" data-lang="en">EN</button>
+                <button class="lang-btn" data-lang="es">ES</button>
+                <button class="lang-btn" data-lang="ja">日本語</button>
+            </div>
+
+            <h1 class="menu-title" id="lbl-main-title">Pomodoro World</h1>
+            <p class="menu-subtitle" id="lbl-main-subtitle">Virtual Shared Study Space</p>
             <nav class="menu-buttons">
                 <button id="btn-play" class="menu-btn primary-btn">Play Game</button>
                 <button id="btn-custom" class="menu-btn">User Customization</button>
                 <button id="btn-settings" class="menu-btn">Solo Settings</button>
-                <a href="https://github.com/Georj01/focus-tracker" target="_blank" rel="noopener noreferrer" class="menu-link">About the project</a>
+                <a href="https://github.com/Georj01/focus-tracker" target="_blank" rel="noopener noreferrer" class="menu-link" id="link-about">About the project</a>
             </nav>
         </div>
 
         <!-- 2. Mode Selection Menu -->
         <div id="mode-menu" class="hidden">
-            <h1 class="menu-title">Select Mode</h1>
+            <h1 class="menu-title" id="lbl-mode-title">Select Mode</h1>
             <nav class="menu-buttons">
                 <button id="btn-solo" class="menu-btn primary-btn">Solo Study Space</button>
                 <button id="btn-multiplayer" class="menu-btn" disabled>Multiplayer (Coming Soon)</button>
@@ -67,43 +74,51 @@
 
         <!-- 3. Solo Configuration Settings Menu -->
         <div id="solo-config-menu" class="hidden">
-            <h1 class="menu-title">Solo Settings</h1>
+            <h1 class="menu-title" id="lbl-config-title">Solo Settings</h1>
             <div class="config-form">
                 <div class="form-group">
-                    <label for="focus-time">Focus Duration (min):</label>
+                    <label for="focus-time" id="lbl-cfg-focus">Focus Duration (min):</label>
                     <input type="number" id="focus-time" value="25" min="1" max="180">
                 </div>
                 <div class="form-group">
-                    <label for="break-time">Break Duration (min):</label>
+                    <label for="break-time" id="lbl-cfg-break">Break Duration (min):</label>
                     <input type="number" id="break-time" value="5" min="1" max="60">
                 </div>
                 <div class="form-group">
-                    <label for="cycles">Session Cycles:</label>
+                    <label for="cycles" id="lbl-cfg-cycles">Session Cycles:</label>
                     <input type="number" id="cycles" value="4" min="1" max="12">
                 </div>
                 <div class="form-group">
-                    <label for="map-select">Select Map:</label>
+                    <label for="map-select" id="lbl-cfg-map">Select Map:</label>
                     <select id="map-select">
-                        <option value="cafeteria">Virtual Cafeteria</option>
-                        <option value="library">Quiet Library</option>
-                        <option value="garden">Zen Garden</option>
+                        <option value="cafeteria" id="opt-map-cafeteria">Virtual Cafeteria</option>
+                        <option value="library" id="opt-map-library">Quiet Library</option>
+                        <option value="garden" id="opt-map-garden">Zen Garden</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="npc-count">NPC Study Buddies:</label>
+                    <label for="npc-count" id="lbl-cfg-npc">NPC Study Buddies:</label>
                     <input type="number" id="npc-count" value="5" min="0" max="14">
                 </div>
                 <div class="form-group">
-                    <label for="ambient-select">Ambient Sound:</label>
+                    <label for="ambient-select" id="lbl-cfg-ambient">Ambient Sound:</label>
                     <select id="ambient-select">
-                        <option value="off">Off (Quiet)</option>
-                        <option value="rain">Gentle Rain 🌧️</option>
-                        <option value="cafe">Cafe Ambiance ☕</option>
+                        <option value="off" id="opt-ambient-off">Off (Quiet)</option>
+                        <option value="rain" id="opt-ambient-rain">Gentle Rain 🌧️</option>
+                        <option value="cafe" id="opt-ambient-cafe">Cafe Ambiance ☕</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="volume-slider">Master Volume:</label>
+                    <label for="volume-slider" id="lbl-cfg-volume">Master Volume:</label>
                     <input type="range" id="volume-slider" min="0" max="100" value="70">
+                </div>
+                <div class="form-group">
+                    <label for="language-select" id="lbl-cfg-language">Language / Idioma / 言語:</label>
+                    <select id="language-select">
+                        <option value="en">English (US)</option>
+                        <option value="es">Español</option>
+                        <option value="ja">日本語</option>
+                    </select>
                 </div>
                 <nav class="menu-buttons" style="margin-top: 1.2rem;">
                     <button id="btn-start-game" class="menu-btn primary-btn">Start Game</button>
@@ -114,21 +129,21 @@
 
         <!-- 4. User Customization Menu -->
         <div id="custom-menu" class="hidden">
-            <h1 class="menu-title">Character Customization</h1>
+            <h1 class="menu-title" id="lbl-custom-title">Character Customization</h1>
             <div class="config-form">
                 <div class="form-group">
-                    <label for="player-name">Player Name Tag:</label>
+                    <label for="player-name" id="lbl-custom-name">Player Name Tag:</label>
                     <input type="text" id="player-name" value="Ness" maxlength="12">
                 </div>
                 <div class="form-group">
-                    <label for="player-color">Avatar Shirt Color:</label>
+                    <label for="player-color" id="lbl-custom-color">Avatar Shirt Color:</label>
                     <select id="player-color">
-                        <option value="#3b82f6">Ness Blue</option>
-                        <option value="#ec4899">Paula Pink</option>
-                        <option value="#10b981">Jeff Green</option>
-                        <option value="#ef4444">Martial Red</option>
-                        <option value="#8b5cf6">Vivid Purple</option>
-                        <option value="#f59e0b">Amber Gold</option>
+                        <option value="#3b82f6" id="opt-color-ness">Ness Blue</option>
+                        <option value="#ec4899" id="opt-color-paula">Paula Pink</option>
+                        <option value="#10b981" id="opt-color-jeff">Jeff Green</option>
+                        <option value="#ef4444" id="opt-color-poo">Martial Red</option>
+                        <option value="#8b5cf6" id="opt-color-purple">Vivid Purple</option>
+                        <option value="#f59e0b" id="opt-color-gold">Amber Gold</option>
                     </select>
                 </div>
                 <nav class="menu-buttons" style="margin-top: 1.2rem;">
@@ -140,20 +155,20 @@
 
         <!-- 5. Pause Menu -->
         <div id="pause-menu" class="hidden">
-            <h1 class="menu-title">Game Paused</h1>
+            <h1 class="menu-title" id="lbl-pause-title">Game Paused</h1>
             <!-- Daily Productivity Stats Card -->
             <div class="stats-card">
                 <div class="stat-item">
                     <span class="stat-val" id="stat-today-min">0</span>
-                    <span class="stat-lbl">Today's Min</span>
+                    <span class="stat-lbl" id="lbl-stat-today">Today's Min</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-val" id="stat-sessions">0</span>
-                    <span class="stat-lbl">Completed</span>
+                    <span class="stat-lbl" id="lbl-stat-sessions">Completed</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-val" id="stat-streak">0</span>
-                    <span class="stat-lbl">Day Streak 🔥</span>
+                    <span class="stat-lbl" id="lbl-stat-streak">Day Streak 🔥</span>
                 </div>
             </div>
             <nav class="menu-buttons">
@@ -167,17 +182,17 @@
 
     <!-- Bottom Keyboard Navigation Bar -->
     <div id="controls-legend" class="hidden">
-        <span>[WASD / Arrows] Move</span>
+        <span id="legend-move">[WASD / Arrows] Move</span>
         <span>•</span>
-        <span>[E] Sit / Interact</span>
+        <span id="legend-interact">[E] Sit / Interact</span>
         <span>•</span>
-        <span>[Space] Pause</span>
+        <span id="legend-pause">[Space] Pause</span>
         <span>•</span>
-        <span>[T] Tasks</span>
+        <span id="legend-tasks">[T] Tasks</span>
         <span>•</span>
-        <span>[M] Mute</span>
+        <span id="legend-mute">[M] Mute</span>
         <span>•</span>
-        <span>[ESC] Menu</span>
+        <span id="legend-menu">[ESC] Menu</span>
     </div>
 
     <script type="module" src="./main.js"></script>

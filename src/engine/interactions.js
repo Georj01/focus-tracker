@@ -1,25 +1,10 @@
 // World Interactions & Seating System
-// Manages proximity triggers, desk study seating, and prop interactions
+// Manages proximity triggers, desk study seating, and prop interactions with multilingual support
 
 import { sound } from './audio.js';
 import { dialogSystem } from './dialog.js';
 import { scenarioConfigs } from './scenarios.js';
-
-const INSPIRATIONAL_QUOTES = [
-    '"The secret of getting ahead is getting started." — Mark Twain',
-    '"Focus is a muscle. The more you practice without distraction, the stronger it gets."',
-    '"Do what you can, with what you have, where you are." — Theodore Roosevelt',
-    '"Small disciplines repeated with consistency every day lead to great achievements."',
-    '"You don’t have to see the whole staircase, just take the first step."'
-];
-
-const NPC_DIALOGUES = [
-    '"Hey! Let\'s stay locked in and finish this study cycle together!"',
-    '"Remember to stay hydrated! That timer will be done before you know it."',
-    '"I just checked off my third task. Steady progress wins the day!"',
-    '"Deep focus is a superpower. Keep going, you\'re doing great!"',
-    '"Taking short breaks keeps your brain fresh. Good luck with this session!"'
-];
+import { i18n } from './i18n.js';
 
 class InteractionManager {
     constructor() {
@@ -38,7 +23,7 @@ class InteractionManager {
         if (this.currentSeat) {
             return {
                 type:   'stand',
-                label:  '[E] Stand Up',
+                label:  i18n.t('promptStand'),
                 seat:   this.currentSeat,
                 x:      player.x + player.width * 0.5,
                 y:      player.y - 12
@@ -60,7 +45,7 @@ class InteractionManager {
                 if (dist < 42) {
                     return {
                         type:  'sit',
-                        label: '[E] Sit & Study',
+                        label: i18n.t('promptSit'),
                         chair: chair,
                         x:     cx,
                         y:     chair.y - 12
@@ -77,7 +62,7 @@ class InteractionManager {
             if (px > c.x - 20 && px < c.x + c.w + 20 && py > c.y - 10 && py < c.y + c.h + 50) {
                 return {
                     type:  'coffee',
-                    label: '[E] Brew Fresh Coffee ☕',
+                    label: i18n.t('promptCoffee'),
                     x:     cx,
                     y:     c.y - 12
                 };
@@ -91,7 +76,7 @@ class InteractionManager {
                 if (px > b.x - 15 && px < b.x + b.w + 15 && py > b.y - 15 && py < b.y + b.h + 40) {
                     return {
                         type:  'bookshelf',
-                        label: '[E] Read Study Wisdom 📚',
+                        label: i18n.t('promptBooks'),
                         x:     b.x + b.w * 0.5,
                         y:     b.y - 10
                     };
@@ -106,7 +91,7 @@ class InteractionManager {
                 if (Math.hypot(px - (l.x + l.w * 0.5), py - (l.y + l.h * 0.5)) < 45) {
                     return {
                         type:  'zen',
-                        label: '[E] Mindful Meditation 🌸',
+                        label: i18n.t('promptZen'),
                         x:     l.x + l.w * 0.5,
                         y:     l.y - 12
                     };
@@ -121,7 +106,7 @@ class InteractionManager {
             if (dist < 46) {
                 return {
                     type:  'npc',
-                    label: `[E] Talk to ${npc.id}`,
+                    label: `${i18n.t('promptTalk')} ${npc.id}`,
                     npc:   npc,
                     x:     npc.x + npc.width * 0.5,
                     y:     npc.y - 14
@@ -143,7 +128,7 @@ class InteractionManager {
                 player.direction   = interaction.chair.facing === 'left' ? 'left' : 'right';
                 this.currentSeat   = interaction.chair;
                 sound.play('sit');
-                dialogSystem.show('Study Desk', 'You sat down at the desk. Study materials ready. Deep work mode active!');
+                dialogSystem.show(i18n.t('dialogStudyTitle'), i18n.t('dialogStudyBody'));
                 break;
             }
             case 'stand': {
@@ -155,20 +140,20 @@ class InteractionManager {
             }
             case 'coffee': {
                 sound.play('coffee');
-                dialogSystem.show('Espresso Bar', 'You poured a hot cup of fresh espresso! Motivation and alertness refreshed.');
+                dialogSystem.show(i18n.t('dialogCoffeeTitle'), i18n.t('dialogCoffeeBody'));
                 break;
             }
             case 'bookshelf': {
-                const quote = INSPIRATIONAL_QUOTES[Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length)];
-                dialogSystem.show('Library Archives', quote);
+                const quote = i18n.getRandomQuote();
+                dialogSystem.show(i18n.t('signLibrary'), quote);
                 break;
             }
             case 'zen': {
-                dialogSystem.show('Zen Stone Lantern', 'You pause for a mindful breath amidst the tranquil garden. Serenity restored.');
+                dialogSystem.show(i18n.t('dialogZenTitle'), i18n.t('dialogZenBody'));
                 break;
             }
             case 'npc': {
-                const line = NPC_DIALOGUES[Math.floor(Math.random() * NPC_DIALOGUES.length)];
+                const line = i18n.getRandomNpcDialogue();
                 dialogSystem.show(interaction.npc.id, line);
                 break;
             }
@@ -178,9 +163,9 @@ class InteractionManager {
     drawPrompt(ctx, interaction) {
         if (!interaction || dialogSystem.isOpen) return;
 
-        ctx.font        = 'bold 11px Courier New';
+        ctx.font        = 'bold 11px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
         const textWidth = ctx.measureText(interaction.label).width;
-        const boxW      = textWidth + 16;
+        const boxW      = textWidth + 18;
         const boxH      = 22;
         const boxX      = interaction.x - boxW * 0.5;
         const boxY      = interaction.y - boxH - 10;

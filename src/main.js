@@ -13,6 +13,7 @@ import { taskManager } from './engine/tasks.js';
 import { statsTracker } from './engine/stats.js';
 import { dialogSystem } from './engine/dialog.js';
 import { interactionManager } from './engine/interactions.js';
+import { i18n } from './engine/i18n.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx    = canvas.getContext('2d');
@@ -48,7 +49,8 @@ const DEFAULT_CONFIG = {
     playerName:  'Ness',
     playerColor: '#3b82f6',
     ambientType: 'off',
-    volume:      70
+    volume:      70,
+    language:    'en'
 };
 
 const currentConfig = { ...DEFAULT_CONFIG };
@@ -114,7 +116,7 @@ function initGameWorld() {
         const color     = npcColors[(i - 1) % npcColors.length];
 
         gameState.players[id] = {
-            id:        `Study Buddy ${i}`,
+            id:        `${i18n.t('studyBuddyPrefix')} ${i}`,
             x:         x,
             y:         y,
             width:     32,
@@ -258,7 +260,7 @@ function update(deltaTime) {
                         timer.mode         = 'LONG_BREAK';
                         timer.timerSeconds = currentConfig.breakTime * 60 * 2;
                         sound.play('cycle_complete');
-                        dialogSystem.show('Cycle Finished!', '🎉 Outstanding work! You completed all scheduled cycles. Enjoy your well-earned Long Break!');
+                        dialogSystem.show(i18n.t('dialogCycleTitle'), i18n.t('dialogCycleBody'));
                     } else {
                         timer.mode         = 'BREAK';
                         timer.timerSeconds = currentConfig.breakTime * 60;
@@ -366,9 +368,9 @@ function drawCharacterSprite(ctx, p) {
 
     // Badge / Name Tag
     const tagText   = isPlayer ? p.id : (p.state === 'STUDYING' ? `📖 ${p.id}` : p.id);
-    ctx.font        = 'bold 11px Courier New';
+    ctx.font        = 'bold 11px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
     const textWidth = ctx.measureText(tagText).width;
-    const badgeW    = textWidth + 12;
+    const badgeW    = textWidth + 14;
     const badgeH    = 18;
     const badgeX    = p.x + p.width * 0.5 - badgeW * 0.5;
     const badgeY    = p.y - 22;
@@ -409,25 +411,29 @@ function drawPomodoro() {
     ctx.lineWidth    = 1;
     ctx.strokeRect(hudX + 3, hudY + 3, hudW - 6, hudH - 6);
 
-    // Session Status Label
-    const scenarioName = (scenarioConfigs[currentConfig.map] || scenarioConfigs.cafeteria).name;
-    let modeText = '● FOCUS SESSION';
+    // Multilingual Scenario Title
+    let scenarioName = i18n.t('mapCafeteria');
+    if (currentConfig.map === 'library') scenarioName = i18n.t('mapLibrary');
+    else if (currentConfig.map === 'garden') scenarioName = i18n.t('mapGarden');
+
+    // Multilingual Mode Label
+    let modeText = i18n.t('hudFocusSession');
     if (!timer.isActive || isMenuOpen) {
-        modeText = '⏸ PAUSED';
+        modeText = i18n.t('hudPaused');
     } else if (timer.mode === 'BREAK') {
-        modeText = '☕ SHORT BREAK';
+        modeText = i18n.t('hudShortBreak');
     } else if (timer.mode === 'LONG_BREAK') {
-        modeText = '🎉 LONG BREAK';
+        modeText = i18n.t('hudLongBreak');
     }
 
     ctx.fillStyle = (!timer.isActive || isMenuOpen) ? '#facc15' : themeColor;
-    ctx.font      = 'bold 11px Courier New';
+    ctx.font      = 'bold 11px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(`${scenarioName} • ${modeText}`, canvas.width * 0.5, hudY + 20);
 
     // Digital Clock
     ctx.fillStyle = '#ffffff';
-    ctx.font      = 'bold 26px Courier New';
+    ctx.font      = 'bold 26px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
     ctx.fillText(timeStr, canvas.width * 0.5, hudY + 48);
 
     // Cycle & Progress
@@ -443,9 +449,9 @@ function drawPomodoro() {
     ctx.fillStyle = themeColor;
     ctx.fillRect(hudX + 12, hudY + hudH - 12, (hudW - 24) * progress, 6);
 
-    const cycleText = `CYCLE ${timer.currentCycle}/${timer.totalCycles}`;
+    const cycleText = `${i18n.t('hudCycle')} ${timer.currentCycle}/${timer.totalCycles}`;
     ctx.fillStyle   = '#94a3b8';
-    ctx.font        = 'bold 9px Courier New';
+    ctx.font        = 'bold 9px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
     ctx.textAlign   = 'right';
     ctx.fillText(cycleText, hudX + hudW - 12, hudY + 46);
 }
@@ -497,10 +503,13 @@ const playerNameInput   = document.getElementById('player-name');
 const playerColorSelect = document.getElementById('player-color');
 const ambientSelect     = document.getElementById('ambient-select');
 const volumeSlider      = document.getElementById('volume-slider');
+const languageSelect    = document.getElementById('language-select');
+const langButtons       = document.querySelectorAll('.lang-btn');
 
 // Top HUD Elements
 const hudOverlay        = document.getElementById('hud-overlay');
 const hudTaskText       = document.getElementById('hud-task-text');
+const hudTag            = document.getElementById('hud-tag');
 const btnHudPlay        = document.getElementById('btn-hud-play');
 const btnHudSkip        = document.getElementById('btn-hud-skip');
 const btnHudTasks       = document.getElementById('btn-hud-tasks');
@@ -512,13 +521,180 @@ const taskForm          = document.getElementById('task-form');
 const taskInput         = document.getElementById('task-input');
 const taskList          = document.getElementById('task-list');
 const btnCloseTasks     = document.getElementById('btn-close-tasks');
+const lblDrawerTitle    = document.getElementById('lbl-drawer-title');
+const btnAddTask        = document.getElementById('btn-add-task');
+const lblDrawerFooter   = document.getElementById('lbl-drawer-footer');
 
 // Pause Stats Elements
 const statTodayMin      = document.getElementById('stat-today-min');
 const statSessions      = document.getElementById('stat-sessions');
 const statStreak        = document.getElementById('stat-streak');
+const lblStatToday      = document.getElementById('lbl-stat-today');
+const lblStatSessions   = document.getElementById('lbl-stat-sessions');
+const lblStatStreak     = document.getElementById('lbl-stat-streak');
+
+// Main Menu Text Labels
+const lblMainTitle      = document.getElementById('lbl-main-title');
+const lblMainSubtitle   = document.getElementById('lbl-main-subtitle');
+const linkAbout         = document.getElementById('link-about');
+
+// Mode Menu Labels
+const lblModeTitle      = document.getElementById('lbl-mode-title');
+const btnMultiplayer    = document.getElementById('btn-multiplayer');
+
+// Config Labels
+const lblConfigTitle    = document.getElementById('lbl-config-title');
+const lblCfgFocus       = document.getElementById('lbl-cfg-focus');
+const lblCfgBreak       = document.getElementById('lbl-cfg-break');
+const lblCfgCycles      = document.getElementById('lbl-cfg-cycles');
+const lblCfgMap         = document.getElementById('lbl-cfg-map');
+const lblCfgNpc         = document.getElementById('lbl-cfg-npc');
+const lblCfgAmbient     = document.getElementById('lbl-cfg-ambient');
+const lblCfgVolume      = document.getElementById('lbl-cfg-volume');
+const lblCfgLanguage    = document.getElementById('lbl-cfg-language');
+
+// Map Options
+const optMapCafeteria   = document.getElementById('opt-map-cafeteria');
+const optMapLibrary     = document.getElementById('opt-map-library');
+const optMapGarden      = document.getElementById('opt-map-garden');
+
+// Ambient Options
+const optAmbientOff     = document.getElementById('opt-ambient-off');
+const optAmbientRain    = document.getElementById('opt-ambient-rain');
+const optAmbientCafe    = document.getElementById('opt-ambient-cafe');
+
+// Customization Labels
+const lblCustomTitle    = document.getElementById('lbl-custom-title');
+const lblCustomName     = document.getElementById('lbl-custom-name');
+const lblCustomColor    = document.getElementById('lbl-custom-color');
+const optColorNess      = document.getElementById('opt-color-ness');
+const optColorPaula     = document.getElementById('opt-color-paula');
+const optColorJeff      = document.getElementById('opt-color-jeff');
+const optColorPoo       = document.getElementById('opt-color-poo');
+const optColorPurple    = document.getElementById('opt-color-purple');
+const optColorGold      = document.getElementById('opt-color-gold');
+
+// Pause Menu Labels
+const lblPauseTitle     = document.getElementById('lbl-pause-title');
+
+// Controls Legend Elements
+const legendMove        = document.getElementById('legend-move');
+const legendInteract    = document.getElementById('legend-interact');
+const legendPause       = document.getElementById('legend-pause');
+const legendTasks       = document.getElementById('legend-tasks');
+const legendMute        = document.getElementById('legend-mute');
+const legendMenu        = document.getElementById('legend-menu');
 
 let lastMenuPanel = 'main';
+
+// ----------------------------------------------------------------------------
+// Multilingual Translation Applicator
+// ----------------------------------------------------------------------------
+function applyLanguage(lang) {
+    i18n.setLanguage(lang);
+    currentConfig.language = lang;
+
+    // Update active state on language pills
+    langButtons.forEach(btn => {
+        if (btn.dataset.lang === lang) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
+
+    if (languageSelect) languageSelect.value = lang;
+
+    // Main Menu
+    if (lblMainTitle)    lblMainTitle.textContent    = i18n.t('appTitle');
+    if (lblMainSubtitle) lblMainSubtitle.textContent = i18n.t('appSubtitle');
+    if (playBtn)         playBtn.textContent         = i18n.t('playGame');
+    if (customBtn)       customBtn.textContent       = i18n.t('userCustomization');
+    if (settingsBtn)     settingsBtn.textContent     = i18n.t('soloSettings');
+    if (linkAbout)       linkAbout.textContent       = i18n.t('aboutProject');
+
+    // Mode Menu
+    if (lblModeTitle)    lblModeTitle.textContent    = i18n.t('selectMode');
+    if (soloBtn)         soloBtn.textContent         = i18n.t('soloStudySpace');
+    if (btnMultiplayer)  btnMultiplayer.textContent  = i18n.t('multiplayerSoon');
+    if (modeBackBtn)     modeBackBtn.textContent     = i18n.t('back');
+
+    // Solo Config Menu
+    if (lblConfigTitle)  lblConfigTitle.textContent  = i18n.t('soloSettings');
+    if (lblCfgFocus)     lblCfgFocus.textContent     = i18n.t('focusDuration');
+    if (lblCfgBreak)     lblCfgBreak.textContent     = i18n.t('breakDuration');
+    if (lblCfgCycles)    lblCfgCycles.textContent    = i18n.t('sessionCycles');
+    if (lblCfgMap)       lblCfgMap.textContent       = i18n.t('selectMap');
+    if (lblCfgNpc)       lblCfgNpc.textContent       = i18n.t('npcStudyBuddies');
+    if (lblCfgAmbient)   lblCfgAmbient.textContent   = i18n.t('ambientSound');
+    if (lblCfgVolume)    lblCfgVolume.textContent    = i18n.t('masterVolume');
+    if (lblCfgLanguage)  lblCfgLanguage.textContent  = i18n.t('language');
+
+    if (optMapCafeteria) optMapCafeteria.textContent = i18n.t('mapCafeteria');
+    if (optMapLibrary)   optMapLibrary.textContent   = i18n.t('mapLibrary');
+    if (optMapGarden)    optMapGarden.textContent    = i18n.t('mapGarden');
+
+    if (optAmbientOff)   optAmbientOff.textContent   = i18n.t('ambientOff');
+    if (optAmbientRain)  optAmbientRain.textContent  = i18n.t('ambientRain');
+    if (optAmbientCafe)  optAmbientCafe.textContent  = i18n.t('ambientCafe');
+
+    if (startGameBtn) {
+        startGameBtn.textContent = gameStarted && lastMenuPanel === 'pause' ? i18n.t('applyResume') : i18n.t('startGame');
+    }
+    if (configBackBtn)   configBackBtn.textContent   = i18n.t('back');
+
+    // Customization Menu
+    if (lblCustomTitle)  lblCustomTitle.textContent  = i18n.t('userCustomization');
+    if (lblCustomName)   lblCustomName.textContent   = i18n.t('playerNameTag');
+    if (lblCustomColor)  lblCustomColor.textContent  = i18n.t('avatarColor');
+    if (optColorNess)    optColorNess.textContent    = i18n.t('colorNess');
+    if (optColorPaula)   optColorPaula.textContent   = i18n.t('colorPaula');
+    if (optColorJeff)    optColorJeff.textContent    = i18n.t('colorJeff');
+    if (optColorPoo)     optColorPoo.textContent     = i18n.t('colorPoo');
+    if (optColorPurple)  optColorPurple.textContent  = i18n.t('colorPurple');
+    if (optColorGold)    optColorGold.textContent    = i18n.t('colorGold');
+    if (saveCustomBtn)   saveCustomBtn.textContent   = i18n.t('saveAvatar');
+    if (customBackBtn)   customBackBtn.textContent   = i18n.t('back');
+
+    // Pause Menu
+    if (lblPauseTitle)    lblPauseTitle.textContent    = i18n.t('gamePaused');
+    if (lblStatToday)     lblStatToday.textContent     = i18n.t('statTodayMin');
+    if (lblStatSessions)  lblStatSessions.textContent  = i18n.t('statCompleted');
+    if (lblStatStreak)    lblStatStreak.textContent    = i18n.t('statStreak');
+    if (resumeBtn)        resumeBtn.textContent        = i18n.t('resume');
+    if (pauseTasksBtn)    pauseTasksBtn.textContent    = i18n.t('tasksButton');
+    if (pauseSettingsBtn) pauseSettingsBtn.textContent = i18n.t('settings');
+    if (exitMainBtn)      exitMainBtn.textContent      = i18n.t('exitMainMenu');
+
+    // HUD Elements
+    if (hudTag)      hudTag.textContent      = i18n.t('currentFocus');
+    if (btnHudPlay)  btnHudPlay.textContent  = gameState.pomodoro.isActive ? i18n.t('hudPause') : i18n.t('hudResume');
+    if (btnHudSkip)  btnHudSkip.textContent  = i18n.t('hudSkip');
+    if (btnHudTasks) btnHudTasks.textContent = i18n.t('tasksButton');
+    if (btnHudSound) btnHudSound.textContent = sound.isMuted ? i18n.t('hudMuted') : i18n.t('hudAudio');
+
+    // Task Drawer
+    if (lblDrawerTitle)  lblDrawerTitle.textContent  = i18n.t('focusTasks');
+    if (taskInput)       taskInput.placeholder       = i18n.t('taskPlaceholder');
+    if (btnAddTask)      btnAddTask.textContent      = i18n.t('addTask');
+    if (lblDrawerFooter) lblDrawerFooter.textContent = i18n.t('taskTip');
+
+    // Bottom Legend
+    if (legendMove)     legendMove.textContent     = i18n.t('legendMove');
+    if (legendInteract) legendInteract.textContent = i18n.t('legendInteract');
+    if (legendPause)    legendPause.textContent    = i18n.t('legendPause');
+    if (legendTasks)    legendTasks.textContent    = i18n.t('legendTasks');
+    if (legendMute)     legendMute.textContent     = i18n.t('legendMute');
+    if (legendMenu)     legendMenu.textContent     = i18n.t('legendMenu');
+
+    // Refresh Study Buddy names dynamically
+    let buddyIdx = 1;
+    Object.keys(gameState.players).forEach(k => {
+        if (k !== 'my_id') {
+            gameState.players[k].id = `${i18n.t('studyBuddyPrefix')} ${buddyIdx++}`;
+        }
+    });
+
+    renderTasks();
+    updateStatsDisplay();
+}
 
 function updateStatsDisplay() {
     const stats = statsTracker.getStats();
@@ -530,7 +706,7 @@ function updateStatsDisplay() {
 function updateHUDActiveTask() {
     const active = taskManager.getActiveTask();
     if (hudTaskText) {
-        hudTaskText.textContent = active ? active.text : 'Deep work session';
+        hudTaskText.textContent = active ? active.text : i18n.t('defaultTask');
     }
 }
 
@@ -602,7 +778,7 @@ function toggleTimerPlayPause() {
     const timer = gameState.pomodoro;
     timer.isActive = !timer.isActive;
     if (btnHudPlay) {
-        btnHudPlay.textContent = timer.isActive ? '⏸ Pause' : '▶ Resume';
+        btnHudPlay.textContent = timer.isActive ? i18n.t('hudPause') : i18n.t('hudResume');
     }
     sound.play('click');
 }
@@ -647,7 +823,7 @@ function showPanel(target) {
     }
 
     if (target === 'config' && startGameBtn) {
-        startGameBtn.textContent = gameStarted && lastMenuPanel === 'pause' ? 'Apply & Resume' : 'Start Game';
+        startGameBtn.textContent = gameStarted && lastMenuPanel === 'pause' ? i18n.t('applyResume') : i18n.t('startGame');
     }
 }
 
@@ -664,6 +840,7 @@ function loadSavedSettings() {
                 const mapVal    = config.map;
                 const pName     = config.playerName;
                 const pColor    = config.playerColor;
+                const lang      = config.language;
 
                 if (!isNaN(focusVal) && focusVal >= 1 && focusVal <= 180)    currentConfig.focusTime   = focusVal;
                 if (!isNaN(breakVal) && breakVal >= 1 && breakVal <= 60)     currentConfig.breakTime   = breakVal;
@@ -672,6 +849,7 @@ function loadSavedSettings() {
                 if (['cafeteria', 'library', 'garden'].includes(mapVal))     currentConfig.map         = mapVal;
                 if (typeof pName === 'string' && pName.trim())               currentConfig.playerName  = pName.trim();
                 if (typeof pColor === 'string' && pColor.startsWith('#'))    currentConfig.playerColor = pColor;
+                if (['en', 'es', 'ja'].includes(lang))                       currentConfig.language    = lang;
 
                 if (focusInput)        focusInput.value        = currentConfig.focusTime;
                 if (breakInput)        breakInput.value        = currentConfig.breakTime;
@@ -686,6 +864,8 @@ function loadSavedSettings() {
 
     if (ambientSelect) ambientSelect.value = sound.ambientType;
     if (volumeSlider)  volumeSlider.value  = Math.round(sound.masterVolume * 100);
+
+    applyLanguage(currentConfig.language || i18n.getLanguage());
 }
 
 // ----------------------------------------------------------------------------
@@ -708,6 +888,22 @@ if (settingsBtn) {
 }
 if (customBtn)     customBtn.addEventListener('click',     () => showPanel('custom'));
 if (customBackBtn) customBackBtn.addEventListener('click', () => showPanel('main'));
+
+// Language Switchers
+langButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const lang = btn.dataset.lang;
+        applyLanguage(lang);
+        sound.play('click');
+    });
+});
+
+if (languageSelect) {
+    languageSelect.addEventListener('change', (e) => {
+        applyLanguage(e.target.value);
+        sound.play('click');
+    });
+}
 
 if (saveCustomBtn) {
     saveCustomBtn.addEventListener('click', () => {
@@ -733,6 +929,7 @@ if (startGameBtn) {
         const cyclesVal = cyclesInput ? parseInt(cyclesInput.value, 10) : 4;
         const npcVal    = npcInput ? parseInt(npcInput.value, 10) : 5;
         const mapVal    = mapSelect ? mapSelect.value : 'cafeteria';
+        const langVal   = languageSelect ? languageSelect.value : 'en';
 
         const gameConfig = {
             ...currentConfig,
@@ -740,7 +937,8 @@ if (startGameBtn) {
             breakTime: (!isNaN(breakVal) && breakVal >= 1 && breakVal <= 60) ? breakVal : 5,
             cycles:    (!isNaN(cyclesVal) && cyclesVal >= 1 && cyclesVal <= 12) ? cyclesVal : 4,
             map:       ['cafeteria', 'library', 'garden'].includes(mapVal) ? mapVal : 'cafeteria',
-            npcCount:  (!isNaN(npcVal) && npcVal >= 0 && npcVal <= 14) ? npcVal : 5
+            npcCount:  (!isNaN(npcVal) && npcVal >= 0 && npcVal <= 14) ? npcVal : 5,
+            language:  ['en', 'es', 'ja'].includes(langVal) ? langVal : 'en'
         };
 
         Object.assign(currentConfig, gameConfig);
@@ -752,6 +950,8 @@ if (startGameBtn) {
         if (ambientSelect) {
             sound.setAmbientType(ambientSelect.value);
         }
+
+        applyLanguage(currentConfig.language);
 
         gameStarted = true;
         initGameWorld();
@@ -808,7 +1008,7 @@ if (btnHudTasks) btnHudTasks.addEventListener('click', () => toggleTaskDrawer())
 if (btnHudSound) {
     btnHudSound.addEventListener('click', () => {
         const isMuted = sound.toggleMute();
-        btnHudSound.textContent = isMuted ? '🔇 Muted' : '🔊 Audio';
+        btnHudSound.textContent = isMuted ? i18n.t('hudMuted') : i18n.t('hudAudio');
         sound.play('click');
     });
 }
@@ -903,7 +1103,7 @@ window.addEventListener('keydown', (e) => {
     // [M] Toggle Audio Mute
     if (e.key === 'm' || e.key === 'M') {
         const isMuted = sound.toggleMute();
-        if (btnHudSound) btnHudSound.textContent = isMuted ? '🔇 Muted' : '🔊 Audio';
+        if (btnHudSound) btnHudSound.textContent = isMuted ? i18n.t('hudMuted') : i18n.t('hudAudio');
     }
 
     // [Tab] Skip Session

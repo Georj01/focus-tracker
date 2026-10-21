@@ -1,5 +1,5 @@
 // EarthBound Retro Dialogue Box System
-// Typewriter animated text with sound blips and interactive triggers
+// Typewriter animated text with sound blips and multilingual word wrapping
 
 import { sound } from './audio.js';
 
@@ -92,41 +92,59 @@ class DialogSystem {
         // Speaker Header Badge
         if (this.speaker) {
             ctx.fillStyle = '#facc15';
-            ctx.font      = 'bold 12px Courier New';
+            ctx.font      = 'bold 12px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
             ctx.textAlign = 'left';
             ctx.fillText(`[ ${this.speaker} ]`, boxX + 16, boxY + 24);
         }
 
-        // Dialogue Body Text (word wrap support)
+        // Dialogue Body Text with Universal Multilingual Wrapping
         const currentText = this.fullText.substring(0, this.displayedLen);
         ctx.fillStyle     = '#f8fafc';
-        ctx.font          = '14px Courier New';
+        ctx.font          = '14px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
         ctx.textAlign     = 'left';
 
-        const startY    = this.speaker ? boxY + 46 : boxY + 34;
+        const startY       = this.speaker ? boxY + 46 : boxY + 34;
         const maxLineWidth = boxW - 36;
-        const words     = currentText.split(' ');
-        let line        = '';
-        let lineY       = startY;
+        let line           = '';
+        let lineY          = startY;
 
-        for (let i = 0; i < words.length; i++) {
-            const testLine  = line + words[i] + ' ';
-            const testWidth = ctx.measureText(testLine).width;
-            if (testWidth > maxLineWidth && i > 0) {
-                ctx.fillText(line, boxX + 16, lineY);
-                line   = words[i] + ' ';
-                lineY += 20;
-            } else {
-                line = testLine;
+        // Universal character/word wrap
+        const isCjk = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf]/.test(this.fullText);
+
+        if (isCjk) {
+            for (let i = 0; i < currentText.length; i++) {
+                const char = currentText[i];
+                const test = line + char;
+                if (ctx.measureText(test).width > maxLineWidth) {
+                    ctx.fillText(line, boxX + 16, lineY);
+                    line   = char;
+                    lineY += 22;
+                } else {
+                    line = test;
+                }
             }
+            if (line) ctx.fillText(line, boxX + 16, lineY);
+        } else {
+            const words = currentText.split(' ');
+            for (let i = 0; i < words.length; i++) {
+                const testLine  = line + words[i] + ' ';
+                const testWidth = ctx.measureText(testLine).width;
+                if (testWidth > maxLineWidth && i > 0) {
+                    ctx.fillText(line, boxX + 16, lineY);
+                    line   = words[i] + ' ';
+                    lineY += 20;
+                } else {
+                    line = testLine;
+                }
+            }
+            if (line) ctx.fillText(line, boxX + 16, lineY);
         }
-        ctx.fillText(line, boxX + 16, lineY);
 
         // Animated retro continuation prompt arrow
         if (!this.isTyping) {
             const arrowBounce = Math.sin(performance.now() * 0.008) * 3;
             ctx.fillStyle     = '#f43f5e';
-            ctx.font          = 'bold 14px Courier New';
+            ctx.font          = 'bold 13px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
             ctx.textAlign     = 'right';
             ctx.fillText('▼ [E / Space]', boxX + boxW - 16, boxY + boxH - 12 + arrowBounce);
         }

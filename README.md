@@ -19,7 +19,8 @@ This application is designed as a zero-dependency, local-first web application. 
   - `src/engine/audio.js`: Synthesized 16-bit sound effects & procedural ambient noise.
   - `src/engine/tasks.js`: Persistent to-do checklist and active focus tracking.
   - `src/engine/stats.js`: Daily focus streak and session analytics.
-  - `src/engine/dialog.js`: EarthBound-style typewriter dialogue system.
+  - `src/engine/dialog.js`: EarthBound-style typewriter dialogue system with CJK wrapping.
+  - `src/engine/i18n.js`: Multilingual dictionary manager supporting English, Spanish, and Japanese.
   - `src/engine/interactions.js`: Proximity detection for chairs, coffee bar, and NPCs.
   - `src/engine/camera.js`: Viewport tracking with bounds clamping and automatic display centering.
   - `src/engine/sprites.js`: 4-directional pixel art character models and furniture.
@@ -63,6 +64,8 @@ Open your browser and navigate to the address shown in your terminal (typically 
 - **Audio Controls (`[M]`):**
   - Press `M` to toggle audio mute.
   - Configure procedural ambient sound (Gentle Rain or Cafe Ambiance) in Solo Settings.
+- **Multilingual Support (EN / ES / JA):**
+  - Toggle between **English**, **Español**, and **日本語** instantly using the language buttons on the Main Menu or the dropdown in Solo Settings. Language preferences are persisted in `localStorage`.
 - **Pause & Menus (`[ESC]`):**
   - Press `ESC` anytime to open the Pause Menu, review daily stats, or adjust study intervals.
 

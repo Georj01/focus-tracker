@@ -2,6 +2,7 @@
 // Persistent local-first task tracking with active HUD focus integration
 
 import { sound } from './audio.js';
+import { i18n } from './i18n.js';
 
 class TaskManager {
     constructor() {
@@ -30,7 +31,7 @@ class TaskManager {
         if (this.tasks.length === 0) {
             const defaultTask = {
                 id:        'task_' + Date.now(),
-                text:      'Deep work session',
+                text:      i18n.t('defaultTask'),
                 completed: false,
                 createdAt: Date.now()
             };

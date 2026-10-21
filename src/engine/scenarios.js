@@ -1,4 +1,5 @@
 import { SPRITES, drawPixelSprite } from './sprites.js';
+import { i18n } from './i18n.js';
 
 // Map scenario definitions and full EarthBound environments
 export const scenarioConfigs = {
@@ -342,10 +343,15 @@ export function renderScenarioEnvironment(ctx, width, height, mapKey = 'cafeteri
         ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
         ctx.strokeRect(badgeX, badgeY, badgeW, badgeH);
 
+        let signLabel = c.label;
+        if (mapKey === 'cafeteria') signLabel = i18n.t('signCafeteria');
+        else if (mapKey === 'library') signLabel = i18n.t('signLibrary');
+        else if (mapKey === 'garden') signLabel = i18n.t('signGarden');
+
         ctx.fillStyle = '#f8fafc';
-        ctx.font      = 'bold 12px Courier New';
+        ctx.font      = 'bold 12px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(c.label, c.x + c.w * 0.5, badgeY + 17);
+        ctx.fillText(signLabel, c.x + c.w * 0.5, badgeY + 17);
     }
 
     // 4. Study Chairs (Rendered beneath character layers)
