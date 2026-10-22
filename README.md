@@ -28,22 +28,23 @@ This application is designed as a zero-dependency, local-first web application. 
 
 ---
 
-## Installation
-Because this project uses standard browser ES Modules, it must be served through an HTTP server rather than the raw `file://` protocol.
+## Installation & Running
+This project is 100% zero-dependency and runs completely offline in any modern browser!
 
-Run it locally with any of the following standard commands:
+**Method 1: Direct File Launch (No Server Required)**
+- Simply double-click `index.html` (or `src/index.html`) to launch directly in your browser (`file://`).
 
-**Method 1: Python HTTP Server (Recommended)**
+**Method 2: Local HTTP Server (Optional)**
 ```bash
+# Python
 python -m http.server 8000
+# Open http://localhost:8000/ in your browser
 ```
-Open your browser and navigate to `http://localhost:8000/src/`.
-
-**Method 2: Node.js (npx serve)**
+or
 ```bash
-npx serve src
+# Node.js
+npx serve
 ```
-Open your browser and navigate to the address shown in your terminal (typically `http://localhost:3000`).
 
 ---
 

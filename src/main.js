@@ -871,23 +871,50 @@ function loadSavedSettings() {
 // ----------------------------------------------------------------------------
 // Event Listeners
 // ----------------------------------------------------------------------------
-if (playBtn)     playBtn.addEventListener('click',     () => showPanel('mode'));
-if (modeBackBtn) modeBackBtn.addEventListener('click', () => showPanel('main'));
+if (playBtn) {
+    playBtn.addEventListener('click', () => {
+        sound.play('click');
+        showPanel('mode');
+    });
+}
+if (modeBackBtn) {
+    modeBackBtn.addEventListener('click', () => {
+        sound.play('click');
+        showPanel('main');
+    });
+}
 if (soloBtn) {
     soloBtn.addEventListener('click', () => {
+        sound.play('click');
         lastMenuPanel = 'mode';
         showPanel('config');
     });
 }
-if (configBackBtn) configBackBtn.addEventListener('click', () => showPanel(lastMenuPanel));
+if (configBackBtn) {
+    configBackBtn.addEventListener('click', () => {
+        sound.play('click');
+        showPanel(lastMenuPanel);
+    });
+}
 if (settingsBtn) {
     settingsBtn.addEventListener('click', () => {
+        sound.play('click');
         lastMenuPanel = 'main';
         showPanel('config');
     });
 }
-if (customBtn)     customBtn.addEventListener('click',     () => showPanel('custom'));
-if (customBackBtn) customBackBtn.addEventListener('click', () => showPanel('main'));
+if (customBtn) {
+    customBtn.addEventListener('click', () => {
+        sound.play('click');
+        showPanel('custom');
+    });
+}
+if (customBackBtn) {
+    customBackBtn.addEventListener('click', () => {
+        sound.play('click');
+        showPanel('main');
+    });
+}
 
 // Language Switchers
 langButtons.forEach(btn => {
@@ -963,6 +990,7 @@ if (startGameBtn) {
 
 if (resumeBtn) {
     resumeBtn.addEventListener('click', () => {
+        sound.play('click');
         lastTime = performance.now();
         showPanel('none');
     });
@@ -970,12 +998,14 @@ if (resumeBtn) {
 
 if (pauseTasksBtn) {
     pauseTasksBtn.addEventListener('click', () => {
+        sound.play('click');
         toggleTaskDrawer(true);
     });
 }
 
 if (pauseSettingsBtn) {
     pauseSettingsBtn.addEventListener('click', () => {
+        sound.play('click');
         lastMenuPanel = 'pause';
         showPanel('config');
     });
@@ -983,6 +1013,7 @@ if (pauseSettingsBtn) {
 
 if (exitMainBtn) {
     exitMainBtn.addEventListener('click', () => {
+        sound.play('click');
         sound.stopAmbient();
         showPanel('main');
     });
@@ -1116,9 +1147,18 @@ window.addEventListener('keydown', (e) => {
 // ----------------------------------------------------------------------------
 // Startup Initialization
 // ----------------------------------------------------------------------------
-loadSavedSettings();
-initGameWorld();
-renderTasks();
-updateStatsDisplay();
-showPanel('main');
-requestAnimationFrame(gameLoop);
+function startApp() {
+    resizeCanvas();
+    loadSavedSettings();
+    initGameWorld();
+    renderTasks();
+    updateStatsDisplay();
+    showPanel('main');
+    requestAnimationFrame(gameLoop);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startApp);
+} else {
+    startApp();
+}
