@@ -4,27 +4,30 @@ A retro 2D virtual study space inspired by EarthBound (SNES) designed to gamify 
 
 ### Technical Breakdown & Radical Honesty
 This application is designed as a zero-dependency, local-first web application. Here is the blunt, analytical reality of the current architecture:
-- **Simulated Multiplayer:** There is no WebSocket or backend server. The virtual cafe atmosphere is simulated locally using procedurally spawned NPC entities that occupy designated study carrels and desks.
-- **Procedural Zero-Asset Engine:** Rather than loading megabytes of external texture packs or `.mp3` sound files, the graphics and sound are 100% procedurally synthesized in Vanilla JS. The sprites are drawn from 16-color hexadecimal arrays using the HTML5 Canvas 2D context, and the audio (chimes, white noise rain, and cafe murmurs) is generated dynamically via the Web Audio API.
-- **Deterministic Time Delta:** The timer and physics engine compute frame differences using `performance.now()`. When the browser tab is minimized or backgrounded, delta-time is clamped to `0.1s` per frame to prevent first-frame teleportation bugs while preserving accurate time decay.
-- **Local-First Persistence:** User preferences (study intervals, character palette, name tag), daily focus streak statistics, and active to-do tasks are serialized directly into browser `localStorage`.
-- **AABB Collision Physics:** Character movement uses Axis-Aligned Bounding Box (AABB) collision checks against static room geometry (desks, counters, bookshelves, and walls) with velocity sliding along obstacles.
+- **Simulated Multiplayer:** There is no WebSocket or backend server. The virtual cafe atmosphere is simulated locally using procedurally spawned NPC entities that occupy designated study carrels and take breaks between Pomodoro cycles.
+- **Procedural Zero-Asset Engine & Offscreen Caching:** Rather than loading external texture packs or `.mp3` sound files, graphics and sound are 100% procedurally synthesized in Vanilla JS. Pixel sprites and scenario floor grids are rasterized once onto offscreen `<canvas>` buffers (`WeakMap` / `Map` caches) for $O(1)$ hardware-accelerated `drawImage` blitting at 60 FPS, and audio (chimes, rain, cafe murmurs, fireplace crackle, and binaural alpha waves) is generated dynamically via the Web Audio API.
+- **Wall-Clock Background Timer & Clamped Physics Delta:** Physics movement clamps frame deltas (`performance.now()`) to `0.1s` to prevent collision tunneling, while the Pomodoro countdown tracks real wall-clock timestamps (`Date.now()`) with a background-tab heartbeat (`setInterval` + `visibilitychange`) and live `document.title` updates so timers never freeze when the browser tab is backgrounded.
+- **Local-First Persistence:** User preferences, 7-day focus history & daily streak statistics, and active to-do tasks with Pomodoro session targets are serialized directly into browser `localStorage`.
+- **AABB Collision & Click-to-Move Steering:** Character movement supports both keyboard (`WASD`/Arrows) and click/tap-to-move waypoints with Axis-Aligned Bounding Box (AABB) collision sliding and memoized room obstacles.
 
 ---
 
 ## Stack
 - **HTML5:** Semantic UI structure and 2D Canvas rendering context (`image-rendering: pixelated`).
-- **CSS3:** Modern dark-mode layout, glassmorphic UI overlay panels, and retro Courier typography.
-- **Vanilla JS (ES6 Modules):** Decoupled modular architecture with zero external libraries or bundlers:
-  - `src/engine/audio.js`: Synthesized 16-bit sound effects & procedural ambient noise.
-  - `src/engine/tasks.js`: Persistent to-do checklist and active focus tracking.
-  - `src/engine/stats.js`: Daily focus streak and session analytics.
+- **CSS3:** Responsive dark-mode layout, glassmorphic UI overlay panels, 7-day history bar chart, and retro Courier typography.
+- **Vanilla JS (ES6 Modules):** Decoupled modular architecture with zero external libraries:
+  - `src/engine/audio.js`: Synthesized 16-bit sound effects & 4 procedural ambient soundscapes (Rain, Cafe, Fireplace, Binaural).
+  - `src/engine/tasks.js`: Persistent to-do checklist with active HUD focus & Pomodoro target/completion tracking (`🍅 done/target`).
+  - `src/engine/stats.js`: Daily focus streak, total focus time, and 7-day focus history analytics.
   - `src/engine/dialog.js`: EarthBound-style typewriter dialogue system with CJK wrapping.
   - `src/engine/i18n.js`: Multilingual dictionary manager supporting English, Spanish, and Japanese.
-  - `src/engine/interactions.js`: Proximity detection for chairs, coffee bar, and NPCs.
+  - `src/engine/interactions.js`: Proximity & click detection for chairs, coffee bar, bookshelves, lanterns, and NPCs.
   - `src/engine/camera.js`: Viewport tracking with bounds clamping and automatic display centering.
-  - `src/engine/sprites.js`: 4-directional pixel art character models and furniture.
-  - `src/engine/scenarios.js`: Scenario maps (Cafeteria, Library, Zen Garden) and collision boundaries.
+  - `src/engine/sprites.js`: 4-directional pixel art character models and furniture with offscreen canvas caching.
+  - `src/engine/scenarios.js`: Scenario maps (Cafeteria, Library, Zen Garden), cached floor layers, and memoized collision boundaries.
+  - `src/engine/world.js`: World state, click-to-move steering, AABB physics, and dynamic NPC break behaviors.
+  - `src/engine/timer.js`: Wall-clock Pomodoro timer engine, live tab title updates, and SNES HUD clock renderer.
+  - `src/build-bundle.js`: Zero-dependency script that compiles all ES6 modules into `src/bundle.js` for `file://` execution.
 
 ---
 
@@ -42,36 +45,36 @@ python -m http.server 8000
 ```
 or
 ```bash
-# Node.js
-npx serve
+# Rebuild standalone bundle after editing src/engine/*.js or src/main.js
+node src/build-bundle.js
 ```
 
 ---
 
 ## Usage
-- **Movement:** Use `W` `A` `S` `D` or the standard `Arrow Keys` to navigate the study space.
-- **Interactions (`[E]`):**
-  - Walk up to an empty chair at any desk and press `E` to sit down and enter `STUDYING` focus state.
+- **Movement:** Use `W` `A` `S` `D`, `Arrow Keys`, or **Click / Tap** anywhere on the map to walk and interact.
+- **Interactions (`[E]` or Click/Tap):**
+  - Walk up to an empty chair at any desk and press `E` (or click the chair/prompt) to sit down and enter `STUDYING` focus state.
   - Walk up to the Espresso Bar to pour fresh coffee.
   - Walk up to library bookshelves to read study wisdom.
-  - Talk to study buddy NPCs for encouragement.
+  - Talk to study buddy NPCs for encouragement (NPCs also take breaks and stretch during break sessions).
 - **Pomodoro Timer Controls:**
   - `[Space]`: Toggle timer Play / Pause.
   - `[Tab]`: Skip to next session.
-  - Sessions automatically cycle through Focus intervals, Short Breaks, and award a Long Break upon completing all scheduled cycles.
+  - Live countdown is mirrored in the browser tab title (`🍅 24:59 — Pomodoro World 2D`) and continues accurately in background tabs.
 - **Task Management (`[T]`):**
   - Press `T` or click the HUD Tasks button to toggle the focus to-do list.
-  - Add tasks and click any task to pin it as your active focus item on the top HUD.
+  - Click any task to pin it as your active focus item on the top HUD, or click its `🍅` badge to set target Pomodoros (`1–8`). Completed focus sessions automatically increment the active task's Pomodoro count.
 - **Audio Controls (`[M]`):**
   - Press `M` to toggle audio mute.
-  - Configure procedural ambient sound (Gentle Rain or Cafe Ambiance) in Solo Settings.
+  - Choose from 4 procedural ambient soundscapes (Gentle Rain, Cafe Ambiance, Cozy Fireplace, or Deep Focus Binaural) in Solo Settings.
 - **Multilingual Support (EN / ES / JA):**
-  - Toggle between **English**, **Español**, and **日本語** instantly using the language buttons on the Main Menu or the dropdown in Solo Settings. Language preferences are persisted in `localStorage`.
-- **Pause & Menus (`[ESC]`):**
-  - Press `ESC` anytime to open the Pause Menu, review daily stats, or adjust study intervals.
+  - Toggle between **English**, **Español**, and **日本語** instantly using the language buttons on the Main Menu or the dropdown in Solo Settings.
+- **Pause & Analytics (`[ESC]`):**
+  - Press `ESC` anytime to open the Pause Menu, review your 7-Day Focus History bar chart and streak, or adjust settings without losing your current session progress.
 
 ```javascript
-// State representation managed in src/main.js
+// State representation managed in src/engine/world.js
 const gameState = {
     players: {
         'my_id': { id: 'Ness', x: 600, y: 360, width: 32, height: 40, direction: 'down', state: 'IDLE' },

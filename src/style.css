@@ -460,8 +460,8 @@ canvas {
     border-radius: 8px;
     display: flex;
     justify-content: space-around;
-    padding: 0.8rem 0.5rem;
-    margin-bottom: 1.2rem;
+    padding: 0.7rem 0.4rem;
+    margin-bottom: 0.7rem;
 }
 
 .stat-item {
@@ -472,14 +472,121 @@ canvas {
 }
 
 .stat-val {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: bold;
     color: #facc15;
 }
 
 .stat-lbl {
+    font-size: 0.68rem;
+    color: #94a3b8;
+}
+
+.weekly-chart-card {
+    width: 100%;
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.weekly-chart-title {
     font-size: 0.72rem;
     color: #94a3b8;
+    font-weight: bold;
+    text-align: center;
+}
+
+.weekly-bars {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 64px;
+    gap: 0.35rem;
+    padding-top: 0.4rem;
+}
+
+.weekly-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    gap: 2px;
+}
+
+.weekly-bar-val {
+    font-size: 0.62rem;
+    color: #cbd5e1;
+}
+
+.weekly-bar-fill {
+    width: 100%;
+    max-width: 22px;
+    min-height: 3px;
+    background-color: #3b82f6;
+    border-radius: 3px 3px 0 0;
+    transition: height 0.2s ease;
+}
+
+.weekly-bar-col.today .weekly-bar-fill {
+    background-color: #facc15;
+}
+
+.weekly-bar-lbl {
+    font-size: 0.62rem;
+    color: #64748b;
+}
+
+.weekly-bar-col.today .weekly-bar-lbl {
+    color: #facc15;
+    font-weight: bold;
+}
+
+.hud-pomo-pill {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #fde047;
+    background-color: rgba(250, 204, 21, 0.16);
+    border: 1px solid rgba(250, 204, 21, 0.4);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.interact-btn {
+    background-color: rgba(234, 179, 8, 0.22);
+    border-color: #facc15;
+    color: #fde047;
+}
+
+.interact-btn:hover {
+    background-color: #eab308;
+    border-color: #fde047;
+    color: #0f172a;
+}
+
+.task-pomo-btn {
+    background-color: rgba(15, 23, 42, 0.75);
+    border: 1px solid #475569;
+    color: #fde047;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: bold;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.task-pomo-btn:hover {
+    border-color: #facc15;
+    background-color: rgba(250, 204, 21, 0.15);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -508,3 +615,33 @@ canvas {
 #controls-legend span:nth-child(odd) {
     color: #e2e8f0;
 }
+
+@media (max-width: 900px) {
+    #hud-overlay {
+        top: 102px;
+        left: 10px;
+        right: 10px;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    #hud-task-banner {
+        max-width: 100%;
+    }
+
+    #task-drawer {
+        top: 148px;
+        left: 10px;
+        width: calc(100vw - 20px);
+        max-width: 360px;
+    }
+
+    #controls-legend {
+        font-size: 0.68rem;
+        padding: 0.3rem 0.6rem;
+        gap: 0.4rem;
+        max-width: 96vw;
+        overflow-x: auto;
+    }
+}
+

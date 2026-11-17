@@ -186,9 +186,16 @@ export function getStudySeats(mapKey = 'cafeteria') {
     return config.chairs || [];
 }
 
-// Retrieve bounding boxes for solid collision checking
+const obstacleCache = new Map();
+const floorCache    = new Map();
+
+// Retrieve bounding boxes for solid collision checking (memoized per scenario & world dimensions)
 export function getObstacles(mapKey, width, height) {
-    const config = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
+    const cacheKey = `${mapKey}|${width}|${height}`;
+    const cached   = obstacleCache.get(cacheKey);
+    if (cached) return cached;
+
+    const config    = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
     const obstacles = [];
 
     // Outer boundary walls (thickness 20px)
@@ -235,70 +242,86 @@ export function getObstacles(mapKey, width, height) {
         });
     }
 
+    obstacleCache.set(cacheKey, obstacles);
     return obstacles;
 }
 
-// Render scenario floor with authentic retro pixel tiles
+// Render scenario floor with authentic retro pixel tiles (cached to offscreen canvas)
 export function renderScenarioFloor(ctx, width, height, mapKey = 'cafeteria') {
-    const config = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
-    const tileSize = 48;
+    const cacheKey = `${mapKey}|${width}|${height}`;
+    let offscreen  = floorCache.get(cacheKey);
 
-    ctx.fillStyle = config.floorColor;
-    ctx.fillRect(0, 0, width, height);
+    if (!offscreen && typeof document !== 'undefined') {
+        offscreen        = document.createElement('canvas');
+        offscreen.width  = width;
+        offscreen.height = height;
+        const octx       = offscreen.getContext('2d');
 
-    if (config.floorType === 'checker') {
-        ctx.fillStyle = config.tileAccent;
-        for (let y = 0; y < height; y += tileSize) {
-            for (let x = 0; x < width; x += tileSize) {
-                if (((x / tileSize) + (y / tileSize)) % 2 === 0) {
-                    ctx.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
+        const config   = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
+        const tileSize = 48;
+
+        octx.fillStyle = config.floorColor;
+        octx.fillRect(0, 0, width, height);
+
+        if (config.floorType === 'checker') {
+            octx.fillStyle = config.tileAccent;
+            for (let y = 0; y < height; y += tileSize) {
+                for (let x = 0; x < width; x += tileSize) {
+                    if (((x / tileSize) + (y / tileSize)) % 2 === 0) {
+                        octx.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
+                    }
+                }
+            }
+        } else if (config.floorType === 'parquet') {
+            octx.fillStyle = config.tileAccent;
+            for (let y = 0; y < height; y += tileSize) {
+                for (let x = 0; x < width; x += tileSize) {
+                    if (Math.floor(y / tileSize) % 2 === 0) {
+                        octx.fillRect(x + 2, y + 2, tileSize - 4, (tileSize >> 1) - 4);
+                    } else {
+                        octx.fillRect(x + (tileSize >> 1) + 2, y + 2, (tileSize >> 1) - 4, tileSize - 4);
+                    }
+                }
+            }
+        } else {
+            octx.fillStyle = config.tileAccent;
+            for (let y = 24; y < height; y += 72) {
+                for (let x = 24; x < width; x += 72) {
+                    octx.fillRect(x, y, 16, 16);
+                    octx.fillRect(x + 8, y + 8, 12, 12);
                 }
             }
         }
-    } else if (config.floorType === 'parquet') {
-        ctx.fillStyle = config.tileAccent;
+
+        // Grid accent lines
+        octx.strokeStyle = config.gridColor;
+        octx.lineWidth   = 1;
+        octx.beginPath();
+        for (let x = 0; x < width; x += tileSize) {
+            octx.moveTo(x, 0);
+            octx.lineTo(x, height);
+        }
         for (let y = 0; y < height; y += tileSize) {
-            for (let x = 0; x < width; x += tileSize) {
-                // Alternating parquet planks
-                if (Math.floor(y / tileSize) % 2 === 0) {
-                    ctx.fillRect(x + 2, y + 2, tileSize - 4, (tileSize / 2) - 4);
-                } else {
-                    ctx.fillRect(x + (tileSize / 2) + 2, y + 2, (tileSize / 2) - 4, tileSize - 4);
-                }
-            }
+            octx.moveTo(0, y);
+            octx.lineTo(width, y);
         }
-    } else {
-        // Zen garden: soft grass with subtle organic moss clumps
-        ctx.fillStyle = config.tileAccent;
-        for (let y = 24; y < height; y += 72) {
-            for (let x = 24; x < width; x += 72) {
-                ctx.fillRect(x, y, 16, 16);
-                ctx.fillRect(x + 8, y + 8, 12, 12);
-            }
+        octx.stroke();
+
+        // Render zen stepping stones if present
+        if (config.steppingStones) {
+            config.steppingStones.forEach(s => {
+                drawPixelSprite(octx, SPRITES.ZEN_STONE, s.x, s.y, s.w, s.h);
+            });
         }
+
+        floorCache.set(cacheKey, offscreen);
     }
 
-    // Grid accent lines
-    ctx.strokeStyle = config.gridColor;
-    ctx.lineWidth   = 1;
-    ctx.beginPath();
-    for (let x = 0; x < width; x += tileSize) {
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-    }
-    for (let y = 0; y < height; y += tileSize) {
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-    }
-    ctx.stroke();
-
-    // Render zen stepping stones if present
-    if (config.steppingStones) {
-        config.steppingStones.forEach(s => {
-            drawPixelSprite(ctx, SPRITES.ZEN_STONE, s.x, s.y, s.w, s.h);
-        });
+    if (offscreen) {
+        ctx.drawImage(offscreen, 0, 0);
     }
 }
+
 
 // Render scenario perimeter walls, furniture, chairs, and atmospheric props
 export function renderScenarioEnvironment(ctx, width, height, mapKey = 'cafeteria') {

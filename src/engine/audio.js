@@ -8,18 +8,19 @@ class SoundEngine {
         this.sfxVolume     = 0.8;
         this.ambientVolume = 0.4;
         this.isMuted       = false;
-        this.ambientType   = 'off'; // 'off' | 'rain' | 'cafe'
+        this.ambientType   = 'off'; // 'off' | 'rain' | 'cafe' | 'fire' | 'binaural'
 
         // Active ambient audio nodes
         this.ambientSource = null;
         this.ambientGain   = null;
         this.ambientFilter = null;
+        this.extraNodes    = [];
 
         this.loadSettings();
     }
 
     initContext() {
-        if (!this.ctx) {
+        if (!this.ctx && typeof window !== 'undefined') {
             const AudioContextClass = window.AudioContext || window.webkitAudioContext;
             if (AudioContextClass) {
                 this.ctx = new AudioContextClass();
@@ -39,7 +40,9 @@ class SoundEngine {
                 if (typeof cfg.masterVolume === 'number')  this.masterVolume  = cfg.masterVolume;
                 if (typeof cfg.ambientVolume === 'number') this.ambientVolume = cfg.ambientVolume;
                 if (typeof cfg.isMuted === 'boolean')      this.isMuted       = cfg.isMuted;
-                if (['off', 'rain', 'cafe'].includes(cfg.ambientType)) this.ambientType = cfg.ambientType;
+                if (['off', 'rain', 'cafe', 'fire', 'binaural'].includes(cfg.ambientType)) {
+                    this.ambientType = cfg.ambientType;
+                }
             }
         } catch (_) {}
     }
@@ -70,12 +73,12 @@ class SoundEngine {
         this.masterVolume = Math.max(0, Math.min(1, val));
         this.saveSettings();
         if (this.ambientGain && this.ctx) {
-            this.ambientGain.gain.setValueAtTime(this.ambientVolume * this.masterVolume, this.ctx.currentTime);
+            this.ambientGain.gain.setValueAtTime(this.ambientVolume * this.masterVolume * 0.25, this.ctx.currentTime);
         }
     }
 
     setAmbientType(type) {
-        if (!['off', 'rain', 'cafe'].includes(type)) return;
+        if (!['off', 'rain', 'cafe', 'fire', 'binaural'].includes(type)) return;
         this.ambientType = type;
         this.saveSettings();
         if (type === 'off' || this.isMuted) {
@@ -229,7 +232,7 @@ class SoundEngine {
     }
 
     // ------------------------------------------------------------------------
-    // Procedural Ambient White Noise (Rain / Cafe Atmosphere)
+    // Procedural Ambient Soundscapes (Rain / Cafe / Fireplace / Binaural)
     // ------------------------------------------------------------------------
     startAmbient(type) {
         this.stopAmbient();
@@ -238,26 +241,30 @@ class SoundEngine {
         const actx = this.initContext();
         if (!actx) return;
 
-        // Generate 3 seconds of white noise buffer looped seamlessly
-        const bufferSize = actx.sampleRate * 3;
+        // Generate 3 seconds of noise buffer looped seamlessly
+        const bufferSize  = actx.sampleRate * 3;
         const noiseBuffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
+        const output      = noiseBuffer.getChannelData(0);
 
         let lastOut = 0.0;
         for (let i = 0; i < bufferSize; i++) {
             const white = Math.random() * 2 - 1;
             if (type === 'rain') {
-                // Pink noise filter approximation for gentle rain
-                lastOut = (lastOut * 0.95) + (white * 0.05);
+                lastOut   = (lastOut * 0.95) + (white * 0.05);
                 output[i] = lastOut * 3.0;
+            } else if (type === 'fire') {
+                // Warm hearth rumble with random wood crackle impulses
+                lastOut       = (lastOut * 0.985) + (white * 0.015);
+                const crackle = Math.random() > 0.9994 ? (Math.random() * 2 - 1) * 0.9 : 0;
+                output[i]     = (lastOut * 4.2) + crackle;
             } else {
-                // Warm cafe murmur rumble
-                lastOut = (lastOut * 0.98) + (white * 0.02);
-                output[i] = lastOut * 4.0;
+                // Warm cafe murmur / soft background pad
+                lastOut   = (lastOut * 0.98) + (white * 0.02);
+                output[i] = lastOut * (type === 'binaural' ? 1.8 : 4.0);
             }
         }
 
-        const noise = actx.createBufferSource();
+        const noise  = actx.createBufferSource();
         noise.buffer = noiseBuffer;
         noise.loop   = true;
 
@@ -266,9 +273,13 @@ class SoundEngine {
             filter.type            = 'lowpass';
             filter.frequency.value = 850;
             filter.Q.value         = 1.2;
+        } else if (type === 'fire') {
+            filter.type            = 'lowpass';
+            filter.frequency.value = 620;
+            filter.Q.value         = 0.9;
         } else {
             filter.type            = 'bandpass';
-            filter.frequency.value = 450;
+            filter.frequency.value = type === 'binaural' ? 320 : 450;
             filter.Q.value         = 0.8;
         }
 
@@ -281,12 +292,36 @@ class SoundEngine {
 
         noise.start();
 
+        // Add subtle 10Hz alpha-wave binaural carrier pair (200Hz & 210Hz) for deep focus
+        if (type === 'binaural') {
+            [200, 210].forEach(freq => {
+                const osc     = actx.createOscillator();
+                const oscGain = actx.createGain();
+                osc.type      = 'sine';
+                osc.frequency.setValueAtTime(freq, actx.currentTime);
+                oscGain.gain.setValueAtTime(0.18, actx.currentTime);
+                osc.connect(oscGain);
+                oscGain.connect(gainNode);
+                osc.start();
+                this.extraNodes.push(osc, oscGain);
+            });
+        }
+
         this.ambientSource = noise;
         this.ambientFilter = filter;
         this.ambientGain   = gainNode;
     }
 
     stopAmbient() {
+        if (this.extraNodes && this.extraNodes.length) {
+            this.extraNodes.forEach(node => {
+                try {
+                    if (typeof node.stop === 'function') node.stop();
+                    node.disconnect();
+                } catch (_) {}
+            });
+            this.extraNodes = [];
+        }
         if (this.ambientSource) {
             try {
                 this.ambientSource.stop();

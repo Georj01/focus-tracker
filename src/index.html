@@ -14,8 +14,10 @@
         <div id="hud-task-banner">
             <span class="hud-tag" id="hud-tag">CURRENT FOCUS</span>
             <span id="hud-task-text">Deep work session</span>
+            <span id="hud-task-pomo" class="hud-pomo-pill">🍅 0/2</span>
         </div>
         <div id="hud-actions">
+            <button id="btn-hud-interact" class="hud-btn interact-btn hidden" title="Interact [E]">⚡ Interact</button>
             <button id="btn-hud-play" class="hud-btn" title="Toggle Play / Pause [Space]">⏸ Pause</button>
             <button id="btn-hud-skip" class="hud-btn" title="Skip Session [Tab]">⏭ Skip</button>
             <button id="btn-hud-tasks" class="hud-btn" title="Toggle To-Do Tasks [T]">📋 Tasks (T)</button>
@@ -37,7 +39,7 @@
             <!-- Dynamic task items injected via JS -->
         </div>
         <div class="drawer-footer">
-            <small id="lbl-drawer-footer">Click task to pin as active focus • ✓ to complete</small>
+            <small id="lbl-drawer-footer">Click task to pin • Click 🍅 to adjust target • ✓ to complete</small>
         </div>
     </div>
 
@@ -106,6 +108,8 @@
                         <option value="off" id="opt-ambient-off">Off (Quiet)</option>
                         <option value="rain" id="opt-ambient-rain">Gentle Rain 🌧️</option>
                         <option value="cafe" id="opt-ambient-cafe">Cafe Ambiance ☕</option>
+                        <option value="fire" id="opt-ambient-fire">Cozy Fireplace 🔥</option>
+                        <option value="binaural" id="opt-ambient-binaural">Deep Focus Binaural 🎧</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -167,9 +171,18 @@
                     <span class="stat-lbl" id="lbl-stat-sessions">Completed</span>
                 </div>
                 <div class="stat-item">
+                    <span class="stat-val" id="stat-total-focus">0m</span>
+                    <span class="stat-lbl" id="lbl-stat-total">Total Focus</span>
+                </div>
+                <div class="stat-item">
                     <span class="stat-val" id="stat-streak">0</span>
                     <span class="stat-lbl" id="lbl-stat-streak">Day Streak 🔥</span>
                 </div>
+            </div>
+            <!-- 7-Day Focus History Bar Chart -->
+            <div class="weekly-chart-card">
+                <span class="weekly-chart-title" id="lbl-weekly-title">7-Day Focus History (min)</span>
+                <div class="weekly-bars" id="stats-weekly-bars"></div>
             </div>
             <nav class="menu-buttons">
                 <button id="btn-resume" class="menu-btn primary-btn">Resume</button>

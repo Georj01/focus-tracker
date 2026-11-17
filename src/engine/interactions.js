@@ -153,15 +153,25 @@ class InteractionManager {
                 break;
             }
             case 'npc': {
-                const line = i18n.getRandomNpcDialogue();
+                const isBreak = interaction.npc && interaction.npc.state === 'BREAK';
+                const line    = i18n.getRandomNpcDialogue(isBreak);
                 dialogSystem.show(interaction.npc.id, line);
                 break;
             }
         }
     }
 
+    isPointInPrompt(wx, wy) {
+        const b = this.lastPromptBounds;
+        if (!b) return false;
+        return wx >= b.x - 6 && wx <= b.x + b.w + 6 && wy >= b.y - 6 && wy <= b.y + b.h + 6;
+    }
+
     drawPrompt(ctx, interaction) {
-        if (!interaction || dialogSystem.isOpen) return;
+        if (!interaction || dialogSystem.isOpen) {
+            this.lastPromptBounds = null;
+            return;
+        }
 
         ctx.font        = 'bold 11px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
         const textWidth = ctx.measureText(interaction.label).width;
@@ -172,6 +182,7 @@ class InteractionManager {
 
         // Bouncing animation
         const bounce = Math.sin(performance.now() * 0.008) * 3;
+        this.lastPromptBounds = { x: boxX, y: boxY + bounce, w: boxW, h: boxH };
 
         ctx.fillStyle   = 'rgba(24, 20, 37, 0.95)';
         ctx.strokeStyle = '#facc15';
@@ -186,3 +197,4 @@ class InteractionManager {
 }
 
 export const interactionManager = new InteractionManager();
+

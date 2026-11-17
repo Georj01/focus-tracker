@@ -41,6 +41,8 @@ export const TRANSLATIONS = {
         ambientOff:        'Off (Quiet)',
         ambientRain:       'Gentle Rain 🌧️',
         ambientCafe:       'Cafe Ambiance ☕',
+        ambientFire:       'Cozy Fireplace 🔥',
+        ambientBinaural:   'Deep Focus Binaural 🎧',
 
         // Customization
         playerNameTag:     'Player Name Tag:',
@@ -56,15 +58,18 @@ export const TRANSLATIONS = {
         statTodayMin:      "Today's Min",
         statCompleted:     'Completed',
         statStreak:        'Day Streak 🔥',
+        statTotalFocus:    'Total Focus',
+        statWeeklyTitle:   '7-Day Focus History (min)',
 
         // Tasks
         focusTasks:        '📋 Focus Tasks',
         taskPlaceholder:   'What are you focusing on?',
         addTask:           '+ Add',
-        taskTip:           'Click task to pin as active focus • ✓ to complete',
+        taskTip:           'Click task to pin • Click 🍅 to adjust target • ✓ to complete',
         defaultTask:       'Deep work session',
         currentFocus:      'CURRENT FOCUS',
         tasksButton:       '📋 Tasks (T)',
+        taskEstTitle:      'Target Pomodoros (click to cycle 1-8)',
 
         // HUD Controls
         hudPause:          '⏸ Pause',
@@ -74,8 +79,8 @@ export const TRANSLATIONS = {
         hudMuted:          '🔇 Muted',
 
         // Controls Legend Bar
-        legendMove:        '[WASD / Arrows] Move',
-        legendInteract:    '[E] Sit / Interact',
+        legendMove:        '[WASD / Click] Move',
+        legendInteract:    '[E / Click] Sit & Interact',
         legendPause:       '[Space] Pause',
         legendTasks:       '[T] Tasks',
         legendMute:        '[M] Mute',
@@ -126,6 +131,12 @@ export const TRANSLATIONS = {
             '"I just checked off my third task. Steady progress wins the day!"',
             '"Deep focus is a superpower. Keep going, you\'re doing great!"',
             '"Taking short breaks keeps your brain fresh. Good luck with this session!"'
+        ],
+
+        npcBreakDialogues: [
+            '"Ahh, break time! Stretching my legs and grabbing a fresh espresso."',
+            '"Great focus session! Make sure to rest your eyes for a few minutes."',
+            '"Nothing beats a quick breather after a solid block of deep work!"'
         ]
     },
 
@@ -168,6 +179,8 @@ export const TRANSLATIONS = {
         ambientOff:        'Apagado (Silencio)',
         ambientRain:       'Lluvia Suave 🌧️',
         ambientCafe:       'Ambiente de Café ☕',
+        ambientFire:       'Chimenea Cálida 🔥',
+        ambientBinaural:   'Enfoque Binaural 🎧',
 
         // Customization
         playerNameTag:     'Nombre del Jugador:',
@@ -183,15 +196,18 @@ export const TRANSLATIONS = {
         statTodayMin:      'Minutos Hoy',
         statCompleted:     'Completadas',
         statStreak:        'Racha Días 🔥',
+        statTotalFocus:    'Enfoque Total',
+        statWeeklyTitle:   'Historial de 7 Días (min)',
 
         // Tasks
         focusTasks:        '📋 Tareas de Enfoque',
         taskPlaceholder:   '¿En qué te vas a enfocar?',
         addTask:           '+ Añadir',
-        taskTip:           'Haz clic en una tarea para fijarla • ✓ para completar',
+        taskTip:           'Clic en tarea para fijar • Clic en 🍅 para meta • ✓ completar',
         defaultTask:       'Sesión de trabajo profundo',
         currentFocus:      'ENFOQUE ACTUAL',
         tasksButton:       '📋 Tareas (T)',
+        taskEstTitle:      'Pomodoros objetivo (clic para cambiar 1-8)',
 
         // HUD Controls
         hudPause:          '⏸ Pausar',
@@ -201,8 +217,8 @@ export const TRANSLATIONS = {
         hudMuted:          '🔇 Silencio',
 
         // Controls Legend Bar
-        legendMove:        '[WASD / Flechas] Mover',
-        legendInteract:    '[E] Sentarse / Interactuar',
+        legendMove:        '[WASD / Clic] Mover',
+        legendInteract:    '[E / Clic] Sentarse / Interactuar',
         legendPause:       '[Espacio] Pausa',
         legendTasks:       '[T] Tareas',
         legendMute:        '[M] Silenciar',
@@ -253,6 +269,12 @@ export const TRANSLATIONS = {
             '"¡Acabo de marcar mi tercera tarea! El progreso constante siempre gana."',
             '"El enfoque profundo es un superpoder. ¡Sigue así, lo estás haciendo genial!"',
             '"Tomar descansos cortos mantiene tu cerebro fresco. ¡Mucho éxito con esta sesión!"'
+        ],
+
+        npcBreakDialogues: [
+            '"¡Hora de descansar! Estirando las piernas y tomando un café recién hecho."',
+            '"¡Gran sesión de enfoque! Asegúrate de descansar la vista unos minutos."',
+            '"¡Nada como un respiro después de un buen bloque de concentración!"'
         ]
     },
 
@@ -295,6 +317,8 @@ export const TRANSLATIONS = {
         ambientOff:        'オフ（静寂）',
         ambientRain:       'やさしい雨音 🌧️',
         ambientCafe:       'カフェのざわめき ☕',
+        ambientFire:       '暖炉の焚き火 🔥',
+        ambientBinaural:   '集中バイノーラル 🎧',
 
         // Customization
         playerNameTag:     'プレイヤー名:',
@@ -310,15 +334,18 @@ export const TRANSLATIONS = {
         statTodayMin:      '今日の集中（分）',
         statCompleted:     '完了セッション',
         statStreak:        '継続日数 🔥',
+        statTotalFocus:    '累計集中時間',
+        statWeeklyTitle:   '過去7日間の集中記録（分）',
 
         // Tasks
         focusTasks:        '📋 集中タスク',
         taskPlaceholder:   '何に集中しますか？',
         addTask:           '+ 追加',
-        taskTip:           'タスクをクリックしてHUDに固定 • ✓で完了',
+        taskTip:           'クリックで固定 • 🍅で目標変更 • ✓で完了',
         defaultTask:       'ディープワークセッション',
         currentFocus:      '現在の集中タスク',
         tasksButton:       '📋 タスク (T)',
+        taskEstTitle:      '目標ポモドーロ数（クリックで1〜8に変更）',
 
         // HUD Controls
         hudPause:          '⏸ 一時停止',
@@ -328,8 +355,8 @@ export const TRANSLATIONS = {
         hudMuted:          '🔇 ミュート',
 
         // Controls Legend Bar
-        legendMove:        '[WASD / 矢印] 移動',
-        legendInteract:    '[E] 座る / 調べる',
+        legendMove:        '[WASD / クリック] 移動',
+        legendInteract:    '[E / クリック] 座る・調べる',
         legendPause:       '[スペース] 一時停止',
         legendTasks:       '[T] タスク',
         legendMute:        '[M] 消音',
@@ -380,6 +407,12 @@ export const TRANSLATIONS = {
             '「3つ目のタスクを完了したよ！一歩一歩が大切だね。」',
             '「ディープフォーカスは最強のスキルだよ。その調子！」',
             '「小休憩をしっかり挟むと頭が冴えるよ。頑張ろう！」'
+        ],
+
+        npcBreakDialogues: [
+            '「休憩タイムだね！少し背伸びをしてコーヒーを飲んでくるよ。」',
+            '「いい集中だったね！目を少し休めてリフレッシュしよう。」',
+            '「集中した後の小休憩は最高だね！」'
         ]
     }
 };
@@ -439,8 +472,9 @@ class I18nManager {
         return quotes[Math.floor(Math.random() * quotes.length)];
     }
 
-    getRandomNpcDialogue() {
-        const dialogues = this.t('npcDialogues') || TRANSLATIONS.en.npcDialogues;
+    getRandomNpcDialogue(isBreak = false) {
+        const key = isBreak ? 'npcBreakDialogues' : 'npcDialogues';
+        const dialogues = this.t(key) || TRANSLATIONS.en[key];
         return dialogues[Math.floor(Math.random() * dialogues.length)];
     }
 }

@@ -486,36 +486,59 @@ export const SPRITES = {
     ]
 };
 
+// Offscreen Canvas Cache: O(1) hardware-accelerated blitting after initial rasterization
+const spriteCache = new WeakMap();
+
 // Render a specific sprite data array to the canvas with optional horizontal flip
 export function drawPixelSprite(ctx, spriteData, x, y, width, height, mainColor = null, accentColor = null, flipX = false) {
     if (!spriteData || !spriteData.length) return;
-    const rows = spriteData.length;
-    const cols = spriteData[0].length;
-    const pixelWidth  = width / cols;
-    const pixelHeight = height / rows;
 
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            // Support horizontal flipping cleanly without canvas matrix transformations
-            const colIdx = flipX ? (cols - 1 - c) : c;
-            const val    = spriteData[r][colIdx];
-            if (val === '_') continue;
+    let variantMap = spriteCache.get(spriteData);
+    if (!variantMap) {
+        variantMap = new Map();
+        spriteCache.set(spriteData, variantMap);
+    }
 
-            let color = PALETTE[val];
-            if (!color) continue;
+    const cacheKey = `${width}|${height}|${mainColor || ''}|${accentColor || ''}|${flipX ? 1 : 0}`;
+    let offscreen  = variantMap.get(cacheKey);
 
-            // Dynamic color overrides
-            if (val === '2' && mainColor)   color = mainColor;
-            if (val === '6' && accentColor) color = accentColor;
+    if (!offscreen && typeof document !== 'undefined') {
+        offscreen        = document.createElement('canvas');
+        offscreen.width  = Math.ceil(width);
+        offscreen.height = Math.ceil(height);
+        const octx       = offscreen.getContext('2d');
 
-            ctx.fillStyle = color;
-            // Overlap slightly to prevent sub-pixel rendering gaps
-            ctx.fillRect(
-                Math.floor(x + c * pixelWidth),
-                Math.floor(y + r * pixelHeight),
-                Math.ceil(pixelWidth + 0.4),
-                Math.ceil(pixelHeight + 0.4)
-            );
+        const rows        = spriteData.length;
+        const cols        = spriteData[0].length;
+        const pixelWidth  = width / cols;
+        const pixelHeight = height / rows;
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const colIdx = flipX ? (cols - 1 - c) : c;
+                const val    = spriteData[r][colIdx];
+                if (val === '_') continue;
+
+                let color = PALETTE[val];
+                if (!color) continue;
+
+                if (val === '2' && mainColor)   color = mainColor;
+                if (val === '6' && accentColor) color = accentColor;
+
+                octx.fillStyle = color;
+                octx.fillRect(
+                    Math.floor(c * pixelWidth),
+                    Math.floor(r * pixelHeight),
+                    Math.ceil(pixelWidth + 0.4),
+                    Math.ceil(pixelHeight + 0.4)
+                );
+            }
         }
+        variantMap.set(cacheKey, offscreen);
+    }
+
+    if (offscreen) {
+        ctx.drawImage(offscreen, Math.floor(x), Math.floor(y));
     }
 }
+
