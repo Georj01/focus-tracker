@@ -188,16 +188,23 @@
             promptZen:         '[E] Mindful Meditation 🌸',
             promptTalk:        '[E] Talk to',
             promptPet:         '[E] Pet',
+            promptHeaterOff:   '[E] Turn Off Fan Heater 🔥',
+            promptHeaterOn:    '[E] Turn On Fan Heater 🔥',
+            promptSnowWindow:  '[E] Look Out Snow Window ❄️',
 
             // Dialogue System
-            dialogStudyTitle:  'Study Desk',
-            dialogStudyBody:   'You sat down at the desk. Study materials ready. Deep work mode active!',
-            dialogCoffeeTitle: 'Espresso Bar',
-            dialogCoffeeBody:  'You poured a hot cup of fresh espresso! Motivation and alertness refreshed.',
-            dialogZenTitle:    'Zen Stone Lantern',
-            dialogZenBody:     'You pause for a mindful breath amidst the tranquil garden. Serenity restored.',
-            dialogCycleTitle:  'Cycle Finished!',
-            dialogCycleBody:   '🎉 Outstanding work! You completed all scheduled cycles. Enjoy your well-earned Long Break!',
+            dialogStudyTitle:      'Study Desk',
+            dialogStudyBody:       'You sat down at the desk. Study materials ready. Deep work mode active!',
+            dialogCoffeeTitle:     'Espresso Bar',
+            dialogCoffeeBody:      'You poured a hot cup of fresh espresso! Motivation and alertness refreshed.',
+            dialogZenTitle:        'Zen Stone Lantern',
+            dialogZenBody:         'You pause for a mindful breath amidst the tranquil garden. Serenity restored.',
+            dialogCycleTitle:      'Cycle Finished!',
+            dialogCycleBody:       '🎉 Outstanding work! You completed all scheduled cycles. Enjoy your well-earned Long Break!',
+            dialogHeaterTitle:     'Retro Fan Heater',
+            dialogHeaterOn:        'Click! The fan heater hums to life, spreading gentle golden warmth across the cozy floor.',
+            dialogHeaterOff:       'Click. You switched the fan heater off to save energy. The room stays snug and quiet.',
+            dialogSnowWindowTitle: 'Snowy Town Window',
 
             quotes: [
                 '"The secret of getting ahead is getting started." — Mark Twain',
@@ -231,6 +238,12 @@
                 'Woof~ The cafe pup wags its tail gently and settles quietly by your feet.',
                 '*Gentle sniff* A warm, calm friend cheering on your study session.',
                 'The cafe dog gives a quiet happy sigh and rests peacefully on the warm floor.'
+            ],
+
+            snowWindowDialogues: [
+                'Soft pixel snow drifts quietly over the rooftops of the snowy town outside. It feels so warm inside!',
+                'Warm yellow lights glow from the cottages across the snow-covered street. Perfect weather for deep focus.',
+                'Frost outlines the windowpane as gentle snowflakes fall past the pine trees outside.'
             ]
         },
 
@@ -339,16 +352,23 @@
             promptZen:         '[E] Meditación Consciente 🌸',
             promptTalk:        '[E] Hablar con',
             promptPet:         '[E] Acariciar a',
+            promptHeaterOff:   '[E] Apagar Calefactor 🔥',
+            promptHeaterOn:    '[E] Encender Calefactor 🔥',
+            promptSnowWindow:  '[E] Mirar por la Ventana ❄️',
 
             // Dialogue System
-            dialogStudyTitle:  'Escritorio de Estudio',
-            dialogStudyBody:   'Te sentaste en el escritorio. Materiales listos. ¡Modo de concentración activo!',
-            dialogCoffeeTitle: 'Bar de Espresso',
-            dialogCoffeeBody:  '¡Serviste una taza caliente de café recién hecho! Motivación y energía recargadas.',
-            dialogZenTitle:    'Linterna de Piedra Zen',
-            dialogZenBody:     'Haces una pausa para respirar hondo en el tranquilo jardín. Serenidad restaurada.',
-            dialogCycleTitle:  '¡Ciclo Completado!',
-            dialogCycleBody:   '🎉 ¡Excelente trabajo! Completaste todos los ciclos programados. ¡Disfruta tu merecido descanso largo!',
+            dialogStudyTitle:      'Escritorio de Estudio',
+            dialogStudyBody:       'Te sentaste en el escritorio. Materiales listos. ¡Modo de concentración activo!',
+            dialogCoffeeTitle:     'Bar de Espresso',
+            dialogCoffeeBody:      '¡Serviste una taza caliente de café recién hecho! Motivación y energía recargadas.',
+            dialogZenTitle:        'Linterna de Piedra Zen',
+            dialogZenBody:         'Haces una pausa para respirar hondo en el tranquilo jardín. Serenidad restaurada.',
+            dialogCycleTitle:      '¡Ciclo Completado!',
+            dialogCycleBody:       '🎉 ¡Excelente trabajo! Completaste todos los ciclos programados. ¡Disfruta tu merecido descanso largo!',
+            dialogHeaterTitle:     'Calefactor Retro',
+            dialogHeaterOn:        '¡Clic! El calefactor zumba suavemente, llenando la sala de un calor acogedor.',
+            dialogHeaterOff:       'Clic. Apagaste el calefactor para ahorrar energía. El ambiente sigue cálido y tranquilo.',
+            dialogSnowWindowTitle: 'Ventana al Pueblo Nevado',
 
             quotes: [
                 '"El secreto de salir adelante es comenzar." — Mark Twain',
@@ -382,6 +402,12 @@
                 'Guau~ El perrito mueve la cola despacio y se acomoda tranquilo a tu lado.',
                 '*Olfateo suave* Un amigo tranquilo te acompaña mientras estudias.',
                 'El perrito de la cafetería suspira feliz y descansa en el suelo cálido.'
+            ],
+
+            snowWindowDialogues: [
+                'La nieve cae suavemente sobre los tejados del pueblo nevado afuera. ¡Qué acogedor se está aquí dentro!',
+                'Luces cálidas brillan en las casitas del pueblo cubierto de nieve. Clima ideal para concentrarse.',
+                'La escarcha decora la ventana mientras pequeños copos flotan junto a los pinos nevados.'
             ]
         },
 
@@ -490,16 +516,23 @@
             promptZen:         '[E] 瞑想する 🌸',
             promptTalk:        '[E] 話しかける:',
             promptPet:         '[E] なでる:',
+            promptHeaterOff:   '[E] ファンヒーターを消す 🔥',
+            promptHeaterOn:    '[E] ファンヒーターをつける 🔥',
+            promptSnowWindow:  '[E] 雪の窓を眺める ❄️',
 
             // Dialogue System
-            dialogStudyTitle:  '学習デスク',
-            dialogStudyBody:   '席に着きました。勉強道具の準備完了。集中モード開始！',
-            dialogCoffeeTitle: 'エスプレッソバー',
-            dialogCoffeeBody:  '淹れたての温かいコーヒーを注ぎました！やる気と集中力が満ちてきました。',
-            dialogZenTitle:    '禅の石灯籠',
-            dialogZenBody:     '静寂の庭園の中で深呼吸をしました。心がすっきりと落ち着きました。',
-            dialogCycleTitle:  'サイクル達成！',
-            dialogCycleBody:   '🎉 素晴らしい集中力です！すべてのサイクルを達成しました。長めの休憩をゆっくり楽しんでください！',
+            dialogStudyTitle:      '学習デスク',
+            dialogStudyBody:       '席に着きました。勉強道具の準備完了。集中モード開始！',
+            dialogCoffeeTitle:     'エスプレッソバー',
+            dialogCoffeeBody:      '淹れたての温かいコーヒーを注ぎました！やる気と集中力が満ちてきました。',
+            dialogZenTitle:        '禅の石灯籠',
+            dialogZenBody:         '静寂の庭園の中で深呼吸をしました。心がすっきりと落ち着きました。',
+            dialogCycleTitle:      'サイクル達成！',
+            dialogCycleBody:       '🎉 素晴らしい集中力です！すべてのサイクルを達成しました。長めの休憩をゆっくり楽しんでください！',
+            dialogHeaterTitle:     'レトロ ファンヒーター',
+            dialogHeaterOn:        'カチッ！ファンヒーターからやさしい温風が広がり、足元までぽかぽかです。',
+            dialogHeaterOff:       'カチッ。ファンヒーターを消しました。部屋は静かで心地よいままです。',
+            dialogSnowWindowTitle: '雪の街の窓辺',
 
             quotes: [
                 '「前へ進む秘訣は、まず始めることだ。」— マーク・トウェイン',
@@ -533,6 +566,12 @@
                 'わん〜 カフェの犬がゆっくりしっぽを振って足元でくつろいでいます。',
                 '静かに寄り添って、あなたの集中タイムを見守ってくれています。',
                 '安心したようにふぅと息をついて、床でのんびり休んでいます。'
+            ],
+
+            snowWindowDialogues: [
+                '窓の外では雪の街の屋根にやわらかい雪が静かに積もっています。中はぽかぽか！',
+                '雪化粧をした家々の窓に暖かい明かりが灯っています。集中するのにぴったりの夜です。',
+                '雪の結晶が松の木の間をゆっくり舞い落ちています。'
             ]
         }
     };
@@ -602,6 +641,11 @@
             const key = species === 'dog' ? 'dogDialogues' : 'catDialogues';
             const dialogues = this.t(key) || TRANSLATIONS.en[key];
             return dialogues[Math.floor(Math.random() * dialogues.length)];
+        }
+
+        getRandomSnowWindowDialogue() {
+            const lines = this.t('snowWindowDialogues') || TRANSLATIONS.en.snowWindowDialogues;
+            return lines[Math.floor(Math.random() * lines.length)];
         }
     }
     const i18n = new I18nManager();
@@ -871,6 +915,21 @@
                         osc.start(now + i * 0.08);
                         osc.stop(now + i * 0.08 + 0.11);
                     });
+                    break;
+                }
+                case 'heater_toggle': {
+                    // Crisp retro mechanical heater dial click + warm hum blip
+                    const osc  = actx.createOscillator();
+                    const gain = actx.createGain();
+                    osc.type   = 'square';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.exponentialRampToValueAtTime(110, now + 0.06);
+                    gain.gain.setValueAtTime(vol * 0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+                    osc.connect(gain);
+                    gain.connect(actx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
                     break;
                 }
             }
@@ -1466,6 +1525,52 @@
             '0222222220',
             '0222222220',
             '_00000000_'
+        ],
+
+        // ------------------------------------------------------------------------
+        // 5. COZY WINTER FAN HEATERS (12x12 -> 36x36 px at 3x scale)
+        // ------------------------------------------------------------------------
+        FAN_HEATER_ON_1: [
+            '_0000000000_',
+            '0EEEEEEEEEE0',
+            '0E00000000E0',
+            '0E040EEII0E0',
+            '0E00000000E0',
+            '0E0HGGGGH0E0',
+            '0E00000000E0',
+            '0E0GGGGGG0E0',
+            '0E00000000E0',
+            '0E0HGGGGH0E0',
+            '0IIIIIIIIII0',
+            '_000____000_'
+        ],
+        FAN_HEATER_ON_2: [
+            '_0000000000_',
+            '0EEEEEEEEEE0',
+            '0E00000000E0',
+            '0E040EEII0E0',
+            '0E00000000E0',
+            '0E0GHGGHG0E0',
+            '0E00000000E0',
+            '0E0HGGGGH0E0',
+            '0E00000000E0',
+            '0E0GHGGHG0E0',
+            '0IIIIIIIIII0',
+            '_000____000_'
+        ],
+        FAN_HEATER_OFF: [
+            '_0000000000_',
+            '0EEEEEEEEEE0',
+            '0E00000000E0',
+            '0E0I0EEII0E0',
+            '0E00000000E0',
+            '0E0IIIIII0E0',
+            '0E00000000E0',
+            '0E0IIIIII0E0',
+            '0E00000000E0',
+            '0E0IIIIII0E0',
+            '0IIIIIIIIII0',
+            '_000____000_'
         ]
     };
 
@@ -1619,6 +1724,217 @@
         }
     }
 
+    // ----------------------------------------------------------------------------
+    // Cached Crisp 3x Pixel-Art Snow Town Backdrop & Cozy Snow Windows
+    // ----------------------------------------------------------------------------
+    const snowSceneCache = new Map();
+
+    function drawPixelSnowTownScene(octx, w, h, compact = false) {
+        const p = PIXEL_SCALE;
+        octx.imageSmoothingEnabled = false;
+
+        // 1. Stepped crisp winter twilight sky
+        const skyH1 = Math.floor(h * 0.34);
+        const skyH2 = Math.floor(h * 0.64);
+        octx.fillStyle = '#18294a';
+        octx.fillRect(0, 0, w, skyH1);
+        octx.fillStyle = '#243c69';
+        octx.fillRect(0, skyH1, w, skyH2 - skyH1);
+        octx.fillStyle = '#335387';
+        octx.fillRect(0, skyH2, w, h - skyH2);
+
+        // 2. Crisp pixel stars & crescent moon
+        octx.fillStyle = '#e8f1ff';
+        for (let sx = p * 4; sx < w - p * 4; sx += p * (compact ? 11 : 18)) {
+            const sy = p * (2 + ((sx * 7) % (compact ? 4 : 16)));
+            octx.fillRect(sx, sy, p, p);
+        }
+        const moonX = Math.max(p * 4, w - p * (compact ? 9 : 22));
+        const moonY = p * (compact ? 2 : 7);
+        octx.fillStyle = '#fff3b0';
+        octx.fillRect(moonX, moonY, p * 3, p * 3);
+        octx.fillStyle = '#18294a';
+        octx.fillRect(moonX + p, moonY, p * 2, p * 2);
+
+        // 3. Distant snow-capped pixel mountain ridge
+        const groundY = h - p * (compact ? 2 : 16);
+        const peakStep = p * (compact ? 16 : 34);
+        for (let mx = -p * 4; mx < w + peakStep; mx += peakStep) {
+            const peakH = p * (compact ? (7 + ((mx / p) % 4)) : (22 + ((mx / p) % 10)));
+            const baseY = groundY;
+            for (let row = 0; row < peakH; row += p) {
+                const halfW = Math.floor((row + p) * 1.15 / p) * p;
+                octx.fillStyle = row < peakH * 0.35 ? '#dcebff' : '#3d5885';
+                octx.fillRect(mx - halfW, baseY - peakH + row, halfW * 2, p);
+            }
+        }
+
+        // 4. Cozy Snow Town Houses & Snowy Pines along the horizon
+        const houseWalls = ['#4c3b4d', '#3e526b', '#5e4236', '#46584b'];
+        const houseUnit  = p * (compact ? 14 : 24);
+        let idx = 0;
+
+        for (let hx = p * 2; hx < w - p * 4; hx += houseUnit) {
+            const isPine = idx % 3 === 2;
+            if (isPine) {
+                // Crisp snowy pixel pine tree
+                const tx = hx + p * 3;
+                octx.fillStyle = '#422818';
+                octx.fillRect(tx + p * 2, groundY - p * 2, p * 2, p * 2);
+                const tiers = compact ? 3 : 5;
+                for (let t = 0; t < tiers; t++) {
+                    const tw = p * (2 + t * 2);
+                    const ty = groundY - p * (2 + (tiers - t) * 2);
+                    octx.fillStyle = '#1f4e3d';
+                    octx.fillRect(tx + p * 3 - (tw >> 1), ty, tw, p * 2);
+                    octx.fillStyle = '#ffffff';
+                    octx.fillRect(tx + p * 3 - (tw >> 1), ty, tw, p);
+                }
+            } else {
+                // Cozy snow-roofed town cottage with warm glowing windows
+                const bw = p * (compact ? 10 : 16);
+                const bh = p * (compact ? (6 + (idx % 2) * 2) : (10 + (idx % 3) * 3));
+                const by = groundY - bh;
+
+                // Chimney
+                octx.fillStyle = '#33282c';
+                octx.fillRect(hx + bw - p * 3, by - p * 4, p * 2, p * 4);
+                octx.fillStyle = '#ffffff';
+                octx.fillRect(hx + bw - p * 3, by - p * 4, p * 2, p);
+
+                // Cottage wall
+                octx.fillStyle = houseWalls[idx % houseWalls.length];
+                octx.fillRect(hx, by, bw, bh);
+
+                // Pitched snowy roof
+                octx.fillStyle = '#ffffff';
+                octx.fillRect(hx - p, by - p, bw + p * 2, p * 2);
+                octx.fillRect(hx + p, by - p * 2, bw - p * 2, p);
+                octx.fillStyle = '#bcd6f5';
+                octx.fillRect(hx - p, by + p, bw + p * 2, p);
+
+                // Warm glowing amber/gold pixel windows
+                octx.fillStyle = '#ffe259';
+                const winSize = compact ? p : p * 2;
+                const winGap  = compact ? p * 3 : p * 4;
+                for (let wy = by + p * 2; wy + winSize <= groundY - p; wy += winSize + p * 2) {
+                    for (let wx = hx + p * 2; wx + winSize <= hx + bw - p * 2; wx += winGap) {
+                        octx.fillRect(wx, wy, winSize, winSize);
+                    }
+                }
+            }
+            idx++;
+        }
+
+        // 5. Crisp snowy ground blanket
+        octx.fillStyle = '#ffffff';
+        octx.fillRect(0, groundY, w, p * 2);
+        octx.fillStyle = '#d6e6fa';
+        octx.fillRect(0, groundY + p * 2, w, Math.max(0, h - groundY - p * 2));
+    }
+    function renderSnowTownBackdrop(ctx, canvasWidth, canvasHeight) {
+        const w = Math.max(60, Math.ceil(canvasWidth));
+        const h = Math.max(60, Math.ceil(canvasHeight));
+        const cacheKey = `backdrop|${w}|${h}`;
+        let offscreen  = snowSceneCache.get(cacheKey);
+
+        if (!offscreen && typeof document !== 'undefined') {
+            if (snowSceneCache.size > 12) snowSceneCache.clear();
+            offscreen        = document.createElement('canvas');
+            offscreen.width  = w;
+            offscreen.height = h;
+            drawPixelSnowTownScene(offscreen.getContext('2d'), w, h, false);
+            snowSceneCache.set(cacheKey, offscreen);
+        }
+
+        if (offscreen) {
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(offscreen, 0, 0);
+        }
+
+        // Calm slow-drifting 3x3 pixel snowflakes across the outer snow town sky
+        const p    = PIXEL_SCALE;
+        const tSec = performance.now() * 0.001;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
+        for (let i = 0; i < 28; i++) {
+            const baseX = (i * 97) % w;
+            const drift = Math.sin(tSec * 0.55 + i) * 8;
+            const speed = 11 + (i % 4) * 3;
+            const fx    = Math.floor(((baseX + drift + w) % w) / p) * p;
+            const fy    = Math.floor(((i * 43 + tSec * speed) % h) / p) * p;
+            ctx.fillRect(fx, fy, p, p);
+        }
+    }
+    function drawSnowWindow(ctx, x, y, w, h) {
+        const p  = PIXEL_SCALE;
+        const rx = Math.round(x);
+        const ry = Math.round(y);
+        const rw = Math.round(w);
+        const rh = Math.round(h);
+        const innerX = rx + p * 2;
+        const innerY = ry + p * 2;
+        const innerW = Math.max(p * 4, rw - p * 4);
+        const innerH = Math.max(p * 4, rh - p * 4);
+
+        // Soft cool winter moonlight cast onto the indoor floor right below the window
+        ctx.fillStyle = 'rgba(147, 197, 253, 0.08)';
+        ctx.fillRect(rx + p * 2, ry + rh + p * 3, rw - p * 4, p * 12);
+
+        // Cached crisp Snow Town view inside the window glass
+        const cacheKey = `win|${innerW}|${innerH}`;
+        let offscreen  = snowSceneCache.get(cacheKey);
+        if (!offscreen && typeof document !== 'undefined') {
+            offscreen        = document.createElement('canvas');
+            offscreen.width  = innerW;
+            offscreen.height = innerH;
+            drawPixelSnowTownScene(offscreen.getContext('2d'), innerW, innerH, true);
+            snowSceneCache.set(cacheKey, offscreen);
+        }
+
+        // Outer wooden frame & dark pixel outline
+        ctx.fillStyle = PALETTE['0'];
+        ctx.fillRect(rx, ry, rw, rh);
+        ctx.fillStyle = PALETTE['9'];
+        ctx.fillRect(rx + p, ry + p, rw - p * 2, rh - p * 2);
+
+        if (offscreen) {
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(offscreen, innerX, innerY);
+        }
+
+        // Gentle slow-falling 3x3 pixel snowflakes clipped inside the glass
+        const tSec = performance.now() * 0.001;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        for (let i = 0; i < 9; i++) {
+            const sx = innerX + Math.floor(((i * 31 + Math.sin(tSec * 0.6 + i) * 5 + innerW) % (innerW - p)) / p) * p;
+            const sy = innerY + Math.floor(((i * 17 + tSec * (9 + (i % 3) * 2)) % (innerH - p)) / p) * p;
+            ctx.fillRect(sx, sy, p, p);
+        }
+
+        // Wooden window mullions dividing the panoramic window into 3 cozy panes
+        const paneW = Math.floor(innerW / 3);
+        ctx.fillStyle = PALETTE['A'];
+        ctx.fillRect(innerX + paneW, innerY, p, innerH);
+        ctx.fillRect(innerX + paneW * 2, innerY, p, innerH);
+        ctx.fillRect(innerX, innerY + Math.floor(innerH * 0.45), innerW, p);
+
+        // Subtle snow & frost buildup settled along the bottom corners of each pane
+        ctx.fillStyle = '#e8f4ff';
+        for (let pane = 0; pane < 3; pane++) {
+            const px = innerX + pane * paneW + (pane > 0 ? p : 0);
+            const pw = pane === 2 ? (innerX + innerW - px) : paneW - (pane > 0 ? p : 0);
+            ctx.fillRect(px, innerY + innerH - p, pw, p);
+            ctx.fillRect(px, innerY + innerH - p * 2, p * 2, p);
+            ctx.fillRect(px + pw - p * 2, innerY + innerH - p * 2, p * 2, p);
+        }
+
+        // Crisp wooden windowsill ledge below the window
+        ctx.fillStyle = PALETTE['0'];
+        ctx.fillRect(rx - p, ry + rh, rw + p * 2, p * 3);
+        ctx.fillStyle = PALETTE['8'];
+        ctx.fillRect(rx, ry + rh + p, rw, p);
+    }
+
     // ============================================================================
     // Module: src/engine/scenarios.js
     // ============================================================================
@@ -1631,9 +1947,20 @@
             tileAccent:  '#473024',
             borderColor: '#b45309',
             wallColor:   '#2b1810',
+            wallTrim:    '#5c3518',
+            wallTop:     78,
             gridColor:   'rgba(0, 0, 0, 0.16)',
             themeColor:  '#000080',
-            counter:     { x: 438, y: 42, w: 324, h: 54, label: '☕ Onett Espresso Bar' },
+            snowWindows: [
+                { x: 120, y: 9, w: 276, h: 60 },
+                { x: 804, y: 9, w: 276, h: 60 }
+            ],
+            heaters: [
+                { id: 'cafe_h1', x: 162,  y: 84,  w: 36, h: 36, isOn: true },
+                { id: 'cafe_h2', x: 1002, y: 84,  w: 36, h: 36, isOn: true },
+                { id: 'cafe_h3', x: 582,  y: 690, w: 36, h: 36, isOn: true }
+            ],
+            counter:     { x: 438, y: 78, w: 324, h: 54, label: '☕ Onett Espresso Bar' },
             desks: [
                 { x: 144, y: 180, w: 96, h: 54, type: 'laptop', label: 'Coffee Desk A' },
                 { x: 420, y: 201, w: 96, h: 54, type: 'book',   label: 'Central Table 1' },
@@ -1661,8 +1988,8 @@
                 { x: 882,  y: 477, w: 30, h: 36, facing: 'left' }
             ],
             plants: [
-                { x: 60,   y: 60,  w: 36, h: 42 },
-                { x: 1104, y: 60,  w: 36, h: 42 },
+                { x: 54,   y: 87,  w: 36, h: 42 },
+                { x: 1110, y: 87,  w: 36, h: 42 },
                 { x: 60,   y: 702, w: 36, h: 42 },
                 { x: 1104, y: 702, w: 36, h: 42 },
                 { x: 360,  y: 330, w: 36, h: 42 },
@@ -1677,12 +2004,22 @@
             tileAccent:  '#2f365e',
             borderColor: '#4f5d95',
             wallColor:   '#181c36',
+            wallTrim:    '#313a66',
+            wallTop:     78,
             gridColor:   'rgba(0, 0, 0, 0.16)',
             themeColor:  '#000080',
-            counter:     { x: 438, y: 45, w: 324, h: 54, label: '📚 Twoson Library Archives' },
+            snowWindows: [
+                { x: 114, y: 9, w: 240, h: 60 },
+                { x: 846, y: 9, w: 240, h: 60 }
+            ],
+            heaters: [
+                { id: 'lib_h1', x: 390, y: 84, w: 36, h: 36, isOn: true },
+                { id: 'lib_h2', x: 774, y: 84, w: 36, h: 36, isOn: true }
+            ],
+            counter:     { x: 438, y: 78, w: 324, h: 54, label: '📚 Twoson Library Archives' },
             bookshelves: [
-                { x: 96,   y: 42,  w: 276, h: 45 },
-                { x: 828,  y: 42,  w: 276, h: 45 },
+                { x: 96,   y: 81,  w: 276, h: 45 },
+                { x: 828,  y: 81,  w: 276, h: 45 },
                 { x: 42,   y: 222, w: 45,  h: 180 },
                 { x: 42,   y: 462, w: 45,  h: 180 },
                 { x: 1113, y: 222, w: 45,  h: 180 },
@@ -1728,14 +2065,15 @@
             tileAccent:  '#246649',
             borderColor: '#2d8a4e',
             wallColor:   '#123828',
+            wallTop:     21,
             gridColor:   'rgba(0, 0, 0, 0.12)',
             themeColor:  '#008080',
             counter:     { x: 438, y: 45, w: 324, h: 54, label: '🌸 Dalaam Tea Pavilion' },
             lanterns: [
-                { x: 162, y: 102, w: 36, h: 48 },
+                { x: 162,  y: 102, w: 36, h: 48 },
                 { x: 1002, y: 102, w: 36, h: 48 },
-                { x: 180, y: 660, w: 36, h: 48 },
-                { x: 984, y: 660, w: 36, h: 48 }
+                { x: 180,  y: 660, w: 36, h: 48 },
+                { x: 984,  y: 660, w: 36, h: 48 }
             ],
             steppingStones: [
                 { x: 579, y: 132, w: 42, h: 27 },
@@ -1796,13 +2134,17 @@
         const obstacles = [];
 
         const wallThick = 21;
-        obstacles.push({ x: 0, y: 0, w: width, h: wallThick });
+        const wallTop   = config.wallTop || wallThick;
+        obstacles.push({ x: 0, y: 0, w: width, h: wallTop });
         obstacles.push({ x: 0, y: height - wallThick, w: width, h: wallThick });
         obstacles.push({ x: 0, y: 0, w: wallThick, h: height });
         obstacles.push({ x: width - wallThick, y: 0, w: wallThick, h: height });
 
         if (config.counter) {
             obstacles.push({ x: config.counter.x, y: config.counter.y, w: config.counter.w, h: config.counter.h });
+        }
+        if (config.heaters) {
+            config.heaters.forEach(h => obstacles.push({ x: h.x + 3, y: h.y + 6, w: h.w - 6, h: h.h - 6 }));
         }
         if (config.bookshelves) {
             config.bookshelves.forEach(b => obstacles.push({ x: b.x, y: b.y, w: b.w, h: b.h }));
@@ -1895,19 +2237,34 @@
     function renderScenarioEnvironment(ctx, width, height, mapKey = 'cafeteria') {
         const config    = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
         const wallThick = 21;
+        const wallTop   = config.wallTop || wallThick;
 
         ctx.imageSmoothingEnabled = false;
 
-        // 1. Crisp Pixel Room Walls
+        // 1. Crisp Pixel Room Walls & Interior North Wall Trim
         ctx.fillStyle = config.wallColor;
-        ctx.fillRect(0, 0, width, wallThick);
+        ctx.fillRect(0, 0, width, wallTop);
         ctx.fillRect(0, height - wallThick, width, wallThick);
         ctx.fillRect(0, 0, wallThick, height);
         ctx.fillRect(width - wallThick, 0, wallThick, height);
 
+        if (wallTop > wallThick && config.wallTrim) {
+            ctx.fillStyle = config.wallTrim;
+            ctx.fillRect(wallThick, wallTop - 12, width - wallThick * 2, 9);
+            ctx.fillStyle = '#181818';
+            ctx.fillRect(wallThick, wallTop - 3, width - wallThick * 2, 3);
+        }
+
         ctx.strokeStyle = config.borderColor;
         ctx.lineWidth   = 3;
-        ctx.strokeRect(wallThick, wallThick, width - wallThick * 2, height - wallThick * 2);
+        ctx.strokeRect(wallThick, wallTop, width - wallThick * 2, height - wallTop - wallThick);
+
+        // 1b. Panoramic Snow Windows looking out on the Snowy Pixel Town
+        if (config.snowWindows) {
+            config.snowWindows.forEach(win => {
+                drawSnowWindow(ctx, win.x, win.y, win.w, win.h);
+            });
+        }
 
         // 2. Bookshelves (tiled crisp pixel blocks)
         if (config.bookshelves) {
@@ -1929,7 +2286,7 @@
             const badgeW = 240;
             const badgeH = 22;
             const badgeX = Math.round(c.x + (c.w - badgeW) * 0.5);
-            const badgeY = Math.round(c.y - 16);
+            const badgeY = Math.round(c.y - 24);
 
             ctx.fillStyle = '#c0c0c0';
             ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
@@ -1951,6 +2308,39 @@
             ctx.font      = 'bold 11px Tahoma, "MS Sans Serif", "MS PGothic", sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(signLabel, badgeX + Math.round(badgeW * 0.5), badgeY + 15);
+        }
+
+        // 3b. Cozy Retro Fan Heaters with Gentle Warm Floor Glow
+        if (config.heaters) {
+            const heatFrame = Math.floor(performance.now() / 800) % 2 === 0;
+            const tSec      = performance.now() * 0.001;
+            config.heaters.forEach((h, idx) => {
+                if (h.isOn) {
+                    ctx.fillStyle = 'rgba(255, 165, 64, 0.14)';
+                    ctx.fillRect(h.x - 12, h.y + h.h - 3, h.w + 24, 30);
+                    ctx.fillStyle = 'rgba(255, 195, 96, 0.12)';
+                    ctx.fillRect(h.x - 3, h.y + h.h - 3, h.w + 6, 18);
+                }
+
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(h.x + 3, h.y + h.h - 3, h.w - 6, 6);
+
+                const sprite = h.isOn
+                    ? (heatFrame ? SPRITES.FAN_HEATER_ON_1 : SPRITES.FAN_HEATER_ON_2)
+                    : SPRITES.FAN_HEATER_OFF;
+                drawPixelSprite(ctx, sprite, h.x, h.y, h.w, h.h);
+
+                // Subtle warm-air pixel wisps drifting gently outward when ON
+                if (h.isOn) {
+                    ctx.fillStyle = 'rgba(255, 224, 130, 0.35)';
+                    for (let wIdx = 0; wIdx < 2; wIdx++) {
+                        const phase = (tSec * 0.65 + idx * 0.4 + wIdx * 0.5) % 1;
+                        const wx    = Math.round((h.x + 9 + wIdx * 15) / 3) * 3;
+                        const wy    = Math.round((h.y + h.h + phase * 18) / 3) * 3;
+                        ctx.fillRect(wx, wy, 3, 3);
+                    }
+                }
+            });
         }
 
         // 4. Study Chairs
@@ -2546,7 +2936,26 @@
                 }
             }
 
-            // 3. Check Espresso Counter / Bar
+            // 3. Check Fan Heaters (Toggle ON / OFF)
+            if (config.heaters) {
+                for (let i = 0; i < config.heaters.length; i++) {
+                    const h    = config.heaters[i];
+                    const hx   = h.x + h.w * 0.5;
+                    const hy   = h.y + h.h * 0.5;
+                    const dist = Math.hypot(px - hx, py - hy);
+                    if (dist < 48) {
+                        return {
+                            type:   'heater',
+                            label:  h.isOn ? i18n.t('promptHeaterOff') : i18n.t('promptHeaterOn'),
+                            heater: h,
+                            x:      hx,
+                            y:      h.y - 10
+                        };
+                    }
+                }
+            }
+
+            // 4. Check Espresso Counter / Bar
             if (config.counter) {
                 const c  = config.counter;
                 const cx = c.x + c.w * 0.5;
@@ -2561,7 +2970,7 @@
                 }
             }
 
-            // 4. Check Bookshelves (Library)
+            // 5. Check Bookshelves (Library)
             if (config.bookshelves) {
                 for (let i = 0; i < config.bookshelves.length; i++) {
                     const b = config.bookshelves[i];
@@ -2576,7 +2985,7 @@
                 }
             }
 
-            // 5. Check Zen Lanterns / Pavilions (Garden)
+            // 6. Check Zen Lanterns / Pavilions (Garden)
             if (config.lanterns) {
                 for (let i = 0; i < config.lanterns.length; i++) {
                     const l = config.lanterns[i];
@@ -2591,7 +3000,22 @@
                 }
             }
 
-            // 6. Check Nearby Study Buddy NPCs
+            // 7. Check Snow Windows looking out onto the Snowy Town
+            if (config.snowWindows) {
+                for (let i = 0; i < config.snowWindows.length; i++) {
+                    const win = config.snowWindows[i];
+                    if (px >= win.x - 8 && px <= win.x + win.w + 8 && py <= win.y + win.h + 62) {
+                        return {
+                            type:  'snow_window',
+                            label: i18n.t('promptSnowWindow'),
+                            x:     win.x + win.w * 0.5,
+                            y:     win.y + win.h + 14
+                        };
+                    }
+                }
+            }
+
+            // 8. Check Nearby Study Buddy NPCs
             for (let i = 0; i < npcs.length; i++) {
                 const npc  = npcs[i];
                 const dist = Math.hypot(px - (npc.x + npc.width * 0.5), py - (npc.y + npc.height * 0.5));
@@ -2606,7 +3030,7 @@
                 }
             }
 
-            // 7. Check Nearby Cafeteria Pets (Cats & Dogs)
+            // 9. Check Nearby Cafeteria Pets (Cats & Dogs)
             for (let i = 0; i < pets.length; i++) {
                 const pet  = pets[i];
                 const dist = Math.hypot(px - (pet.x + pet.width * 0.5), py - (pet.y + pet.height * 0.5));
@@ -2644,6 +3068,22 @@
                     player.y        += 18;
                     this.currentSeat = null;
                     sound.play('sit');
+                    break;
+                }
+                case 'heater': {
+                    const h = interaction.heater;
+                    if (!h) break;
+                    h.isOn = !h.isOn;
+                    sound.play('heater_toggle');
+                    dialogSystem.show(
+                        i18n.t('dialogHeaterTitle'),
+                        h.isOn ? i18n.t('dialogHeaterOn') : i18n.t('dialogHeaterOff')
+                    );
+                    break;
+                }
+                case 'snow_window': {
+                    sound.play('click');
+                    dialogSystem.show(i18n.t('dialogSnowWindowTitle'), i18n.getRandomSnowWindowDialogue());
                     break;
                 }
                 case 'coffee': {
@@ -2904,7 +3344,7 @@
             if (isBreak && idx % 2 === 1) {
                 npc.state   = 'BREAK';
                 npc.targetX = 460 + ((idx * 65) % 280);
-                npc.targetY = 120 + ((idx * 35) % 60);
+                npc.targetY = 142 + ((idx * 18) % 36);
             } else {
                 npc.state   = 'STUDYING';
                 npc.targetX = npc.homeX;
@@ -3584,6 +4024,9 @@
         ctx.imageSmoothingEnabled = false;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // Pixel-art Snow Town skyline behind & around the study room
+        renderSnowTownBackdrop(ctx, canvas.width, canvas.height);
+
         ctx.save();
         ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
 
@@ -3652,6 +4095,12 @@
     function isInteractiveLocation(wx, wy) {
         const config = scenarioConfigs[currentConfig.map] || scenarioConfigs.cafeteria;
         if (config.chairs && config.chairs.some(c => Math.hypot(wx - (c.x + c.w * 0.5), wy - (c.y + c.h * 0.5)) < 40)) {
+            return true;
+        }
+        if (config.heaters && config.heaters.some(h => Math.hypot(wx - (h.x + h.w * 0.5), wy - (h.y + h.h * 0.5)) < 42)) {
+            return true;
+        }
+        if (config.snowWindows && config.snowWindows.some(win => wx >= win.x - 8 && wx <= win.x + win.w + 8 && wy >= win.y && wy <= win.y + win.h + 40)) {
             return true;
         }
         if (config.counter) {

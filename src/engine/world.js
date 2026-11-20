@@ -192,7 +192,7 @@ export function syncNpcBreakState(mode) {
         if (isBreak && idx % 2 === 1) {
             npc.state   = 'BREAK';
             npc.targetX = 460 + ((idx * 65) % 280);
-            npc.targetY = 120 + ((idx * 35) % 60);
+            npc.targetY = 142 + ((idx * 18) % 36);
         } else {
             npc.state   = 'STUDYING';
             npc.targetX = npc.homeX;

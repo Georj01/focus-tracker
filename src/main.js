@@ -1,4 +1,5 @@
 import { Camera } from './engine/camera.js';
+import { renderSnowTownBackdrop } from './engine/sprites.js';
 import {
     renderScenarioFloor,
     renderScenarioEnvironment,
@@ -128,6 +129,9 @@ function draw() {
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Pixel-art Snow Town skyline behind & around the study room
+    renderSnowTownBackdrop(ctx, canvas.width, canvas.height);
+
     ctx.save();
     ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
 
@@ -196,6 +200,12 @@ document.addEventListener('visibilitychange', () => {
 function isInteractiveLocation(wx, wy) {
     const config = scenarioConfigs[currentConfig.map] || scenarioConfigs.cafeteria;
     if (config.chairs && config.chairs.some(c => Math.hypot(wx - (c.x + c.w * 0.5), wy - (c.y + c.h * 0.5)) < 40)) {
+        return true;
+    }
+    if (config.heaters && config.heaters.some(h => Math.hypot(wx - (h.x + h.w * 0.5), wy - (h.y + h.h * 0.5)) < 42)) {
+        return true;
+    }
+    if (config.snowWindows && config.snowWindows.some(win => wx >= win.x - 8 && wx <= win.x + win.w + 8 && wy >= win.y && wy <= win.y + win.h + 40)) {
         return true;
     }
     if (config.counter) {

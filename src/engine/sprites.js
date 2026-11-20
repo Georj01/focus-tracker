@@ -478,6 +478,52 @@ export const SPRITES = {
         '0222222220',
         '0222222220',
         '_00000000_'
+    ],
+
+    // ------------------------------------------------------------------------
+    // 5. COZY WINTER FAN HEATERS (12x12 -> 36x36 px at 3x scale)
+    // ------------------------------------------------------------------------
+    FAN_HEATER_ON_1: [
+        '_0000000000_',
+        '0EEEEEEEEEE0',
+        '0E00000000E0',
+        '0E040EEII0E0',
+        '0E00000000E0',
+        '0E0HGGGGH0E0',
+        '0E00000000E0',
+        '0E0GGGGGG0E0',
+        '0E00000000E0',
+        '0E0HGGGGH0E0',
+        '0IIIIIIIIII0',
+        '_000____000_'
+    ],
+    FAN_HEATER_ON_2: [
+        '_0000000000_',
+        '0EEEEEEEEEE0',
+        '0E00000000E0',
+        '0E040EEII0E0',
+        '0E00000000E0',
+        '0E0GHGGHG0E0',
+        '0E00000000E0',
+        '0E0HGGGGH0E0',
+        '0E00000000E0',
+        '0E0GHGGHG0E0',
+        '0IIIIIIIIII0',
+        '_000____000_'
+    ],
+    FAN_HEATER_OFF: [
+        '_0000000000_',
+        '0EEEEEEEEEE0',
+        '0E00000000E0',
+        '0E0I0EEII0E0',
+        '0E00000000E0',
+        '0E0IIIIII0E0',
+        '0E00000000E0',
+        '0E0IIIIII0E0',
+        '0E00000000E0',
+        '0E0IIIIII0E0',
+        '0IIIIIIIIII0',
+        '_000____000_'
     ]
 };
 
@@ -631,3 +677,217 @@ export function drawPixelBookshelf(ctx, x, y, w, h) {
         }
     }
 }
+
+// ----------------------------------------------------------------------------
+// Cached Crisp 3x Pixel-Art Snow Town Backdrop & Cozy Snow Windows
+// ----------------------------------------------------------------------------
+const snowSceneCache = new Map();
+
+function drawPixelSnowTownScene(octx, w, h, compact = false) {
+    const p = PIXEL_SCALE;
+    octx.imageSmoothingEnabled = false;
+
+    // 1. Stepped crisp winter twilight sky
+    const skyH1 = Math.floor(h * 0.34);
+    const skyH2 = Math.floor(h * 0.64);
+    octx.fillStyle = '#18294a';
+    octx.fillRect(0, 0, w, skyH1);
+    octx.fillStyle = '#243c69';
+    octx.fillRect(0, skyH1, w, skyH2 - skyH1);
+    octx.fillStyle = '#335387';
+    octx.fillRect(0, skyH2, w, h - skyH2);
+
+    // 2. Crisp pixel stars & crescent moon
+    octx.fillStyle = '#e8f1ff';
+    for (let sx = p * 4; sx < w - p * 4; sx += p * (compact ? 11 : 18)) {
+        const sy = p * (2 + ((sx * 7) % (compact ? 4 : 16)));
+        octx.fillRect(sx, sy, p, p);
+    }
+    const moonX = Math.max(p * 4, w - p * (compact ? 9 : 22));
+    const moonY = p * (compact ? 2 : 7);
+    octx.fillStyle = '#fff3b0';
+    octx.fillRect(moonX, moonY, p * 3, p * 3);
+    octx.fillStyle = '#18294a';
+    octx.fillRect(moonX + p, moonY, p * 2, p * 2);
+
+    // 3. Distant snow-capped pixel mountain ridge
+    const groundY = h - p * (compact ? 2 : 16);
+    const peakStep = p * (compact ? 16 : 34);
+    for (let mx = -p * 4; mx < w + peakStep; mx += peakStep) {
+        const peakH = p * (compact ? (7 + ((mx / p) % 4)) : (22 + ((mx / p) % 10)));
+        const baseY = groundY;
+        for (let row = 0; row < peakH; row += p) {
+            const halfW = Math.floor((row + p) * 1.15 / p) * p;
+            octx.fillStyle = row < peakH * 0.35 ? '#dcebff' : '#3d5885';
+            octx.fillRect(mx - halfW, baseY - peakH + row, halfW * 2, p);
+        }
+    }
+
+    // 4. Cozy Snow Town Houses & Snowy Pines along the horizon
+    const houseWalls = ['#4c3b4d', '#3e526b', '#5e4236', '#46584b'];
+    const houseUnit  = p * (compact ? 14 : 24);
+    let idx = 0;
+
+    for (let hx = p * 2; hx < w - p * 4; hx += houseUnit) {
+        const isPine = idx % 3 === 2;
+        if (isPine) {
+            // Crisp snowy pixel pine tree
+            const tx = hx + p * 3;
+            octx.fillStyle = '#422818';
+            octx.fillRect(tx + p * 2, groundY - p * 2, p * 2, p * 2);
+            const tiers = compact ? 3 : 5;
+            for (let t = 0; t < tiers; t++) {
+                const tw = p * (2 + t * 2);
+                const ty = groundY - p * (2 + (tiers - t) * 2);
+                octx.fillStyle = '#1f4e3d';
+                octx.fillRect(tx + p * 3 - (tw >> 1), ty, tw, p * 2);
+                octx.fillStyle = '#ffffff';
+                octx.fillRect(tx + p * 3 - (tw >> 1), ty, tw, p);
+            }
+        } else {
+            // Cozy snow-roofed town cottage with warm glowing windows
+            const bw = p * (compact ? 10 : 16);
+            const bh = p * (compact ? (6 + (idx % 2) * 2) : (10 + (idx % 3) * 3));
+            const by = groundY - bh;
+
+            // Chimney
+            octx.fillStyle = '#33282c';
+            octx.fillRect(hx + bw - p * 3, by - p * 4, p * 2, p * 4);
+            octx.fillStyle = '#ffffff';
+            octx.fillRect(hx + bw - p * 3, by - p * 4, p * 2, p);
+
+            // Cottage wall
+            octx.fillStyle = houseWalls[idx % houseWalls.length];
+            octx.fillRect(hx, by, bw, bh);
+
+            // Pitched snowy roof
+            octx.fillStyle = '#ffffff';
+            octx.fillRect(hx - p, by - p, bw + p * 2, p * 2);
+            octx.fillRect(hx + p, by - p * 2, bw - p * 2, p);
+            octx.fillStyle = '#bcd6f5';
+            octx.fillRect(hx - p, by + p, bw + p * 2, p);
+
+            // Warm glowing amber/gold pixel windows
+            octx.fillStyle = '#ffe259';
+            const winSize = compact ? p : p * 2;
+            const winGap  = compact ? p * 3 : p * 4;
+            for (let wy = by + p * 2; wy + winSize <= groundY - p; wy += winSize + p * 2) {
+                for (let wx = hx + p * 2; wx + winSize <= hx + bw - p * 2; wx += winGap) {
+                    octx.fillRect(wx, wy, winSize, winSize);
+                }
+            }
+        }
+        idx++;
+    }
+
+    // 5. Crisp snowy ground blanket
+    octx.fillStyle = '#ffffff';
+    octx.fillRect(0, groundY, w, p * 2);
+    octx.fillStyle = '#d6e6fa';
+    octx.fillRect(0, groundY + p * 2, w, Math.max(0, h - groundY - p * 2));
+}
+
+export function renderSnowTownBackdrop(ctx, canvasWidth, canvasHeight) {
+    const w = Math.max(60, Math.ceil(canvasWidth));
+    const h = Math.max(60, Math.ceil(canvasHeight));
+    const cacheKey = `backdrop|${w}|${h}`;
+    let offscreen  = snowSceneCache.get(cacheKey);
+
+    if (!offscreen && typeof document !== 'undefined') {
+        if (snowSceneCache.size > 12) snowSceneCache.clear();
+        offscreen        = document.createElement('canvas');
+        offscreen.width  = w;
+        offscreen.height = h;
+        drawPixelSnowTownScene(offscreen.getContext('2d'), w, h, false);
+        snowSceneCache.set(cacheKey, offscreen);
+    }
+
+    if (offscreen) {
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(offscreen, 0, 0);
+    }
+
+    // Calm slow-drifting 3x3 pixel snowflakes across the outer snow town sky
+    const p    = PIXEL_SCALE;
+    const tSec = performance.now() * 0.001;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
+    for (let i = 0; i < 28; i++) {
+        const baseX = (i * 97) % w;
+        const drift = Math.sin(tSec * 0.55 + i) * 8;
+        const speed = 11 + (i % 4) * 3;
+        const fx    = Math.floor(((baseX + drift + w) % w) / p) * p;
+        const fy    = Math.floor(((i * 43 + tSec * speed) % h) / p) * p;
+        ctx.fillRect(fx, fy, p, p);
+    }
+}
+
+export function drawSnowWindow(ctx, x, y, w, h) {
+    const p  = PIXEL_SCALE;
+    const rx = Math.round(x);
+    const ry = Math.round(y);
+    const rw = Math.round(w);
+    const rh = Math.round(h);
+    const innerX = rx + p * 2;
+    const innerY = ry + p * 2;
+    const innerW = Math.max(p * 4, rw - p * 4);
+    const innerH = Math.max(p * 4, rh - p * 4);
+
+    // Soft cool winter moonlight cast onto the indoor floor right below the window
+    ctx.fillStyle = 'rgba(147, 197, 253, 0.08)';
+    ctx.fillRect(rx + p * 2, ry + rh + p * 3, rw - p * 4, p * 12);
+
+    // Cached crisp Snow Town view inside the window glass
+    const cacheKey = `win|${innerW}|${innerH}`;
+    let offscreen  = snowSceneCache.get(cacheKey);
+    if (!offscreen && typeof document !== 'undefined') {
+        offscreen        = document.createElement('canvas');
+        offscreen.width  = innerW;
+        offscreen.height = innerH;
+        drawPixelSnowTownScene(offscreen.getContext('2d'), innerW, innerH, true);
+        snowSceneCache.set(cacheKey, offscreen);
+    }
+
+    // Outer wooden frame & dark pixel outline
+    ctx.fillStyle = PALETTE['0'];
+    ctx.fillRect(rx, ry, rw, rh);
+    ctx.fillStyle = PALETTE['9'];
+    ctx.fillRect(rx + p, ry + p, rw - p * 2, rh - p * 2);
+
+    if (offscreen) {
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(offscreen, innerX, innerY);
+    }
+
+    // Gentle slow-falling 3x3 pixel snowflakes clipped inside the glass
+    const tSec = performance.now() * 0.001;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    for (let i = 0; i < 9; i++) {
+        const sx = innerX + Math.floor(((i * 31 + Math.sin(tSec * 0.6 + i) * 5 + innerW) % (innerW - p)) / p) * p;
+        const sy = innerY + Math.floor(((i * 17 + tSec * (9 + (i % 3) * 2)) % (innerH - p)) / p) * p;
+        ctx.fillRect(sx, sy, p, p);
+    }
+
+    // Wooden window mullions dividing the panoramic window into 3 cozy panes
+    const paneW = Math.floor(innerW / 3);
+    ctx.fillStyle = PALETTE['A'];
+    ctx.fillRect(innerX + paneW, innerY, p, innerH);
+    ctx.fillRect(innerX + paneW * 2, innerY, p, innerH);
+    ctx.fillRect(innerX, innerY + Math.floor(innerH * 0.45), innerW, p);
+
+    // Subtle snow & frost buildup settled along the bottom corners of each pane
+    ctx.fillStyle = '#e8f4ff';
+    for (let pane = 0; pane < 3; pane++) {
+        const px = innerX + pane * paneW + (pane > 0 ? p : 0);
+        const pw = pane === 2 ? (innerX + innerW - px) : paneW - (pane > 0 ? p : 0);
+        ctx.fillRect(px, innerY + innerH - p, pw, p);
+        ctx.fillRect(px, innerY + innerH - p * 2, p * 2, p);
+        ctx.fillRect(px + pw - p * 2, innerY + innerH - p * 2, p * 2, p);
+    }
+
+    // Crisp wooden windowsill ledge below the window
+    ctx.fillStyle = PALETTE['0'];
+    ctx.fillRect(rx - p, ry + rh, rw + p * 2, p * 3);
+    ctx.fillStyle = PALETTE['8'];
+    ctx.fillRect(rx, ry + rh + p, rw, p);
+}
+

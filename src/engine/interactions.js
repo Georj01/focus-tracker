@@ -54,7 +54,26 @@ class InteractionManager {
             }
         }
 
-        // 3. Check Espresso Counter / Bar
+        // 3. Check Fan Heaters (Toggle ON / OFF)
+        if (config.heaters) {
+            for (let i = 0; i < config.heaters.length; i++) {
+                const h    = config.heaters[i];
+                const hx   = h.x + h.w * 0.5;
+                const hy   = h.y + h.h * 0.5;
+                const dist = Math.hypot(px - hx, py - hy);
+                if (dist < 48) {
+                    return {
+                        type:   'heater',
+                        label:  h.isOn ? i18n.t('promptHeaterOff') : i18n.t('promptHeaterOn'),
+                        heater: h,
+                        x:      hx,
+                        y:      h.y - 10
+                    };
+                }
+            }
+        }
+
+        // 4. Check Espresso Counter / Bar
         if (config.counter) {
             const c  = config.counter;
             const cx = c.x + c.w * 0.5;
@@ -69,7 +88,7 @@ class InteractionManager {
             }
         }
 
-        // 4. Check Bookshelves (Library)
+        // 5. Check Bookshelves (Library)
         if (config.bookshelves) {
             for (let i = 0; i < config.bookshelves.length; i++) {
                 const b = config.bookshelves[i];
@@ -84,7 +103,7 @@ class InteractionManager {
             }
         }
 
-        // 5. Check Zen Lanterns / Pavilions (Garden)
+        // 6. Check Zen Lanterns / Pavilions (Garden)
         if (config.lanterns) {
             for (let i = 0; i < config.lanterns.length; i++) {
                 const l = config.lanterns[i];
@@ -99,7 +118,22 @@ class InteractionManager {
             }
         }
 
-        // 6. Check Nearby Study Buddy NPCs
+        // 7. Check Snow Windows looking out onto the Snowy Town
+        if (config.snowWindows) {
+            for (let i = 0; i < config.snowWindows.length; i++) {
+                const win = config.snowWindows[i];
+                if (px >= win.x - 8 && px <= win.x + win.w + 8 && py <= win.y + win.h + 62) {
+                    return {
+                        type:  'snow_window',
+                        label: i18n.t('promptSnowWindow'),
+                        x:     win.x + win.w * 0.5,
+                        y:     win.y + win.h + 14
+                    };
+                }
+            }
+        }
+
+        // 8. Check Nearby Study Buddy NPCs
         for (let i = 0; i < npcs.length; i++) {
             const npc  = npcs[i];
             const dist = Math.hypot(px - (npc.x + npc.width * 0.5), py - (npc.y + npc.height * 0.5));
@@ -114,7 +148,7 @@ class InteractionManager {
             }
         }
 
-        // 7. Check Nearby Cafeteria Pets (Cats & Dogs)
+        // 9. Check Nearby Cafeteria Pets (Cats & Dogs)
         for (let i = 0; i < pets.length; i++) {
             const pet  = pets[i];
             const dist = Math.hypot(px - (pet.x + pet.width * 0.5), py - (pet.y + pet.height * 0.5));
@@ -152,6 +186,22 @@ class InteractionManager {
                 player.y        += 18;
                 this.currentSeat = null;
                 sound.play('sit');
+                break;
+            }
+            case 'heater': {
+                const h = interaction.heater;
+                if (!h) break;
+                h.isOn = !h.isOn;
+                sound.play('heater_toggle');
+                dialogSystem.show(
+                    i18n.t('dialogHeaterTitle'),
+                    h.isOn ? i18n.t('dialogHeaterOn') : i18n.t('dialogHeaterOff')
+                );
+                break;
+            }
+            case 'snow_window': {
+                sound.play('click');
+                dialogSystem.show(i18n.t('dialogSnowWindowTitle'), i18n.getRandomSnowWindowDialogue());
                 break;
             }
             case 'coffee': {

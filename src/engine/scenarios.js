@@ -1,4 +1,10 @@
-import { SPRITES, drawPixelSprite, drawPixelCounter, drawPixelBookshelf } from './sprites.js';
+import {
+    SPRITES,
+    drawPixelSprite,
+    drawPixelCounter,
+    drawPixelBookshelf,
+    drawSnowWindow
+} from './sprites.js';
 import { i18n } from './i18n.js';
 
 // Map scenario definitions aligned to uniform 3x pixel grid (zero sprite stretching)
@@ -10,9 +16,20 @@ export const scenarioConfigs = {
         tileAccent:  '#473024',
         borderColor: '#b45309',
         wallColor:   '#2b1810',
+        wallTrim:    '#5c3518',
+        wallTop:     78,
         gridColor:   'rgba(0, 0, 0, 0.16)',
         themeColor:  '#000080',
-        counter:     { x: 438, y: 42, w: 324, h: 54, label: '☕ Onett Espresso Bar' },
+        snowWindows: [
+            { x: 120, y: 9, w: 276, h: 60 },
+            { x: 804, y: 9, w: 276, h: 60 }
+        ],
+        heaters: [
+            { id: 'cafe_h1', x: 162,  y: 84,  w: 36, h: 36, isOn: true },
+            { id: 'cafe_h2', x: 1002, y: 84,  w: 36, h: 36, isOn: true },
+            { id: 'cafe_h3', x: 582,  y: 690, w: 36, h: 36, isOn: true }
+        ],
+        counter:     { x: 438, y: 78, w: 324, h: 54, label: '☕ Onett Espresso Bar' },
         desks: [
             { x: 144, y: 180, w: 96, h: 54, type: 'laptop', label: 'Coffee Desk A' },
             { x: 420, y: 201, w: 96, h: 54, type: 'book',   label: 'Central Table 1' },
@@ -40,8 +57,8 @@ export const scenarioConfigs = {
             { x: 882,  y: 477, w: 30, h: 36, facing: 'left' }
         ],
         plants: [
-            { x: 60,   y: 60,  w: 36, h: 42 },
-            { x: 1104, y: 60,  w: 36, h: 42 },
+            { x: 54,   y: 87,  w: 36, h: 42 },
+            { x: 1110, y: 87,  w: 36, h: 42 },
             { x: 60,   y: 702, w: 36, h: 42 },
             { x: 1104, y: 702, w: 36, h: 42 },
             { x: 360,  y: 330, w: 36, h: 42 },
@@ -56,12 +73,22 @@ export const scenarioConfigs = {
         tileAccent:  '#2f365e',
         borderColor: '#4f5d95',
         wallColor:   '#181c36',
+        wallTrim:    '#313a66',
+        wallTop:     78,
         gridColor:   'rgba(0, 0, 0, 0.16)',
         themeColor:  '#000080',
-        counter:     { x: 438, y: 45, w: 324, h: 54, label: '📚 Twoson Library Archives' },
+        snowWindows: [
+            { x: 114, y: 9, w: 240, h: 60 },
+            { x: 846, y: 9, w: 240, h: 60 }
+        ],
+        heaters: [
+            { id: 'lib_h1', x: 390, y: 84, w: 36, h: 36, isOn: true },
+            { id: 'lib_h2', x: 774, y: 84, w: 36, h: 36, isOn: true }
+        ],
+        counter:     { x: 438, y: 78, w: 324, h: 54, label: '📚 Twoson Library Archives' },
         bookshelves: [
-            { x: 96,   y: 42,  w: 276, h: 45 },
-            { x: 828,  y: 42,  w: 276, h: 45 },
+            { x: 96,   y: 81,  w: 276, h: 45 },
+            { x: 828,  y: 81,  w: 276, h: 45 },
             { x: 42,   y: 222, w: 45,  h: 180 },
             { x: 42,   y: 462, w: 45,  h: 180 },
             { x: 1113, y: 222, w: 45,  h: 180 },
@@ -107,14 +134,15 @@ export const scenarioConfigs = {
         tileAccent:  '#246649',
         borderColor: '#2d8a4e',
         wallColor:   '#123828',
+        wallTop:     21,
         gridColor:   'rgba(0, 0, 0, 0.12)',
         themeColor:  '#008080',
         counter:     { x: 438, y: 45, w: 324, h: 54, label: '🌸 Dalaam Tea Pavilion' },
         lanterns: [
-            { x: 162, y: 102, w: 36, h: 48 },
+            { x: 162,  y: 102, w: 36, h: 48 },
             { x: 1002, y: 102, w: 36, h: 48 },
-            { x: 180, y: 660, w: 36, h: 48 },
-            { x: 984, y: 660, w: 36, h: 48 }
+            { x: 180,  y: 660, w: 36, h: 48 },
+            { x: 984,  y: 660, w: 36, h: 48 }
         ],
         steppingStones: [
             { x: 579, y: 132, w: 42, h: 27 },
@@ -177,13 +205,17 @@ export function getObstacles(mapKey, width, height) {
     const obstacles = [];
 
     const wallThick = 21;
-    obstacles.push({ x: 0, y: 0, w: width, h: wallThick });
+    const wallTop   = config.wallTop || wallThick;
+    obstacles.push({ x: 0, y: 0, w: width, h: wallTop });
     obstacles.push({ x: 0, y: height - wallThick, w: width, h: wallThick });
     obstacles.push({ x: 0, y: 0, w: wallThick, h: height });
     obstacles.push({ x: width - wallThick, y: 0, w: wallThick, h: height });
 
     if (config.counter) {
         obstacles.push({ x: config.counter.x, y: config.counter.y, w: config.counter.w, h: config.counter.h });
+    }
+    if (config.heaters) {
+        config.heaters.forEach(h => obstacles.push({ x: h.x + 3, y: h.y + 6, w: h.w - 6, h: h.h - 6 }));
     }
     if (config.bookshelves) {
         config.bookshelves.forEach(b => obstacles.push({ x: b.x, y: b.y, w: b.w, h: b.h }));
@@ -277,19 +309,34 @@ export function renderScenarioFloor(ctx, width, height, mapKey = 'cafeteria') {
 export function renderScenarioEnvironment(ctx, width, height, mapKey = 'cafeteria') {
     const config    = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
     const wallThick = 21;
+    const wallTop   = config.wallTop || wallThick;
 
     ctx.imageSmoothingEnabled = false;
 
-    // 1. Crisp Pixel Room Walls
+    // 1. Crisp Pixel Room Walls & Interior North Wall Trim
     ctx.fillStyle = config.wallColor;
-    ctx.fillRect(0, 0, width, wallThick);
+    ctx.fillRect(0, 0, width, wallTop);
     ctx.fillRect(0, height - wallThick, width, wallThick);
     ctx.fillRect(0, 0, wallThick, height);
     ctx.fillRect(width - wallThick, 0, wallThick, height);
 
+    if (wallTop > wallThick && config.wallTrim) {
+        ctx.fillStyle = config.wallTrim;
+        ctx.fillRect(wallThick, wallTop - 12, width - wallThick * 2, 9);
+        ctx.fillStyle = '#181818';
+        ctx.fillRect(wallThick, wallTop - 3, width - wallThick * 2, 3);
+    }
+
     ctx.strokeStyle = config.borderColor;
     ctx.lineWidth   = 3;
-    ctx.strokeRect(wallThick, wallThick, width - wallThick * 2, height - wallThick * 2);
+    ctx.strokeRect(wallThick, wallTop, width - wallThick * 2, height - wallTop - wallThick);
+
+    // 1b. Panoramic Snow Windows looking out on the Snowy Pixel Town
+    if (config.snowWindows) {
+        config.snowWindows.forEach(win => {
+            drawSnowWindow(ctx, win.x, win.y, win.w, win.h);
+        });
+    }
 
     // 2. Bookshelves (tiled crisp pixel blocks)
     if (config.bookshelves) {
@@ -311,7 +358,7 @@ export function renderScenarioEnvironment(ctx, width, height, mapKey = 'cafeteri
         const badgeW = 240;
         const badgeH = 22;
         const badgeX = Math.round(c.x + (c.w - badgeW) * 0.5);
-        const badgeY = Math.round(c.y - 16);
+        const badgeY = Math.round(c.y - 24);
 
         ctx.fillStyle = '#c0c0c0';
         ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
@@ -333,6 +380,39 @@ export function renderScenarioEnvironment(ctx, width, height, mapKey = 'cafeteri
         ctx.font      = 'bold 11px Tahoma, "MS Sans Serif", "MS PGothic", sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(signLabel, badgeX + Math.round(badgeW * 0.5), badgeY + 15);
+    }
+
+    // 3b. Cozy Retro Fan Heaters with Gentle Warm Floor Glow
+    if (config.heaters) {
+        const heatFrame = Math.floor(performance.now() / 800) % 2 === 0;
+        const tSec      = performance.now() * 0.001;
+        config.heaters.forEach((h, idx) => {
+            if (h.isOn) {
+                ctx.fillStyle = 'rgba(255, 165, 64, 0.14)';
+                ctx.fillRect(h.x - 12, h.y + h.h - 3, h.w + 24, 30);
+                ctx.fillStyle = 'rgba(255, 195, 96, 0.12)';
+                ctx.fillRect(h.x - 3, h.y + h.h - 3, h.w + 6, 18);
+            }
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(h.x + 3, h.y + h.h - 3, h.w - 6, 6);
+
+            const sprite = h.isOn
+                ? (heatFrame ? SPRITES.FAN_HEATER_ON_1 : SPRITES.FAN_HEATER_ON_2)
+                : SPRITES.FAN_HEATER_OFF;
+            drawPixelSprite(ctx, sprite, h.x, h.y, h.w, h.h);
+
+            // Subtle warm-air pixel wisps drifting gently outward when ON
+            if (h.isOn) {
+                ctx.fillStyle = 'rgba(255, 224, 130, 0.35)';
+                for (let wIdx = 0; wIdx < 2; wIdx++) {
+                    const phase = (tSec * 0.65 + idx * 0.4 + wIdx * 0.5) % 1;
+                    const wx    = Math.round((h.x + 9 + wIdx * 15) / 3) * 3;
+                    const wy    = Math.round((h.y + h.h + phase * 18) / 3) * 3;
+                    ctx.fillRect(wx, wy, 3, 3);
+                }
+            }
+        });
     }
 
     // 4. Study Chairs

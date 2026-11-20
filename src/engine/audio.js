@@ -262,6 +262,21 @@ class SoundEngine {
                 });
                 break;
             }
+            case 'heater_toggle': {
+                // Crisp retro mechanical heater dial click + warm hum blip
+                const osc  = actx.createOscillator();
+                const gain = actx.createGain();
+                osc.type   = 'square';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(110, now + 0.06);
+                gain.gain.setValueAtTime(vol * 0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+                osc.connect(gain);
+                gain.connect(actx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+                break;
+            }
         }
     }
 

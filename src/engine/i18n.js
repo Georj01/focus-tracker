@@ -107,16 +107,23 @@ export const TRANSLATIONS = {
         promptZen:         '[E] Mindful Meditation 🌸',
         promptTalk:        '[E] Talk to',
         promptPet:         '[E] Pet',
+        promptHeaterOff:   '[E] Turn Off Fan Heater 🔥',
+        promptHeaterOn:    '[E] Turn On Fan Heater 🔥',
+        promptSnowWindow:  '[E] Look Out Snow Window ❄️',
 
         // Dialogue System
-        dialogStudyTitle:  'Study Desk',
-        dialogStudyBody:   'You sat down at the desk. Study materials ready. Deep work mode active!',
-        dialogCoffeeTitle: 'Espresso Bar',
-        dialogCoffeeBody:  'You poured a hot cup of fresh espresso! Motivation and alertness refreshed.',
-        dialogZenTitle:    'Zen Stone Lantern',
-        dialogZenBody:     'You pause for a mindful breath amidst the tranquil garden. Serenity restored.',
-        dialogCycleTitle:  'Cycle Finished!',
-        dialogCycleBody:   '🎉 Outstanding work! You completed all scheduled cycles. Enjoy your well-earned Long Break!',
+        dialogStudyTitle:      'Study Desk',
+        dialogStudyBody:       'You sat down at the desk. Study materials ready. Deep work mode active!',
+        dialogCoffeeTitle:     'Espresso Bar',
+        dialogCoffeeBody:      'You poured a hot cup of fresh espresso! Motivation and alertness refreshed.',
+        dialogZenTitle:        'Zen Stone Lantern',
+        dialogZenBody:         'You pause for a mindful breath amidst the tranquil garden. Serenity restored.',
+        dialogCycleTitle:      'Cycle Finished!',
+        dialogCycleBody:       '🎉 Outstanding work! You completed all scheduled cycles. Enjoy your well-earned Long Break!',
+        dialogHeaterTitle:     'Retro Fan Heater',
+        dialogHeaterOn:        'Click! The fan heater hums to life, spreading gentle golden warmth across the cozy floor.',
+        dialogHeaterOff:       'Click. You switched the fan heater off to save energy. The room stays snug and quiet.',
+        dialogSnowWindowTitle: 'Snowy Town Window',
 
         quotes: [
             '"The secret of getting ahead is getting started." — Mark Twain',
@@ -150,6 +157,12 @@ export const TRANSLATIONS = {
             'Woof~ The cafe pup wags its tail gently and settles quietly by your feet.',
             '*Gentle sniff* A warm, calm friend cheering on your study session.',
             'The cafe dog gives a quiet happy sigh and rests peacefully on the warm floor.'
+        ],
+
+        snowWindowDialogues: [
+            'Soft pixel snow drifts quietly over the rooftops of the snowy town outside. It feels so warm inside!',
+            'Warm yellow lights glow from the cottages across the snow-covered street. Perfect weather for deep focus.',
+            'Frost outlines the windowpane as gentle snowflakes fall past the pine trees outside.'
         ]
     },
 
@@ -258,16 +271,23 @@ export const TRANSLATIONS = {
         promptZen:         '[E] Meditación Consciente 🌸',
         promptTalk:        '[E] Hablar con',
         promptPet:         '[E] Acariciar a',
+        promptHeaterOff:   '[E] Apagar Calefactor 🔥',
+        promptHeaterOn:    '[E] Encender Calefactor 🔥',
+        promptSnowWindow:  '[E] Mirar por la Ventana ❄️',
 
         // Dialogue System
-        dialogStudyTitle:  'Escritorio de Estudio',
-        dialogStudyBody:   'Te sentaste en el escritorio. Materiales listos. ¡Modo de concentración activo!',
-        dialogCoffeeTitle: 'Bar de Espresso',
-        dialogCoffeeBody:  '¡Serviste una taza caliente de café recién hecho! Motivación y energía recargadas.',
-        dialogZenTitle:    'Linterna de Piedra Zen',
-        dialogZenBody:     'Haces una pausa para respirar hondo en el tranquilo jardín. Serenidad restaurada.',
-        dialogCycleTitle:  '¡Ciclo Completado!',
-        dialogCycleBody:   '🎉 ¡Excelente trabajo! Completaste todos los ciclos programados. ¡Disfruta tu merecido descanso largo!',
+        dialogStudyTitle:      'Escritorio de Estudio',
+        dialogStudyBody:       'Te sentaste en el escritorio. Materiales listos. ¡Modo de concentración activo!',
+        dialogCoffeeTitle:     'Bar de Espresso',
+        dialogCoffeeBody:      '¡Serviste una taza caliente de café recién hecho! Motivación y energía recargadas.',
+        dialogZenTitle:        'Linterna de Piedra Zen',
+        dialogZenBody:         'Haces una pausa para respirar hondo en el tranquilo jardín. Serenidad restaurada.',
+        dialogCycleTitle:      '¡Ciclo Completado!',
+        dialogCycleBody:       '🎉 ¡Excelente trabajo! Completaste todos los ciclos programados. ¡Disfruta tu merecido descanso largo!',
+        dialogHeaterTitle:     'Calefactor Retro',
+        dialogHeaterOn:        '¡Clic! El calefactor zumba suavemente, llenando la sala de un calor acogedor.',
+        dialogHeaterOff:       'Clic. Apagaste el calefactor para ahorrar energía. El ambiente sigue cálido y tranquilo.',
+        dialogSnowWindowTitle: 'Ventana al Pueblo Nevado',
 
         quotes: [
             '"El secreto de salir adelante es comenzar." — Mark Twain',
@@ -301,6 +321,12 @@ export const TRANSLATIONS = {
             'Guau~ El perrito mueve la cola despacio y se acomoda tranquilo a tu lado.',
             '*Olfateo suave* Un amigo tranquilo te acompaña mientras estudias.',
             'El perrito de la cafetería suspira feliz y descansa en el suelo cálido.'
+        ],
+
+        snowWindowDialogues: [
+            'La nieve cae suavemente sobre los tejados del pueblo nevado afuera. ¡Qué acogedor se está aquí dentro!',
+            'Luces cálidas brillan en las casitas del pueblo cubierto de nieve. Clima ideal para concentrarse.',
+            'La escarcha decora la ventana mientras pequeños copos flotan junto a los pinos nevados.'
         ]
     },
 
@@ -409,16 +435,23 @@ export const TRANSLATIONS = {
         promptZen:         '[E] 瞑想する 🌸',
         promptTalk:        '[E] 話しかける:',
         promptPet:         '[E] なでる:',
+        promptHeaterOff:   '[E] ファンヒーターを消す 🔥',
+        promptHeaterOn:    '[E] ファンヒーターをつける 🔥',
+        promptSnowWindow:  '[E] 雪の窓を眺める ❄️',
 
         // Dialogue System
-        dialogStudyTitle:  '学習デスク',
-        dialogStudyBody:   '席に着きました。勉強道具の準備完了。集中モード開始！',
-        dialogCoffeeTitle: 'エスプレッソバー',
-        dialogCoffeeBody:  '淹れたての温かいコーヒーを注ぎました！やる気と集中力が満ちてきました。',
-        dialogZenTitle:    '禅の石灯籠',
-        dialogZenBody:     '静寂の庭園の中で深呼吸をしました。心がすっきりと落ち着きました。',
-        dialogCycleTitle:  'サイクル達成！',
-        dialogCycleBody:   '🎉 素晴らしい集中力です！すべてのサイクルを達成しました。長めの休憩をゆっくり楽しんでください！',
+        dialogStudyTitle:      '学習デスク',
+        dialogStudyBody:       '席に着きました。勉強道具の準備完了。集中モード開始！',
+        dialogCoffeeTitle:     'エスプレッソバー',
+        dialogCoffeeBody:      '淹れたての温かいコーヒーを注ぎました！やる気と集中力が満ちてきました。',
+        dialogZenTitle:        '禅の石灯籠',
+        dialogZenBody:         '静寂の庭園の中で深呼吸をしました。心がすっきりと落ち着きました。',
+        dialogCycleTitle:      'サイクル達成！',
+        dialogCycleBody:       '🎉 素晴らしい集中力です！すべてのサイクルを達成しました。長めの休憩をゆっくり楽しんでください！',
+        dialogHeaterTitle:     'レトロ ファンヒーター',
+        dialogHeaterOn:        'カチッ！ファンヒーターからやさしい温風が広がり、足元までぽかぽかです。',
+        dialogHeaterOff:       'カチッ。ファンヒーターを消しました。部屋は静かで心地よいままです。',
+        dialogSnowWindowTitle: '雪の街の窓辺',
 
         quotes: [
             '「前へ進む秘訣は、まず始めることだ。」— マーク・トウェイン',
@@ -452,6 +485,12 @@ export const TRANSLATIONS = {
             'わん〜 カフェの犬がゆっくりしっぽを振って足元でくつろいでいます。',
             '静かに寄り添って、あなたの集中タイムを見守ってくれています。',
             '安心したようにふぅと息をついて、床でのんびり休んでいます。'
+        ],
+
+        snowWindowDialogues: [
+            '窓の外では雪の街の屋根にやわらかい雪が静かに積もっています。中はぽかぽか！',
+            '雪化粧をした家々の窓に暖かい明かりが灯っています。集中するのにぴったりの夜です。',
+            '雪の結晶が松の木の間をゆっくり舞い落ちています。'
         ]
     }
 };
@@ -522,7 +561,13 @@ class I18nManager {
         const dialogues = this.t(key) || TRANSLATIONS.en[key];
         return dialogues[Math.floor(Math.random() * dialogues.length)];
     }
+
+    getRandomSnowWindowDialogue() {
+        const lines = this.t('snowWindowDialogues') || TRANSLATIONS.en.snowWindowDialogues;
+        return lines[Math.floor(Math.random() * lines.length)];
+    }
 }
 
 export const i18n = new I18nManager();
+
 
