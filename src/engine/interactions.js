@@ -122,8 +122,8 @@ class InteractionManager {
 
         switch (interaction.type) {
             case 'sit': {
-                player.x           = interaction.chair.x;
-                player.y           = interaction.chair.y - 4;
+                player.x           = interaction.chair.x - 3;
+                player.y           = interaction.chair.y - 3;
                 player.state       = 'STUDYING';
                 player.direction   = interaction.chair.facing === 'left' ? 'left' : 'right';
                 this.currentSeat   = interaction.chair;
@@ -133,7 +133,7 @@ class InteractionManager {
             }
             case 'stand': {
                 player.state     = 'IDLE';
-                player.y        += 16;
+                player.y        += 18;
                 this.currentSeat = null;
                 sound.play('sit');
                 break;
@@ -173,28 +173,33 @@ class InteractionManager {
             return;
         }
 
-        ctx.font        = 'bold 11px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
+        ctx.font        = 'bold 11px Tahoma, "MS Sans Serif", "MS PGothic", sans-serif';
         const textWidth = ctx.measureText(interaction.label).width;
-        const boxW      = textWidth + 18;
+        const boxW      = Math.ceil(textWidth + 16);
         const boxH      = 22;
-        const boxX      = interaction.x - boxW * 0.5;
-        const boxY      = interaction.y - boxH - 10;
+        const boxX      = Math.round(interaction.x - boxW * 0.5);
+        const bounce    = Math.round(Math.sin(performance.now() * 0.008) * 2);
+        const boxY      = Math.round(interaction.y - boxH - 12 + bounce);
 
-        // Bouncing animation
-        const bounce = Math.sin(performance.now() * 0.008) * 3;
-        this.lastPromptBounds = { x: boxX, y: boxY + bounce, w: boxW, h: boxH };
+        this.lastPromptBounds = { x: boxX, y: boxY, w: boxW, h: boxH };
 
-        ctx.fillStyle   = 'rgba(24, 20, 37, 0.95)';
-        ctx.strokeStyle = '#facc15';
-        ctx.lineWidth   = 1.5;
-        ctx.fillRect(boxX, boxY + bounce, boxW, boxH);
-        ctx.strokeRect(boxX, boxY + bounce, boxW, boxH);
+        // Classic Windows 98 yellow tooltip with crisp 1px border and hard drop shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        ctx.fillRect(boxX + 2, boxY + 2, boxW, boxH);
 
-        ctx.fillStyle = '#fde047';
+        ctx.fillStyle = '#ffffe1';
+        ctx.fillRect(boxX, boxY, boxW, boxH);
+
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth   = 1;
+        ctx.strokeRect(boxX + 0.5, boxY + 0.5, boxW - 1, boxH - 1);
+
+        ctx.fillStyle = '#000000';
         ctx.textAlign = 'center';
-        ctx.fillText(interaction.label, interaction.x, boxY + bounce + 15);
+        ctx.fillText(interaction.label, boxX + Math.round(boxW * 0.5), boxY + 15);
     }
 }
 
 export const interactionManager = new InteractionManager();
+
 

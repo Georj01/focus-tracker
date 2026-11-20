@@ -7,26 +7,21 @@ export class Camera {
         this.viewportHeight = viewportHeight;
     }
 
-    // Update camera to center target while strictly preventing viewport scroll into void
-    update(targetX, targetY, targetWidth = 32, targetHeight = 40, worldWidth = 1200, worldHeight = 800) {
-        // Horizontal camera calculation
+    // Update camera to center target while keeping integer pixel alignment (zero sprite blur)
+    update(targetX, targetY, targetWidth = 36, targetHeight = 39, worldWidth = 1200, worldHeight = 800) {
         if (this.viewportWidth >= worldWidth) {
-            // Screen is wider than the room: center the room on screen
-            this.x = (worldWidth - this.viewportWidth) * 0.5;
+            this.x = Math.round((worldWidth - this.viewportWidth) * 0.5);
         } else {
-            // Screen is narrower: center on target and clamp between 0 and (worldWidth - viewportWidth)
             const desiredX = targetX - (this.viewportWidth - targetWidth) * 0.5;
-            this.x = Math.max(0, Math.min(worldWidth - this.viewportWidth, desiredX));
+            this.x = Math.round(Math.max(0, Math.min(worldWidth - this.viewportWidth, desiredX)));
         }
 
-        // Vertical camera calculation
         if (this.viewportHeight >= worldHeight) {
-            // Screen is taller than the room: center the room vertically
-            this.y = (worldHeight - this.viewportHeight) * 0.5;
+            this.y = Math.round((worldHeight - this.viewportHeight) * 0.5);
         } else {
-            // Screen is shorter: center on target and clamp between 0 and (worldHeight - viewportHeight)
             const desiredY = targetY - (this.viewportHeight - targetHeight) * 0.5;
-            this.y = Math.max(0, Math.min(worldHeight - this.viewportHeight, desiredY));
+            this.y = Math.round(Math.max(0, Math.min(worldHeight - this.viewportHeight, desiredY)));
         }
     }
 }
+

@@ -13,20 +13,20 @@ This application is designed as a zero-dependency, local-first web application. 
 ---
 
 ## Stack
-- **HTML5:** Semantic UI structure and 2D Canvas rendering context (`image-rendering: pixelated`).
-- **CSS3:** Responsive dark-mode layout, glassmorphic UI overlay panels, 7-day history bar chart, and retro Courier typography.
+- **HTML5:** Semantic UI structure and 2D Canvas rendering context (`image-rendering: pixelated`, `imageSmoothingEnabled = false`).
+- **CSS3:** Authentic Windows 98 classic GUI chrome (beveled `#c0c0c0` windows, navy gradient titlebars, sunken inputs, taskbar, and System Monitor 7-day focus chart).
 - **Vanilla JS (ES6 Modules):** Decoupled modular architecture with zero external libraries:
   - `src/engine/audio.js`: Synthesized 16-bit sound effects & 4 procedural ambient soundscapes (Rain, Cafe, Fireplace, Binaural).
   - `src/engine/tasks.js`: Persistent to-do checklist with active HUD focus & Pomodoro target/completion tracking (`🍅 done/target`).
   - `src/engine/stats.js`: Daily focus streak, total focus time, and 7-day focus history analytics.
-  - `src/engine/dialog.js`: EarthBound-style typewriter dialogue system with CJK wrapping.
+  - `src/engine/dialog.js`: Windows 98 message box typewriter dialogue system with CJK wrapping.
   - `src/engine/i18n.js`: Multilingual dictionary manager supporting English, Spanish, and Japanese.
-  - `src/engine/interactions.js`: Proximity & click detection for chairs, coffee bar, bookshelves, lanterns, and NPCs.
-  - `src/engine/camera.js`: Viewport tracking with bounds clamping and automatic display centering.
-  - `src/engine/sprites.js`: 4-directional pixel art character models and furniture with offscreen canvas caching.
+  - `src/engine/interactions.js`: Proximity & click detection with Windows 98 tooltips for chairs, counters, bookshelves, lanterns, and NPCs.
+  - `src/engine/camera.js`: Integer-aligned viewport tracking with bounds clamping and display centering.
+  - `src/engine/sprites.js`: Minimalist uniform `3x` integer-grid pixel art engine with offscreen canvas caching and modular counters/bookshelves.
   - `src/engine/scenarios.js`: Scenario maps (Cafeteria, Library, Zen Garden), cached floor layers, and memoized collision boundaries.
   - `src/engine/world.js`: World state, click-to-move steering, AABB physics, and dynamic NPC break behaviors.
-  - `src/engine/timer.js`: Wall-clock Pomodoro timer engine, live tab title updates, and SNES HUD clock renderer.
+  - `src/engine/timer.js`: Wall-clock Pomodoro timer engine, live tab title updates, and Windows 98 LCD clock & segmented progress bar HUD.
   - `src/build-bundle.js`: Zero-dependency script that compiles all ES6 modules into `src/bundle.js` for `file://` execution.
 
 ---

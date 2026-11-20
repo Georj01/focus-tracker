@@ -75,15 +75,15 @@ function buildNpcEntity(index, seats) {
 
     return {
         id:         `${i18n.t('studyBuddyPrefix')} ${index}`,
-        x:          x,
-        y:          y,
-        homeX:      x,
-        homeY:      y,
+        x:          x - 3,
+        y:          y - 3,
+        homeX:      x - 3,
+        homeY:      y - 3,
         homeFacing: facing,
-        targetX:    x,
-        targetY:    y,
-        width:      32,
-        height:     40,
+        targetX:    x - 3,
+        targetY:    y - 3,
+        width:      36,
+        height:     39,
         color:      npcColors[(index - 1) % npcColors.length],
         direction:  facing,
         archetype:  archetypes[(index - 1) % archetypes.length],
@@ -119,8 +119,8 @@ export function initGameWorld(preserveSession = false) {
             id:        pId,
             x:         600,
             y:         360,
-            width:     32,
-            height:    40,
+            width:     36,
+            height:    39,
             color:     currentConfig.playerColor || '#3b82f6',
             direction: 'down',
             state:     'IDLE'
@@ -310,24 +310,25 @@ export function updateWorldEntities(deltaTime, isMenuOpen, nearbyInteract) {
 
 export function drawPointerTarget(ctx) {
     if (!pointerTarget.active) return;
-    const pulse = 6 + Math.sin(performance.now() * 0.01) * 2.5;
-    ctx.save();
-    ctx.strokeStyle = 'rgba(250, 204, 21, 0.85)';
-    ctx.lineWidth   = 2;
-    ctx.beginPath();
-    ctx.ellipse(pointerTarget.x, pointerTarget.y, pulse * 1.4, pulse * 0.8, 0, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.restore();
+    const x    = Math.round(pointerTarget.x);
+    const y    = Math.round(pointerTarget.y);
+    const size = Math.floor(performance.now() / 250) % 2 === 0 ? 6 : 9;
+
+    ctx.fillStyle = '#ffff00';
+    ctx.fillRect(x - size, y - 1, size * 2, 3);
+    ctx.fillRect(x - 1, y - size, 3, size * 2);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(x - 1, y - 1, 3, 3);
 }
 
 export function drawCharacterSprite(ctx, p) {
     const isPlayer = p === gameState.players['my_id'];
+    const rx       = Math.round(p.x);
+    const ry       = Math.round(p.y);
 
-    // Drop shadow under character
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-    ctx.beginPath();
-    ctx.ellipse(p.x + p.width * 0.5, p.y + p.height - 2, p.width * 0.45, 6, 0, 0, Math.PI * 2);
-    ctx.fill();
+    // Crisp flat pixel drop shadow under character
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+    ctx.fillRect(rx + 6, ry + p.height - 3, p.width - 12, 6);
 
     const dir       = p.direction || 'down';
     const isMoving  = p.state === 'WALKING' || (!isPlayer && (Math.abs((p.targetX ?? p.x) - p.x) > 2 || Math.abs((p.targetY ?? p.y) - p.y) > 2));
@@ -363,32 +364,34 @@ export function drawCharacterSprite(ctx, p) {
     }
 
     const mainColor   = isPlayer ? (currentConfig.playerColor || '#3b82f6') : (p.color || '#10b981');
-    const accentColor = isPlayer ? '#ef4444' : '#f59e0b';
+    const accentColor = isPlayer ? '#d93838' : '#e8b94f';
 
-    drawPixelSprite(ctx, spriteData, p.x, p.y, p.width, p.height, mainColor, accentColor, flipX);
+    drawPixelSprite(ctx, spriteData, rx, ry, p.width, p.height, mainColor, accentColor, flipX);
 
-    // Badge / Name Tag with dynamic activity icon
+    // Crisp Win98-style compact nameplate
     let statusIcon = '';
     if (!isPlayer) {
         statusIcon = p.state === 'BREAK' ? '☕ ' : '📖 ';
     } else if (isSitting) {
-        statusIcon = '🎯 ';
+        statusIcon = '★ ';
     }
     const tagText   = `${statusIcon}${p.id}`;
-    ctx.font        = 'bold 11px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
+    ctx.font        = 'bold 10px Tahoma, "MS Sans Serif", "MS PGothic", sans-serif';
     const textWidth = ctx.measureText(tagText).width;
-    const badgeW    = textWidth + 14;
-    const badgeH    = 18;
-    const badgeX    = p.x + p.width * 0.5 - badgeW * 0.5;
-    const badgeY    = p.y - 22;
+    const badgeW    = Math.ceil(textWidth + 10);
+    const badgeH    = 16;
+    const badgeX    = Math.round(rx + p.width * 0.5 - badgeW * 0.5);
+    const badgeY    = ry - 19;
 
-    ctx.fillStyle   = 'rgba(24, 20, 37, 0.9)';
-    ctx.strokeStyle = isPlayer ? (currentConfig.playerColor || '#60a5fa') : (p.state === 'BREAK' ? '#facc15' : '#34d399');
-    ctx.lineWidth   = 1.5;
+    ctx.fillStyle = isPlayer ? '#000080' : (p.state === 'BREAK' ? '#ffffe1' : '#c0c0c0');
     ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
-    ctx.strokeRect(badgeX, badgeY, badgeW, badgeH);
 
-    ctx.fillStyle = isPlayer ? '#ffffff' : (p.state === 'BREAK' ? '#fef08a' : '#a7f3d0');
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth   = 1;
+    ctx.strokeRect(badgeX + 0.5, badgeY + 0.5, badgeW - 1, badgeH - 1);
+
+    ctx.fillStyle = isPlayer ? '#ffffff' : '#000000';
     ctx.textAlign = 'center';
-    ctx.fillText(tagText, p.x + p.width * 0.5, badgeY + 13);
+    ctx.fillText(tagText, badgeX + Math.round(badgeW * 0.5), badgeY + 11);
 }
+

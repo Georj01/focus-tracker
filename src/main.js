@@ -35,8 +35,9 @@ function resizeCanvas() {
     if (canvas) {
         canvas.width  = window.innerWidth;
         canvas.height = window.innerHeight;
-        camera.viewportWidth  = canvas.width;
-        camera.viewportHeight = canvas.height;
+        ctx.imageSmoothingEnabled = false;
+        camera.viewportWidth      = canvas.width;
+        camera.viewportHeight     = canvas.height;
     }
 }
 
@@ -123,10 +124,11 @@ function update(deltaTime) {
 }
 
 function draw() {
+    ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
-    ctx.translate(-camera.x, -camera.y);
+    ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
 
     renderScenarioFloor(ctx, WORLD_WIDTH, WORLD_HEIGHT, currentConfig.map);
     renderScenarioEnvironment(ctx, WORLD_WIDTH, WORLD_HEIGHT, currentConfig.map);
@@ -564,16 +566,21 @@ function bindClick(id, handler) {
 
 bindClick('btn-play',           () => { sound.play('click'); showPanel('mode'); });
 bindClick('btn-mode-back',      () => { sound.play('click'); showPanel('main'); });
+bindClick('btn-mode-close',     () => { sound.play('click'); showPanel('main'); });
 bindClick('btn-solo',           () => { sound.play('click'); lastMenuPanel = 'mode'; showPanel('config'); });
 bindClick('btn-config-back',    () => { sound.play('click'); showPanel(lastMenuPanel); });
+bindClick('btn-config-close',   () => { sound.play('click'); showPanel(lastMenuPanel); });
 bindClick('btn-settings',       () => { sound.play('click'); lastMenuPanel = 'main'; showPanel('config'); });
 bindClick('btn-custom',         () => { sound.play('click'); showPanel('custom'); });
 bindClick('btn-custom-back',    () => { sound.play('click'); showPanel('main'); });
+bindClick('btn-custom-close',   () => { sound.play('click'); showPanel('main'); });
 bindClick('btn-resume',         () => { sound.play('click'); lastTime = performance.now(); showPanel('none'); });
+bindClick('btn-pause-close',    () => { sound.play('click'); lastTime = performance.now(); showPanel('none'); });
 bindClick('btn-pause-tasks',    () => { sound.play('click'); toggleTaskDrawer(true); });
 bindClick('btn-pause-settings', () => { sound.play('click'); lastMenuPanel = 'pause'; showPanel('config'); });
 bindClick('btn-exit-main',      () => { sound.play('click'); sound.stopAmbient(); showPanel('main'); });
 bindClick('btn-close-tasks',    () => toggleTaskDrawer(false));
+bindClick('legend-menu',        () => { sound.play('click'); showPanel('pause'); });
 bindClick('btn-hud-play',       toggleTimerPlayPause);
 bindClick('btn-hud-skip',       skipPomodoroSession);
 bindClick('btn-hud-tasks',      () => toggleTaskDrawer());

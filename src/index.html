@@ -9,14 +9,14 @@
 <body>
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Top In-Game HUD Controls & Active Task Banner -->
+    <!-- Top In-Game Win98 Toolbar & Active Focus Panel -->
     <div id="hud-overlay" class="hidden">
-        <div id="hud-task-banner">
+        <div id="hud-task-banner" class="win-panel">
             <span class="hud-tag" id="hud-tag">CURRENT FOCUS</span>
             <span id="hud-task-text">Deep work session</span>
             <span id="hud-task-pomo" class="hud-pomo-pill">🍅 0/2</span>
         </div>
-        <div id="hud-actions">
+        <div id="hud-actions" class="win-toolbar">
             <button id="btn-hud-interact" class="hud-btn interact-btn hidden" title="Interact [E]">⚡ Interact</button>
             <button id="btn-hud-play" class="hud-btn" title="Toggle Play / Pause [Space]">⏸ Pause</button>
             <button id="btn-hud-skip" class="hud-btn" title="Skip Session [Tab]">⏭ Skip</button>
@@ -25,187 +25,232 @@
         </div>
     </div>
 
-    <!-- Collapsible EarthBound-Style Task Drawer -->
-    <div id="task-drawer" class="hidden">
-        <div class="drawer-header">
-            <h2 class="drawer-title" id="lbl-drawer-title">📋 Focus Tasks</h2>
-            <button id="btn-close-tasks" class="icon-btn" title="Close [T]">✕</button>
+    <!-- Floating Windows 98 Task Utility Window -->
+    <div id="task-drawer" class="win-window hidden">
+        <div class="win-titlebar">
+            <span class="win-title-text" id="lbl-drawer-title">📋 Focus Tasks</span>
+            <div class="win-controls">
+                <button id="btn-close-tasks" class="win-ctrl-btn" title="Close [T]">×</button>
+            </div>
         </div>
-        <form id="task-form">
-            <input type="text" id="task-input" placeholder="What are you focusing on?" maxlength="50" autocomplete="off">
-            <button type="submit" id="btn-add-task" class="primary-btn menu-btn" style="width: auto; padding: 0.5rem 1rem;">+ Add</button>
-        </form>
-        <div id="task-list" class="task-items-container">
-            <!-- Dynamic task items injected via JS -->
-        </div>
-        <div class="drawer-footer">
-            <small id="lbl-drawer-footer">Click task to pin • Click 🍅 to adjust target • ✓ to complete</small>
+        <div class="win-body drawer-body">
+            <form id="task-form">
+                <input type="text" id="task-input" placeholder="What are you focusing on?" maxlength="50" autocomplete="off">
+                <button type="submit" id="btn-add-task" class="menu-btn primary-btn compact-btn">+ Add</button>
+            </form>
+            <div id="task-list" class="task-items-container">
+                <!-- Dynamic task items injected via JS -->
+            </div>
+            <div class="drawer-footer">
+                <small id="lbl-drawer-footer">Click task to pin • Click 🍅 to adjust target • ✓ to complete</small>
+            </div>
         </div>
     </div>
 
-    <!-- UI Modal Layer -->
+    <!-- Windows 98 Modal Layer -->
     <div id="ui-layer">
-        <!-- 1. Main Menu -->
-        <div id="main-menu">
-            <!-- Language Quick Switcher -->
-            <div class="lang-selector-bar">
-                <button class="lang-btn active" data-lang="en">EN</button>
-                <button class="lang-btn" data-lang="es">ES</button>
-                <button class="lang-btn" data-lang="ja">日本語</button>
+        <!-- 1. Main Menu Window -->
+        <div id="main-menu" class="win-window">
+            <div class="win-titlebar">
+                <span class="win-title-text">🍅 Pomodoro98.exe</span>
+                <div class="win-controls">
+                    <span class="win-ctrl-btn win-ctrl-inert" aria-hidden="true">_</span>
+                    <span class="win-ctrl-btn win-ctrl-inert" aria-hidden="true">□</span>
+                    <span class="win-ctrl-btn win-ctrl-inert" aria-hidden="true">×</span>
+                </div>
             </div>
+            <div class="win-body">
+                <!-- Language Quick Switcher -->
+                <div class="lang-selector-bar">
+                    <button class="lang-btn active" data-lang="en">EN</button>
+                    <button class="lang-btn" data-lang="es">ES</button>
+                    <button class="lang-btn" data-lang="ja">日本語</button>
+                </div>
 
-            <h1 class="menu-title" id="lbl-main-title">Pomodoro World</h1>
-            <p class="menu-subtitle" id="lbl-main-subtitle">Virtual Shared Study Space</p>
-            <nav class="menu-buttons">
-                <button id="btn-play" class="menu-btn primary-btn">Play Game</button>
-                <button id="btn-custom" class="menu-btn">User Customization</button>
-                <button id="btn-settings" class="menu-btn">Solo Settings</button>
-                <a href="https://github.com/Georj01/focus-tracker" target="_blank" rel="noopener noreferrer" class="menu-link" id="link-about">About the project</a>
-            </nav>
+                <div class="win-hero-banner">
+                    <h1 class="menu-title" id="lbl-main-title">Pomodoro World</h1>
+                    <p class="menu-subtitle" id="lbl-main-subtitle">Virtual Shared Study Space</p>
+                </div>
+
+                <nav class="menu-buttons">
+                    <button id="btn-play" class="menu-btn primary-btn">Play Game</button>
+                    <button id="btn-custom" class="menu-btn">User Customization</button>
+                    <button id="btn-settings" class="menu-btn">Solo Settings</button>
+                    <a href="https://github.com/Georj01/focus-tracker" target="_blank" rel="noopener noreferrer" class="menu-link" id="link-about">About the project</a>
+                </nav>
+            </div>
+            <div class="win-statusbar">
+                <span class="win-status-cell">Ready</span>
+                <span class="win-status-cell">Local-First 98</span>
+            </div>
         </div>
 
-        <!-- 2. Mode Selection Menu -->
-        <div id="mode-menu" class="hidden">
-            <h1 class="menu-title" id="lbl-mode-title">Select Mode</h1>
-            <nav class="menu-buttons">
-                <button id="btn-solo" class="menu-btn primary-btn">Solo Study Space</button>
-                <button id="btn-multiplayer" class="menu-btn" disabled>Multiplayer (Coming Soon)</button>
-                <button id="btn-mode-back" class="menu-btn secondary-btn">Back</button>
-            </nav>
+        <!-- 2. Mode Selection Window -->
+        <div id="mode-menu" class="win-window hidden">
+            <div class="win-titlebar">
+                <span class="win-title-text" id="lbl-mode-title">Select Mode</span>
+                <div class="win-controls">
+                    <button id="btn-mode-close" class="win-ctrl-btn" title="Back">×</button>
+                </div>
+            </div>
+            <div class="win-body">
+                <nav class="menu-buttons">
+                    <button id="btn-solo" class="menu-btn primary-btn">Solo Study Space</button>
+                    <button id="btn-multiplayer" class="menu-btn" disabled>Multiplayer (Coming Soon)</button>
+                    <button id="btn-mode-back" class="menu-btn secondary-btn">Back</button>
+                </nav>
+            </div>
         </div>
 
-        <!-- 3. Solo Configuration Settings Menu -->
-        <div id="solo-config-menu" class="hidden">
-            <h1 class="menu-title" id="lbl-config-title">Solo Settings</h1>
-            <div class="config-form">
-                <div class="form-group">
-                    <label for="focus-time" id="lbl-cfg-focus">Focus Duration (min):</label>
-                    <input type="number" id="focus-time" value="25" min="1" max="180">
+        <!-- 3. Solo Configuration Settings Window -->
+        <div id="solo-config-menu" class="win-window hidden">
+            <div class="win-titlebar">
+                <span class="win-title-text" id="lbl-config-title">Solo Settings</span>
+                <div class="win-controls">
+                    <button id="btn-config-close" class="win-ctrl-btn" title="Back">×</button>
                 </div>
-                <div class="form-group">
-                    <label for="break-time" id="lbl-cfg-break">Break Duration (min):</label>
-                    <input type="number" id="break-time" value="5" min="1" max="60">
+            </div>
+            <div class="win-body">
+                <div class="config-form win-groupbox">
+                    <div class="form-group">
+                        <label for="focus-time" id="lbl-cfg-focus">Focus Duration (min):</label>
+                        <input type="number" id="focus-time" value="25" min="1" max="180">
+                    </div>
+                    <div class="form-group">
+                        <label for="break-time" id="lbl-cfg-break">Break Duration (min):</label>
+                        <input type="number" id="break-time" value="5" min="1" max="60">
+                    </div>
+                    <div class="form-group">
+                        <label for="cycles" id="lbl-cfg-cycles">Session Cycles:</label>
+                        <input type="number" id="cycles" value="4" min="1" max="12">
+                    </div>
+                    <div class="form-group">
+                        <label for="map-select" id="lbl-cfg-map">Select Map:</label>
+                        <select id="map-select">
+                            <option value="cafeteria" id="opt-map-cafeteria">Virtual Cafeteria</option>
+                            <option value="library" id="opt-map-library">Quiet Library</option>
+                            <option value="garden" id="opt-map-garden">Zen Garden</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="npc-count" id="lbl-cfg-npc">NPC Study Buddies:</label>
+                        <input type="number" id="npc-count" value="5" min="0" max="14">
+                    </div>
+                    <div class="form-group">
+                        <label for="ambient-select" id="lbl-cfg-ambient">Ambient Sound:</label>
+                        <select id="ambient-select">
+                            <option value="off" id="opt-ambient-off">Off (Quiet)</option>
+                            <option value="rain" id="opt-ambient-rain">Gentle Rain 🌧️</option>
+                            <option value="cafe" id="opt-ambient-cafe">Cafe Ambiance ☕</option>
+                            <option value="fire" id="opt-ambient-fire">Cozy Fireplace 🔥</option>
+                            <option value="binaural" id="opt-ambient-binaural">Deep Focus Binaural 🎧</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="volume-slider" id="lbl-cfg-volume">Master Volume:</label>
+                        <input type="range" id="volume-slider" min="0" max="100" value="70">
+                    </div>
+                    <div class="form-group">
+                        <label for="language-select" id="lbl-cfg-language">Language / Idioma / 言語:</label>
+                        <select id="language-select">
+                            <option value="en">English (US)</option>
+                            <option value="es">Español</option>
+                            <option value="ja">日本語</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="cycles" id="lbl-cfg-cycles">Session Cycles:</label>
-                    <input type="number" id="cycles" value="4" min="1" max="12">
-                </div>
-                <div class="form-group">
-                    <label for="map-select" id="lbl-cfg-map">Select Map:</label>
-                    <select id="map-select">
-                        <option value="cafeteria" id="opt-map-cafeteria">Virtual Cafeteria</option>
-                        <option value="library" id="opt-map-library">Quiet Library</option>
-                        <option value="garden" id="opt-map-garden">Zen Garden</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="npc-count" id="lbl-cfg-npc">NPC Study Buddies:</label>
-                    <input type="number" id="npc-count" value="5" min="0" max="14">
-                </div>
-                <div class="form-group">
-                    <label for="ambient-select" id="lbl-cfg-ambient">Ambient Sound:</label>
-                    <select id="ambient-select">
-                        <option value="off" id="opt-ambient-off">Off (Quiet)</option>
-                        <option value="rain" id="opt-ambient-rain">Gentle Rain 🌧️</option>
-                        <option value="cafe" id="opt-ambient-cafe">Cafe Ambiance ☕</option>
-                        <option value="fire" id="opt-ambient-fire">Cozy Fireplace 🔥</option>
-                        <option value="binaural" id="opt-ambient-binaural">Deep Focus Binaural 🎧</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="volume-slider" id="lbl-cfg-volume">Master Volume:</label>
-                    <input type="range" id="volume-slider" min="0" max="100" value="70">
-                </div>
-                <div class="form-group">
-                    <label for="language-select" id="lbl-cfg-language">Language / Idioma / 言語:</label>
-                    <select id="language-select">
-                        <option value="en">English (US)</option>
-                        <option value="es">Español</option>
-                        <option value="ja">日本語</option>
-                    </select>
-                </div>
-                <nav class="menu-buttons" style="margin-top: 1.2rem;">
+                <nav class="menu-buttons menu-row-actions">
                     <button id="btn-start-game" class="menu-btn primary-btn">Start Game</button>
                     <button id="btn-config-back" class="menu-btn secondary-btn">Back</button>
                 </nav>
             </div>
         </div>
 
-        <!-- 4. User Customization Menu -->
-        <div id="custom-menu" class="hidden">
-            <h1 class="menu-title" id="lbl-custom-title">Character Customization</h1>
-            <div class="config-form">
-                <div class="form-group">
-                    <label for="player-name" id="lbl-custom-name">Player Name Tag:</label>
-                    <input type="text" id="player-name" value="Ness" maxlength="12">
+        <!-- 4. User Customization Window -->
+        <div id="custom-menu" class="win-window hidden">
+            <div class="win-titlebar">
+                <span class="win-title-text" id="lbl-custom-title">Character Customization</span>
+                <div class="win-controls">
+                    <button id="btn-custom-close" class="win-ctrl-btn" title="Back">×</button>
                 </div>
-                <div class="form-group">
-                    <label for="player-color" id="lbl-custom-color">Avatar Shirt Color:</label>
-                    <select id="player-color">
-                        <option value="#3b82f6" id="opt-color-ness">Ness Blue</option>
-                        <option value="#ec4899" id="opt-color-paula">Paula Pink</option>
-                        <option value="#10b981" id="opt-color-jeff">Jeff Green</option>
-                        <option value="#ef4444" id="opt-color-poo">Martial Red</option>
-                        <option value="#8b5cf6" id="opt-color-purple">Vivid Purple</option>
-                        <option value="#f59e0b" id="opt-color-gold">Amber Gold</option>
-                    </select>
+            </div>
+            <div class="win-body">
+                <div class="config-form win-groupbox">
+                    <div class="form-group">
+                        <label for="player-name" id="lbl-custom-name">Player Name Tag:</label>
+                        <input type="text" id="player-name" value="Ness" maxlength="12">
+                    </div>
+                    <div class="form-group">
+                        <label for="player-color" id="lbl-custom-color">Avatar Shirt Color:</label>
+                        <select id="player-color">
+                            <option value="#3b82f6" id="opt-color-ness">Ness Blue</option>
+                            <option value="#ec4899" id="opt-color-paula">Paula Pink</option>
+                            <option value="#10b981" id="opt-color-jeff">Jeff Green</option>
+                            <option value="#ef4444" id="opt-color-poo">Martial Red</option>
+                            <option value="#8b5cf6" id="opt-color-purple">Vivid Purple</option>
+                            <option value="#f59e0b" id="opt-color-gold">Amber Gold</option>
+                        </select>
+                    </div>
                 </div>
-                <nav class="menu-buttons" style="margin-top: 1.2rem;">
+                <nav class="menu-buttons menu-row-actions">
                     <button id="btn-save-custom" class="menu-btn primary-btn">Save Avatar</button>
                     <button id="btn-custom-back" class="menu-btn secondary-btn">Back</button>
                 </nav>
             </div>
         </div>
 
-        <!-- 5. Pause Menu -->
-        <div id="pause-menu" class="hidden">
-            <h1 class="menu-title" id="lbl-pause-title">Game Paused</h1>
-            <!-- Daily Productivity Stats Card -->
-            <div class="stats-card">
-                <div class="stat-item">
-                    <span class="stat-val" id="stat-today-min">0</span>
-                    <span class="stat-lbl" id="lbl-stat-today">Today's Min</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-val" id="stat-sessions">0</span>
-                    <span class="stat-lbl" id="lbl-stat-sessions">Completed</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-val" id="stat-total-focus">0m</span>
-                    <span class="stat-lbl" id="lbl-stat-total">Total Focus</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-val" id="stat-streak">0</span>
-                    <span class="stat-lbl" id="lbl-stat-streak">Day Streak 🔥</span>
+        <!-- 5. Pause & Productivity Analytics Window -->
+        <div id="pause-menu" class="win-window hidden">
+            <div class="win-titlebar">
+                <span class="win-title-text" id="lbl-pause-title">Game Paused</span>
+                <div class="win-controls">
+                    <button id="btn-pause-close" class="win-ctrl-btn" title="Resume [ESC]">×</button>
                 </div>
             </div>
-            <!-- 7-Day Focus History Bar Chart -->
-            <div class="weekly-chart-card">
-                <span class="weekly-chart-title" id="lbl-weekly-title">7-Day Focus History (min)</span>
-                <div class="weekly-bars" id="stats-weekly-bars"></div>
+            <div class="win-body">
+                <!-- Daily Productivity Stats Card -->
+                <div class="stats-card">
+                    <div class="stat-item">
+                        <span class="stat-val" id="stat-today-min">0</span>
+                        <span class="stat-lbl" id="lbl-stat-today">Today's Min</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val" id="stat-sessions">0</span>
+                        <span class="stat-lbl" id="lbl-stat-sessions">Completed</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val" id="stat-total-focus">0m</span>
+                        <span class="stat-lbl" id="lbl-stat-total">Total Focus</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val" id="stat-streak">0</span>
+                        <span class="stat-lbl" id="lbl-stat-streak">Day Streak 🔥</span>
+                    </div>
+                </div>
+                <!-- 7-Day Focus History Bar Chart -->
+                <div class="weekly-chart-card">
+                    <span class="weekly-chart-title" id="lbl-weekly-title">7-Day Focus History (min)</span>
+                    <div class="weekly-bars" id="stats-weekly-bars"></div>
+                </div>
+                <nav class="menu-buttons">
+                    <button id="btn-resume" class="menu-btn primary-btn">Resume</button>
+                    <button id="btn-pause-tasks" class="menu-btn">Focus Tasks (T)</button>
+                    <button id="btn-pause-settings" class="menu-btn">Settings</button>
+                    <button id="btn-exit-main" class="menu-btn secondary-btn">Exit to Main Menu</button>
+                </nav>
             </div>
-            <nav class="menu-buttons">
-                <button id="btn-resume" class="menu-btn primary-btn">Resume</button>
-                <button id="btn-pause-tasks" class="menu-btn">Focus Tasks (T)</button>
-                <button id="btn-pause-settings" class="menu-btn">Settings</button>
-                <button id="btn-exit-main" class="menu-btn secondary-btn">Exit to Main Menu</button>
-            </nav>
         </div>
     </div>
 
-    <!-- Bottom Keyboard Navigation Bar -->
+    <!-- Bottom Windows 98 Taskbar / Controls Bar -->
     <div id="controls-legend" class="hidden">
-        <span id="legend-move">[WASD / Arrows] Move</span>
-        <span>•</span>
-        <span id="legend-interact">[E] Sit / Interact</span>
-        <span>•</span>
-        <span id="legend-pause">[Space] Pause</span>
-        <span>•</span>
-        <span id="legend-tasks">[T] Tasks</span>
-        <span>•</span>
-        <span id="legend-mute">[M] Mute</span>
-        <span>•</span>
-        <span id="legend-menu">[ESC] Menu</span>
+        <button id="legend-menu" type="button" class="win-start-btn">[ESC] Menu</button>
+        <div class="win-taskbar-sep"></div>
+        <span class="win-taskbar-pane" id="legend-move">[WASD / Click] Move</span>
+        <span class="win-taskbar-pane" id="legend-interact">[E / Click] Sit & Interact</span>
+        <span class="win-taskbar-pane" id="legend-pause">[Space] Pause</span>
+        <span class="win-taskbar-pane" id="legend-tasks">[T] Tasks</span>
+        <span class="win-taskbar-pane" id="legend-mute">[M] Mute</span>
     </div>
 
     <script defer src="./bundle.js"></script>

@@ -94,31 +94,54 @@ export function drawPomodoroHUD(ctx, canvasWidth, isMenuOpen) {
     const seconds      = totalSeconds % 60;
     const timeStr      = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-    const hudW = Math.min(280, canvasWidth - 24);
-    const hudH = 78;
-    const hudX = (canvasWidth - hudW) * 0.5;
-    const hudY = 16;
+    const hudW = Math.min(274, canvasWidth - 24);
+    const hudH = 88;
+    const hudX = Math.round((canvasWidth - hudW) * 0.5);
+    const hudY = 12;
 
-    // SNES Double-Border Frame
-    ctx.fillStyle   = 'rgba(24, 20, 37, 0.96)';
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth   = 2;
+    // 1. Classic Windows 98 Raised Window Chrome
+    ctx.fillStyle = '#c0c0c0';
     ctx.fillRect(hudX, hudY, hudW, hudH);
-    ctx.strokeRect(hudX, hudY, hudW, hudH);
+    // Outer white highlight (top/left) & black shadow (bottom/right)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(hudX, hudY, hudW - 1, 2);
+    ctx.fillRect(hudX, hudY, 2, hudH - 1);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(hudX, hudY + hudH - 2, hudW, 2);
+    ctx.fillRect(hudX + hudW - 2, hudY, 2, hudH);
+    // Inner dark gray shadow
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(hudX + 2, hudY + hudH - 3, hudW - 4, 1);
+    ctx.fillRect(hudX + hudW - 3, hudY + 2, 1, hudH - 4);
 
-    const themeColor = timer.mode === 'WORK' ? '#ef4444' : (timer.mode === 'LONG_BREAK' ? '#38bdf8' : '#10b981');
-    ctx.strokeStyle  = themeColor;
-    ctx.lineWidth    = 1;
-    ctx.strokeRect(hudX + 3, hudY + 3, hudW - 6, hudH - 6);
+    // 2. Classic Win98 Gradient Titlebar
+    const barX = hudX + 4;
+    const barY = hudY + 4;
+    const barW = hudW - 8;
+    const barH = 19;
+    const isPaused = !timer.isActive || isMenuOpen;
 
-    // Multilingual Scenario Title
+    const grad = ctx.createLinearGradient(barX, barY, barX + barW, barY);
+    if (isPaused) {
+        grad.addColorStop(0, '#808080');
+        grad.addColorStop(1, '#b5b5b5');
+    } else if (timer.mode === 'WORK') {
+        grad.addColorStop(0, '#000080');
+        grad.addColorStop(1, '#1084d0');
+    } else {
+        grad.addColorStop(0, '#006666');
+        grad.addColorStop(1, '#10a494');
+    }
+    ctx.fillStyle = grad;
+    ctx.fillRect(barX, barY, barW, barH);
+
+    // Multilingual Scenario + Mode in Titlebar
     let scenarioName = i18n.t('mapCafeteria');
     if (currentConfig.map === 'library') scenarioName = i18n.t('mapLibrary');
     else if (currentConfig.map === 'garden') scenarioName = i18n.t('mapGarden');
 
-    // Multilingual Mode Label
     let modeText = i18n.t('hudFocusSession');
-    if (!timer.isActive || isMenuOpen) {
+    if (isPaused) {
         modeText = i18n.t('hudPaused');
     } else if (timer.mode === 'BREAK') {
         modeText = i18n.t('hudShortBreak');
@@ -126,32 +149,67 @@ export function drawPomodoroHUD(ctx, canvasWidth, isMenuOpen) {
         modeText = i18n.t('hudLongBreak');
     }
 
-    ctx.fillStyle = (!timer.isActive || isMenuOpen) ? '#facc15' : themeColor;
-    ctx.font      = 'bold 11px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${scenarioName} • ${modeText}`, canvasWidth * 0.5, hudY + 20);
-
-    // Digital Clock
     ctx.fillStyle = '#ffffff';
-    ctx.font      = 'bold 26px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
-    ctx.fillText(timeStr, canvasWidth * 0.5, hudY + 48);
+    ctx.font      = 'bold 11px Tahoma, "MS Sans Serif", "MS PGothic", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${scenarioName} - ${modeText}`, barX + 6, barY + 13, barW - 12);
 
-    // Cycle & Progress
+    // 3. Sunken LCD Clock Well
+    const wellX = hudX + 8;
+    const wellY = hudY + 28;
+    const wellW = hudW - 16;
+    const wellH = 34;
+
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(wellX, wellY, wellW, wellH);
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(wellX, wellY, wellW, 1);
+    ctx.fillRect(wellX, wellY, 1, wellH);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(wellX, wellY + wellH - 1, wellW, 1);
+    ctx.fillRect(wellX + wellW - 1, wellY, 1, wellH);
+
+    // Crisp retro LCD digits
+    ctx.fillStyle = isPaused ? '#ffff00' : (timer.mode === 'WORK' ? '#00ff66' : '#52e0ff');
+    ctx.font      = 'bold 24px "Courier New", Courier, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(timeStr, hudX + Math.round(hudW * 0.5) - 18, wellY + 25);
+
+    const cycleText = `${i18n.t('hudCycle')} ${timer.currentCycle}/${timer.totalCycles}`;
+    ctx.fillStyle   = '#c0c0c0';
+    ctx.font        = 'bold 10px Tahoma, "MS Sans Serif", sans-serif';
+    ctx.textAlign   = 'right';
+    ctx.fillText(cycleText, wellX + wellW - 8, wellY + 21);
+
+    // 4. Classic Win98 Segmented Progress Bar
     let maxSeconds = currentConfig.focusTime * 60;
     if (timer.mode === 'BREAK') maxSeconds = currentConfig.breakTime * 60;
     if (timer.mode === 'LONG_BREAK') maxSeconds = currentConfig.breakTime * 60 * 2;
 
     const progress = Math.max(0, Math.min(1, timer.timerSeconds / Math.max(1, maxSeconds)));
 
-    ctx.fillStyle = '#334155';
-    ctx.fillRect(hudX + 12, hudY + hudH - 12, hudW - 24, 6);
+    const pX = hudX + 8;
+    const pY = hudY + 67;
+    const pW = hudW - 16;
+    const pH = 14;
 
-    ctx.fillStyle = themeColor;
-    ctx.fillRect(hudX + 12, hudY + hudH - 12, (hudW - 24) * progress, 6);
+    // Sunken white trough
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(pX, pY, pW, pH);
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(pX, pY, pW, 1);
+    ctx.fillRect(pX, pY, 1, pH);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(pX + 1, pY + 1, pW - 2, 1);
+    ctx.fillRect(pX + 1, pY + 1, 1, pH - 2);
 
-    const cycleText = `${i18n.t('hudCycle')} ${timer.currentCycle}/${timer.totalCycles}`;
-    ctx.fillStyle   = '#94a3b8';
-    ctx.font        = 'bold 9px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
-    ctx.textAlign   = 'right';
-    ctx.fillText(cycleText, hudX + hudW - 12, hudY + 46);
+    // Segmented blue Win98 blocks
+    const blockW    = 8;
+    const blockGap  = 2;
+    const innerW    = Math.floor((pW - 6) * progress);
+    ctx.fillStyle   = isPaused ? '#808080' : '#000080';
+    for (let bx = 0; bx + blockW <= innerW; bx += blockW + blockGap) {
+        ctx.fillRect(pX + 3 + bx, pY + 3, blockW, pH - 6);
+    }
 }
+

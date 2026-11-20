@@ -59,26 +59,20 @@
             this.viewportHeight = viewportHeight;
         }
 
-        // Update camera to center target while strictly preventing viewport scroll into void
-        update(targetX, targetY, targetWidth = 32, targetHeight = 40, worldWidth = 1200, worldHeight = 800) {
-            // Horizontal camera calculation
+        // Update camera to center target while keeping integer pixel alignment (zero sprite blur)
+        update(targetX, targetY, targetWidth = 36, targetHeight = 39, worldWidth = 1200, worldHeight = 800) {
             if (this.viewportWidth >= worldWidth) {
-                // Screen is wider than the room: center the room on screen
-                this.x = (worldWidth - this.viewportWidth) * 0.5;
+                this.x = Math.round((worldWidth - this.viewportWidth) * 0.5);
             } else {
-                // Screen is narrower: center on target and clamp between 0 and (worldWidth - viewportWidth)
                 const desiredX = targetX - (this.viewportWidth - targetWidth) * 0.5;
-                this.x = Math.max(0, Math.min(worldWidth - this.viewportWidth, desiredX));
+                this.x = Math.round(Math.max(0, Math.min(worldWidth - this.viewportWidth, desiredX)));
             }
 
-            // Vertical camera calculation
             if (this.viewportHeight >= worldHeight) {
-                // Screen is taller than the room: center the room vertically
-                this.y = (worldHeight - this.viewportHeight) * 0.5;
+                this.y = Math.round((worldHeight - this.viewportHeight) * 0.5);
             } else {
-                // Screen is shorter: center on target and clamp between 0 and (worldHeight - viewportHeight)
                 const desiredY = targetY - (this.viewportHeight - targetHeight) * 0.5;
-                this.y = Math.max(0, Math.min(worldHeight - this.viewportHeight, desiredY));
+                this.y = Math.round(Math.max(0, Math.min(worldHeight - this.viewportHeight, desiredY)));
             }
         }
     }
@@ -916,498 +910,402 @@
     // ============================================================================
     // Module: src/engine/sprites.js
     // ============================================================================
-    // Procedural EarthBound SNES Pixel Art Engine
+    // Crisp Minimalist Pixel Art Engine (Uniform 3x Integer Pixel Grid)
+    const PIXEL_SCALE = 3;
     const PALETTE = {
         '_': null,          // Transparent
-        '0': '#181425',     // Ink outline / dark shadow
-        '1': '#ffcd9c',     // Warm peach skin tone
-        '2': '#3b82f6',     // Primary clothing (dynamically overridden)
-        '3': '#1e3a8a',     // Dark denim navy pants / shorts
-        '4': '#dc2626',     // Red sneakers / visor accent
-        '5': '#ffffff',     // White (eyes, socks, pages, highlights)
-        '6': '#ef4444',     // Baseball cap / main accent (dynamically overridden)
-        '7': '#382216',     // Dark hair
-        '8': '#f59e0b',     // Amber yellow stripes / backpack / blonde hair
-        '9': '#854d0e',     // Warm oak wood
-        'A': '#451a03',     // Dark wood shadow
-        'B': '#15803d',     // Lush leaf green
-        'C': '#4ade80',     // Bright leaf highlight
-        'D': '#38bdf8',     // Laptop screen blue glow
-        'E': '#94a3b8',     // Metallic silver
-        'F': '#f472b6',     // Rosy blush / pink ribbon
-        'G': '#fde047',     // Lamp golden glow / tea
-        'H': '#ea580c'      // Terracotta planter / warm coffee
+        '0': '#181818',     // Crisp pixel ink outline
+        '1': '#ffd1a9',     // Warm peach skin
+        '2': '#3b82f6',     // Primary shirt / outfit (dynamically overridden)
+        '3': '#263959',     // Dark navy pants
+        '4': '#cc3333',     // Red shoes / accent
+        '5': '#ffffff',     // Pure white (pages, mug, CRT highlight)
+        '6': '#d93838',     // Cap / primary accent (dynamically overridden)
+        '7': '#422818',     // Dark brown hair / trunk
+        '8': '#e8b94f',     // Blonde hair / warm oak highlight / gold
+        '9': '#9e6637',     // Clean oak wood
+        'A': '#5e3618',     // Wood shadow / legs
+        'B': '#2f8f4e',     // Clean leaf green
+        'C': '#6bd482',     // Bright leaf highlight
+        'D': '#4fc3f7',     // Retro CRT cyan screen
+        'E': '#c8ccd0',     // Classic Win98 beige-gray / stone light
+        'F': '#e874b0',     // Pink dress / ribbon
+        'G': '#ffe259',     // Warm lamp / lantern yellow
+        'H': '#c45b33',     // Terracotta pot / coffee
+        'I': '#747c86'      // Metal / stone shadow
     };
     const SPRITES = {
         // ------------------------------------------------------------------------
-        // 1. EARTHBOUND HERO SPRITES (4-Directional, 16x20)
+        // 1. SIMPLE HERO SPRITES (12x13 -> 36x39 px at 3x scale)
         // ------------------------------------------------------------------------
         CHAR_DOWN_IDLE: [
-            "_____000000_____",
-            "____06666660____",
-            "___066666660440_",
-            "___071111117040_",
-            "__0111111111110_",
-            "__01F011110F110_",
-            "__0111100111110_",
-            "___01111111110__",
-            "___0552222550___",
-            "__022222222220__",
-            "__088888888880__",
-            "_01022222222010_",
-            "_00_08888880_00_",
-            "____00000000____",
-            "____03333330____",
-            "____03300330____",
-            "____0110_0110___",
-            "____0550_0550___",
-            "___04440_04440__",
-            "___00000_00000__"
+            '___000000___',
+            '__06666660__',
+            '__06666660__',
+            '__01111110__',
+            '__01011010__',
+            '__01111110__',
+            '___000000___',
+            '__02222220__',
+            '_0102222010_',
+            '__02222220__',
+            '__03300330__',
+            '__04400440__',
+            '___00__00___'
         ],
         CHAR_DOWN_WALK_1: [
-            "_____000000_____",
-            "____06666660____",
-            "___066666660440_",
-            "___071111117040_",
-            "__0111111111110_",
-            "__01F011110F110_",
-            "__0111100111110_",
-            "___01111111110__",
-            "___0552222550___",
-            "__022222222220__",
-            "__088888888880__",
-            "_0102222222200__",
-            "_00_08888880_010",
-            "____00000000__00",
-            "____03333330____",
-            "____03330330____",
-            "___01110_010____",
-            "___05550_050____",
-            "__044440_0440___",
-            "__000000__000___"
+            '___000000___',
+            '__06666660__',
+            '__06666660__',
+            '__01111110__',
+            '__01011010__',
+            '__01111110__',
+            '___000000___',
+            '__02222220__',
+            '_010222200__',
+            '__0222222010',
+            '__03300330__',
+            '__0440_00___',
+            '___00_______'
         ],
         CHAR_DOWN_WALK_2: [
-            "_____000000_____",
-            "____06666660____",
-            "___066666660440_",
-            "___071111117040_",
-            "__0111111111110_",
-            "__01F011110F110_",
-            "__0111100111110_",
-            "___01111111110__",
-            "___0552222550___",
-            "__022222222220__",
-            "__088888888880__",
-            "__0022222222010_",
-            "010_08888880_00_",
-            "00__00000000____",
-            "____03333330____",
-            "____03303330____",
-            "____010_01110___",
-            "____050_05550___",
-            "___0440_044440__",
-            "___000__000000__"
+            '___000000___',
+            '__06666660__',
+            '__06666660__',
+            '__01111110__',
+            '__01011010__',
+            '__01111110__',
+            '___000000___',
+            '__02222220__',
+            '__002222010_',
+            '0102222220__',
+            '__03300330__',
+            '___00_0440__',
+            '_______00___'
         ],
         CHAR_UP_IDLE: [
-            "_____000000_____",
-            "____06666660____",
-            "___0666666660___",
-            "___0777777770___",
-            "__077777777770__",
-            "__077777777770__",
-            "___0777777770___",
-            "___0000000000___",
-            "___0222222220___",
-            "__020888888020__",
-            "__020888888020__",
-            "_01008888880010_",
-            "_00_08888880_00_",
-            "____00000000____",
-            "____03333330____",
-            "____03300330____",
-            "____0110_0110___",
-            "____0550_0550___",
-            "___04440_04440__",
-            "___00000_00000__"
+            '___000000___',
+            '__06666660__',
+            '__06666660__',
+            '__07777770__',
+            '__07777770__',
+            '__07777770__',
+            '___000000___',
+            '__02222220__',
+            '_0102222010_',
+            '__02222220__',
+            '__03300330__',
+            '__04400440__',
+            '___00__00___'
         ],
         CHAR_UP_WALK_1: [
-            "_____000000_____",
-            "____06666660____",
-            "___0666666660___",
-            "___0777777770___",
-            "__077777777770__",
-            "__077777777770__",
-            "___0777777770___",
-            "___0000000000___",
-            "___0222222220___",
-            "__020888888020__",
-            "__020888888020__",
-            "_0100888888000__",
-            "_00_08888880_010",
-            "____00000000__00",
-            "____03333330____",
-            "____03330330____",
-            "___01110_010____",
-            "___05550_050____",
-            "__044440_0440___",
-            "__000000__000___"
+            '___000000___',
+            '__06666660__',
+            '__06666660__',
+            '__07777770__',
+            '__07777770__',
+            '__07777770__',
+            '___000000___',
+            '__02222220__',
+            '_010222200__',
+            '__0222222010',
+            '__03300330__',
+            '__0440_00___',
+            '___00_______'
         ],
         CHAR_UP_WALK_2: [
-            "_____000000_____",
-            "____06666660____",
-            "___0666666660___",
-            "___0777777770___",
-            "__077777777770__",
-            "__077777777770__",
-            "___0777777770___",
-            "___0000000000___",
-            "___0222222220___",
-            "__020888888020__",
-            "__020888888020__",
-            "__0008888880010_",
-            "010_08888880_00_",
-            "00__00000000____",
-            "____03333330____",
-            "____03303330____",
-            "____010_01110___",
-            "____050_05550___",
-            "___0440_044440__",
-            "___000__000000__"
+            '___000000___',
+            '__06666660__',
+            '__06666660__',
+            '__07777770__',
+            '__07777770__',
+            '__07777770__',
+            '___000000___',
+            '__02222220__',
+            '__002222010_',
+            '0102222220__',
+            '__03300330__',
+            '___00_0440__',
+            '_______00___'
         ],
         CHAR_SIDE_IDLE: [
-            "_____000000_____",
-            "____06666660____",
-            "__04406666660___",
-            "_044401111170___",
-            "__000111111110__",
-            "___01111F01110__",
-            "___01111101110__",
-            "____011110000___",
-            "____022220880___",
-            "___0222220880___",
-            "___0888880880___",
-            "___0222220880___",
-            "___0100000000___",
-            "___000333330____",
-            "____03333330____",
-            "____03300330____",
-            "____0110_0110___",
-            "____0550_0550___",
-            "___04440_04440__",
-            "___00000_00000__"
+            '___000000___',
+            '__06666660__',
+            '_066666660__',
+            '__01111770__',
+            '__01011770__',
+            '__01111770__',
+            '___000000___',
+            '___022220___',
+            '___021120___',
+            '___022220___',
+            '___033330___',
+            '___044440___',
+            '____0000____'
         ],
         CHAR_SIDE_WALK_1: [
-            "_____000000_____",
-            "____06666660____",
-            "__04406666660___",
-            "_044401111170___",
-            "__000111111110__",
-            "___01111F01110__",
-            "___01111101110__",
-            "____011110000___",
-            "____022220880___",
-            "___0222220880___",
-            "___0888880880___",
-            "___0222220880___",
-            "___0100000000___",
-            "___000333330____",
-            "____03333330____",
-            "___03330_0330___",
-            "__01110___010___",
-            "__05550___050___",
-            "_044440___0440__",
-            "_000000___0000__"
+            '___000000___',
+            '__06666660__',
+            '_066666660__',
+            '__01111770__',
+            '__01011770__',
+            '__01111770__',
+            '___000000___',
+            '___022220___',
+            '__0122220___',
+            '___022220___',
+            '__03300330__',
+            '__04400440__',
+            '___00__00___'
         ],
         CHAR_SIDE_WALK_2: [
-            "_____000000_____",
-            "____06666660____",
-            "__04406666660___",
-            "_044401111170___",
-            "__000111111110__",
-            "___01111F01110__",
-            "___01111101110__",
-            "____011110000___",
-            "____022220880___",
-            "___0222220880___",
-            "___0888880880___",
-            "___0222220880___",
-            "___0100000000___",
-            "___000333330____",
-            "____03333330____",
-            "____0330_03330__",
-            "____010___01110_",
-            "____050___05550_",
-            "___0440___044440",
-            "___0000___000000"
+            '___000000___',
+            '__06666660__',
+            '_066666660__',
+            '__01111770__',
+            '__01011770__',
+            '__01111770__',
+            '___000000___',
+            '___022220___',
+            '___022210___',
+            '___022220___',
+            '___033330___',
+            '___044440___',
+            '____0000____'
         ],
 
-        // ------------------------------------------------------------------------
-        // 2. STUDYING CHARACTER SPRITE (Sitting at Desk with Study Materials)
-        // ------------------------------------------------------------------------
+        // Seated studying pose (facing left; flipX=true faces right)
         CHAR_SIT: [
-            "_____000000_____",
-            "____06666660____",
-            "___066666660440_",
-            "___071111117040_",
-            "__0111111111110_",
-            "__01F011110F110_",
-            "__0111100111110_",
-            "___01111111110__",
-            "___0552222550___",
-            "__022222222220__",
-            "__088888888880__",
-            "_01102222220110_",
-            "_00008888880000_",
-            "____00000000____",
-            "___0333333330___",
-            "___0333333330___",
-            "___0110000110___",
-            "___0550__0550___",
-            "___0440__0440___",
-            "___0000__0000___"
+            '___000000___',
+            '__06666660__',
+            '_066666660__',
+            '__01111770__',
+            '__01011770__',
+            '__01111770__',
+            '___000000___',
+            '___022220___',
+            '__0122220___',
+            '___022220___',
+            '__0333330___',
+            '__0440000___',
+            '___00_______'
         ],
 
         // ------------------------------------------------------------------------
-        // 3. EARTHBOUND NPC VARIANTS
+        // 2. SIMPLE NPC VARIANTS (12x13 -> 36x39 px at 3x scale)
         // ------------------------------------------------------------------------
-        // Scholar / Techie (Jeff-like with glasses, blonde hair, green sweater)
         NPC_SCHOLAR: [
-            "_____000000_____",
-            "____08888880____",
-            "___0888888880___",
-            "___0881111880___",
-            "__011111111110__",
-            "__010501105010__", // Glasses!
-            "__011110011110__",
-            "___0111111110___",
-            "___055BBBB550___", // Green sweater
-            "__0BBBBBBBBBB0__",
-            "__0BBBBBBBBBB0__",
-            "_010BBBBBBBB010_",
-            "_00_0BBBBBB0_00_",
-            "____00000000____",
-            "____08888880____", // Khaki trousers
-            "____08800880____",
-            "____0110_0110___",
-            "____0550_0550___",
-            "___07770_07770__", // Brown shoes
-            "___00000_00000__"
+            '___000000___',
+            '__08888880__',
+            '__08888880__',
+            '__01111110__',
+            '__00500500__',
+            '__01111110__',
+            '___000000___',
+            '__02222220__',
+            '_0102222010_',
+            '__02222220__',
+            '__03300330__',
+            '__07700770__',
+            '___00__00___'
         ],
-
-        // Bookworm / Girl (Paula-style with pink ribbon & dress)
         NPC_GIRL: [
-            "____000____000__",
-            "___0FFF0__0FFF0_", // Pink hair ribbon!
-            "____0FF0000FF0__",
-            "___0888888880___", // Blonde hair
-            "__088111111880__",
-            "__01F011110F10__", // Rosy cheeks
-            "__011110011110__",
-            "___0111111110___",
-            "___055FFFF550___", // Pink dress
-            "__0FFFFFFFFFF0__",
-            "__0FFFFFFFFFF0__",
-            "_010FFFFFFFF010_",
-            "_00_0FFFFFF0_00_",
-            "____0FFFFFF0____",
-            "___0FFFFFFFF0___",
-            "___0FFFFFFFF0___",
-            "____0110_0110___",
-            "____0550_0550___",
-            "___04440_04440__",
-            "___00000_00000__"
+            '___000000___',
+            '__07777770__',
+            '_0777777770_',
+            '_0711111170_',
+            '_0710110170_',
+            '_0711111170_',
+            '___000000___',
+            '__02222220__',
+            '_0102222010_',
+            '_0222222220_',
+            '__01100110__',
+            '__04400440__',
+            '___00__00___'
         ],
 
         // ------------------------------------------------------------------------
-        // 4. EARTHBOUND SCENARIO FURNITURE & PROPS (16x16)
+        // 3. SIMPLE CRISP FURNITURE & PROPS (Native Aspect Ratios at 3x Scale!)
         // ------------------------------------------------------------------------
-        // Wooden Study Desk with beveled edge and woodgrain
-        DESK_WOOD: [
-            "0000000000000000",
-            "0999999999999990",
-            "0988888888888890",
-            "0989999999999890",
-            "0999999999999990",
-            "0999999999999990",
-            "0999999999999990",
-            "0AAAAAAAAAAAAAA0",
-            "0000000000000000",
-            "0AA0________0AA0",
-            "0990________0990",
-            "0990________0990",
-            "0990________0990",
-            "0990________0990",
-            "0AA0________0AA0",
-            "0000________0000"
-        ],
-
-        // Desk with Glowing Laptop and Coffee Mug
-        DESK_LAPTOP: [
-            "0000000000000000",
-            "0999999999999990",
-            "0990000009990090", // Laptop open + Coffee mug
-            "0900DDDD0090HH00", // Screen blue glow + orange mug
-            "0900DDDD0090HH00",
-            "090EEEEEE0900000", // Keyboard
-            "0999999999999990",
-            "0AAAAAAAAAAAAAA0",
-            "0000000000000000",
-            "0AA0________0AA0",
-            "0990________0990",
-            "0990________0990",
-            "0990________0990",
-            "0990________0990",
-            "0AA0________0AA0",
-            "0000________0000"
-        ],
-
-        // Desk with Open Textbook and Golden Study Lamp
-        DESK_BOOK: [
-            "0000000000000000",
-            "0999999999999990",
-            "090GG09900000090", // Golden lamp head + Open book
-            "090EE09055005500", // White pages
-            "0990E09050005000", // Book text lines
-            "090EE09055005500",
-            "0999999999999990",
-            "0AAAAAAAAAAAAAA0",
-            "0000000000000000",
-            "0AA0________0AA0",
-            "0990________0990",
-            "0990________0990",
-            "0990________0990",
-            "0990________0990",
-            "0AA0________0AA0",
-            "0000________0000"
-        ],
-
-        // Cozy Wooden Chair (top-down view)
+        // Wooden Chair (10x12 -> 30x36 px, facing right; flipX=true faces left)
         CHAIR: [
-            "____00000000____",
-            "___0999999990___",
-            "___0988888890___",
-            "___0999999990___",
-            "___0AAAAAAAA0___",
-            "___0000000000___",
-            "__033333333330__", // Padded fabric cushion
-            "__032222222230__",
-            "__032222222230__",
-            "__033333333330__",
-            "__000000000000__",
-            "__0A0______0A0__",
-            "__090______090__",
-            "__090______090__",
-            "__0A0______0A0__",
-            "__000______000__"
+            '__0000____',
+            '__0990____',
+            '__0980____',
+            '__0990____',
+            '__0990000_',
+            '__0999990_',
+            '__0988890_',
+            '__0AAAAA0_',
+            '__0000000_',
+            '__0A0_0A0_',
+            '__0A0_0A0_',
+            '__000_000_'
         ],
 
-        // Potted Ficus Plant in Terracotta Pot
+        // Clean Wooden Desk (32x18 -> 96x54 px)
+        DESK_WOOD: [
+            '00000000000000000000000000000000',
+            '08888888888888888888888888888880',
+            '09999999999999999999999999999990',
+            '09999999999999999999999999999990',
+            '09999999999999999999999999999990',
+            '09999999999999999999999999999990',
+            '09999999999999999999999999999990',
+            '09999999999999999999999999999990',
+            '09999999999999999999999999999990',
+            '09999999999999999999999999999990',
+            '0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0',
+            '00000000000000000000000000000000',
+            '0AA0________________________0AA0',
+            '0990________________________0990',
+            '0990________________________0990',
+            '0990________________________0990',
+            '0AA0________________________0AA0',
+            '0000________________________0000'
+        ],
+
+        // Desk with Classic Retro CRT PC + Coffee Mug (32x18 -> 96x54 px)
+        DESK_LAPTOP: [
+            '00000000000000000000000000000000',
+            '08888888800000000008888888888880',
+            '099999990EEEEEEEEEE0999999999990',
+            '099999990E00000000E0999900009990',
+            '099999990E0DDDDDD0E099905HH50090',
+            '099999990E0D5DDDD0E0999055550500',
+            '099999990E0DDDDDD0E0999055550090',
+            '099999990E00000000E0999900009990',
+            '099999990000IIII0000999999999990',
+            '09999990EEEEEEEEEEEE099999999990',
+            '0AAAAAA00000000000000AAAAAAAAAA0',
+            '00000000000000000000000000000000',
+            '0AA0________________________0AA0',
+            '0990________________________0990',
+            '0990________________________0990',
+            '0990________________________0990',
+            '0AA0________________________0AA0',
+            '0000________________________0000'
+        ],
+
+        // Desk with Open Book + Simple Golden Lamp (32x18 -> 96x54 px)
+        DESK_BOOK: [
+            '00000000000000000000000000000000',
+            '08888888888888888888888888888880',
+            '09900009999999999999999999999990',
+            '090GGGG0999000000000000999999990',
+            '090GGGG0990555550055555099999990',
+            '099000099905III5005III5099999990',
+            '09990I09990555550055555099999990',
+            '0990III09905III5005III5099999990',
+            '09900000990555550055555099999990',
+            '09999999999000000000000999999990',
+            '0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0',
+            '00000000000000000000000000000000',
+            '0AA0________________________0AA0',
+            '0990________________________0990',
+            '0990________________________0990',
+            '0990________________________0990',
+            '0AA0________________________0AA0',
+            '0000________________________0000'
+        ],
+
+        // Simple Potted Plant (12x14 -> 36x42 px)
         PLANT: [
-            "______0000______",
-            "____00CBBBB00___",
-            "___0CBBCCCBBB0__",
-            "__0BBCCCCCCCCB0_",
-            "__0BBBCCCCCCBB0_",
-            "_0CBBBBBBBBBBBC0",
-            "_0BBCCCCBBBBBBB0",
-            "__0BBBBBBBBBBB0_",
-            "___0000770000___", // Trunk
-            "_____007700_____",
-            "____00HHHH00____", // Terracotta Pot Rim
-            "___0HHHHHHHH0___",
-            "___0HHHHHHHH0___",
-            "____0HHHHHH0____",
-            "____0HHHHHH0____",
-            "_____000000_____"
+            '____0000____',
+            '__00CCCC00__',
+            '_0CCBBBBCC0_',
+            '_0CBBBBBBC0_',
+            '0CBBBBBBBB0_',
+            '0BBBBBBBBB0_',
+            '_0BBBBBBB0__',
+            '__0007700___',
+            '____0770____',
+            '__00000000__',
+            '__0HHHHHH0__',
+            '___0HHHH0___',
+            '___0HHHH0___',
+            '____0000____'
         ],
 
-        // Tall Library Bookshelf with colorful book rows
-        BOOKSHELF: [
-            "0000000000000000",
-            "0999999999999990",
-            "0924685246852490", // Shelf 1 colorful books
-            "0924685246852490",
-            "09AAAAAAAAAAAA90",
-            "0999999999999990",
-            "0948526485264890", // Shelf 2 books
-            "0948526485264890",
-            "09AAAAAAAAAAAA90",
-            "0999999999999990",
-            "0985246852468590", // Shelf 3 books
-            "0985246852468590",
-            "09AAAAAAAAAAAA90",
-            "0999999999999990",
-            "0AAAAAAAAAAAAAA0",
-            "0000000000000000"
-        ],
-
-        // Cafe Counter & Espresso Machine
-        COUNTER: [
-            "0000000000000000",
-            "0999999999999990",
-            "0900EE0990HH0990", // Chrome espresso machine + Coffee cup
-            "00EDDE0990HH0990",
-            "00EEEE0990000990",
-            "0999999999999990",
-            "0AAAAAAAAAAAAAA0",
-            "0000000000000000",
-            "0999999999999990",
-            "0988888888888890",
-            "0999999999999990",
-            "0999999999999990",
-            "0999999999999990",
-            "0999999999999990",
-            "0AAAAAAAAAAAAAA0",
-            "0000000000000000"
-        ],
-
-        // Japanese Zen Stone Lantern (Toro)
+        // Simple Zen Stone Lantern (12x16 -> 36x48 px)
         ZEN_LANTERN: [
-            "______0000______",
-            "_____0EEEE0_____",
-            "___00EEEEEE00___", // Roof
-            "__000000000000__",
-            "____0GGGGGG0____", // Glowing paper light
-            "____0G0GG0G0____",
-            "____0GGGGGG0____",
-            "____00000000____",
-            "_____0EEEE0_____", // Stone pillar
-            "_____0EEEE0_____",
-            "_____0EEEE0_____",
-            "____00EEEE00____",
-            "___0EEEEEEEE0___", // Base
-            "__00EEEEEEEE00__",
-            "__000000000000__",
-            "________________"
+            '____0000____',
+            '__00EEEE00__',
+            '_0EEEEEEEE0_',
+            '_0000000000_',
+            '___0GGGG0___',
+            '___0G55G0___',
+            '___0GGGG0___',
+            '___000000___',
+            '____0EE0____',
+            '____0EI0____',
+            '____0EI0____',
+            '___00EE00___',
+            '__0EEEEEE0__',
+            '__0IIIIII0__',
+            '__00000000__',
+            '____________'
         ],
 
-        // Zen Garden Stepping Stone
+        // Simple Zen Stepping Stone (14x9 -> 42x27 px)
         ZEN_STONE: [
-            "________________",
-            "_____000000_____",
-            "___00EEEEEE00___",
-            "__0EEEEEEEEEE0__",
-            "_0EEEEEEEEEEEE0_",
-            "_0EEEEEEEEEEEE0_",
-            "_0EEEE000EEEEE0_",
-            "__0EEEEEEEEEE0__",
-            "___00EEEEEE00___",
-            "_____000000_____",
-            "________________",
-            "________________",
-            "________________",
-            "________________",
-            "________________",
-            "________________"
+            '___00000000___',
+            '_00EEEEEEEE00_',
+            '0EEEEEEEEEEEE0',
+            '0EE55EEEEEEEE0',
+            '0EEEEEEEEEEEE0',
+            '0EEEEEEEEEEEE0',
+            '0IIIIIIIIIIII0',
+            '_00IIIIIIII00_',
+            '___00000000___'
+        ],
+
+        // Counter Props (native 3x scale!)
+        PROP_ESPRESSO: [
+            '_0000000000_',
+            '_0EEEEEEEE0_',
+            '_0E0DDDD0E0_',
+            '_0E000000E0_',
+            '_0E00HH00E0_',
+            '_0E005500E0_',
+            '_0IIIIIIII0_',
+            '_0000000000_'
+        ],
+        PROP_MUG: [
+            '_0000_',
+            '05HH50',
+            '055550',
+            '055550',
+            '_0000_'
+        ],
+        PROP_TEAPOT: [
+            '___0000___',
+            '__0BBBB0__',
+            '00BBBBBB00',
+            '0BBBBBBBB0',
+            '_0BBBBBB0_',
+            '__000000__'
+        ],
+        PROP_BOOKS: [
+            '0000000000',
+            '0666666660',
+            '0000000000',
+            '0222222220',
+            '0000000000',
+            '0888888880',
+            '0000000000'
         ]
     };
 
-    // Offscreen Canvas Cache: O(1) hardware-accelerated blitting after initial rasterization
+    // Offscreen Canvas Cache: O(1) crisp integer nearest-neighbor blitting
     const spriteCache = new WeakMap();
-
-    // Render a specific sprite data array to the canvas with optional horizontal flip
     function drawPixelSprite(ctx, spriteData, x, y, width, height, mainColor = null, accentColor = null, flipX = false) {
         if (!spriteData || !spriteData.length) return;
+
+        const rows  = spriteData.length;
+        const cols  = spriteData[0].length;
+        const scale = width ? Math.max(1, Math.round(width / cols)) : PIXEL_SCALE;
 
         let variantMap = spriteCache.get(spriteData);
         if (!variantMap) {
@@ -1415,24 +1313,21 @@
             spriteCache.set(spriteData, variantMap);
         }
 
-        const cacheKey = `${width}|${height}|${mainColor || ''}|${accentColor || ''}|${flipX ? 1 : 0}`;
+        const cacheKey = `${scale}|${mainColor || ''}|${accentColor || ''}|${flipX ? 1 : 0}`;
         let offscreen  = variantMap.get(cacheKey);
 
         if (!offscreen && typeof document !== 'undefined') {
             offscreen        = document.createElement('canvas');
-            offscreen.width  = Math.ceil(width);
-            offscreen.height = Math.ceil(height);
+            offscreen.width  = cols * scale;
+            offscreen.height = rows * scale;
             const octx       = offscreen.getContext('2d');
-
-            const rows        = spriteData.length;
-            const cols        = spriteData[0].length;
-            const pixelWidth  = width / cols;
-            const pixelHeight = height / rows;
+            octx.imageSmoothingEnabled = false;
 
             for (let r = 0; r < rows; r++) {
+                const rowStr = spriteData[r];
                 for (let c = 0; c < cols; c++) {
                     const colIdx = flipX ? (cols - 1 - c) : c;
-                    const val    = spriteData[r][colIdx];
+                    const val    = rowStr[colIdx];
                     if (val === '_') continue;
 
                     let color = PALETTE[val];
@@ -1442,205 +1337,278 @@
                     if (val === '6' && accentColor) color = accentColor;
 
                     octx.fillStyle = color;
-                    octx.fillRect(
-                        Math.floor(c * pixelWidth),
-                        Math.floor(r * pixelHeight),
-                        Math.ceil(pixelWidth + 0.4),
-                        Math.ceil(pixelHeight + 0.4)
-                    );
+                    octx.fillRect(c * scale, r * scale, scale, scale);
                 }
             }
             variantMap.set(cacheKey, offscreen);
         }
 
         if (offscreen) {
-            ctx.drawImage(offscreen, Math.floor(x), Math.floor(y));
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(offscreen, Math.round(x), Math.round(y));
+        }
+    }
+
+    // Crisp modular pixel-art counter (no sprite stretching!)
+    function drawPixelCounter(ctx, x, y, w, h, mapKey) {
+        const p  = PIXEL_SCALE;
+        const rx = Math.round(x);
+        const ry = Math.round(y);
+        const rw = Math.round(w);
+        const rh = Math.round(h);
+
+        // Outer black pixel outline
+        ctx.fillStyle = PALETTE['0'];
+        ctx.fillRect(rx, ry, rw, rh);
+
+        // Countertop surface (top half)
+        const topH = Math.floor(rh * 0.48);
+        ctx.fillStyle = PALETTE['9'];
+        ctx.fillRect(rx + p, ry + p, rw - p * 2, topH - p);
+        // Top highlight strip
+        ctx.fillStyle = PALETTE['8'];
+        ctx.fillRect(rx + p, ry + p, rw - p * 2, p);
+        // Countertop front lip
+        ctx.fillStyle = PALETTE['A'];
+        ctx.fillRect(rx + p, ry + topH - p, rw - p * 2, p);
+        ctx.fillStyle = PALETTE['0'];
+        ctx.fillRect(rx, ry + topH, rw, p);
+
+        // Front wooden panel
+        const frontY = ry + topH + p;
+        const frontH = rh - topH - p * 2;
+        ctx.fillStyle = PALETTE['9'];
+        ctx.fillRect(rx + p, frontY, rw - p * 2, frontH);
+        ctx.fillStyle = PALETTE['A'];
+        ctx.fillRect(rx + p, ry + rh - p * 2, rw - p * 2, p);
+
+        // Subtle vertical panel slats on uniform pixel grid
+        for (let sx = rx + p * 8; sx < rx + rw - p * 6; sx += p * 12) {
+            ctx.fillStyle = PALETTE['A'];
+            ctx.fillRect(sx, frontY + p, p, Math.max(p, frontH - p * 2));
+        }
+
+        // Native 3x pixel props placed neatly on top of the counter
+        if (mapKey === 'cafeteria') {
+            drawPixelSprite(ctx, SPRITES.PROP_ESPRESSO, rx + 24, ry + 3, 36, 24);
+            drawPixelSprite(ctx, SPRITES.PROP_MUG, rx + 78, ry + 9, 18, 15);
+            drawPixelSprite(ctx, SPRITES.PROP_MUG, rx + rw - 66, ry + 9, 18, 15);
+        } else if (mapKey === 'library') {
+            drawPixelSprite(ctx, SPRITES.PROP_BOOKS, rx + 28, ry + 6, 30, 21);
+            drawPixelSprite(ctx, SPRITES.PROP_BOOKS, rx + rw - 64, ry + 6, 30, 21);
+        } else {
+            drawPixelSprite(ctx, SPRITES.PROP_TEAPOT, rx + 28, ry + 6, 30, 18);
+            drawPixelSprite(ctx, SPRITES.PROP_MUG, rx + rw - 54, ry + 9, 18, 15);
+        }
+    }
+
+    // Crisp modular pixel-art bookshelf (tiling clean book blocks with zero stretching!)
+    function drawPixelBookshelf(ctx, x, y, w, h) {
+        const p  = PIXEL_SCALE;
+        const rx = Math.round(x);
+        const ry = Math.round(y);
+        const rw = Math.round(w);
+        const rh = Math.round(h);
+        const bookColors = [PALETTE['6'], PALETTE['2'], PALETTE['B'], PALETTE['8'], PALETTE['F']];
+
+        ctx.fillStyle = PALETTE['0'];
+        ctx.fillRect(rx, ry, rw, rh);
+        ctx.fillStyle = PALETTE['9'];
+        ctx.fillRect(rx + p, ry + p, rw - p * 2, rh - p * 2);
+
+        const isHorizontal = rw >= rh;
+        if (isHorizontal) {
+            const shelfH = p * 5;
+            let idx = 0;
+            for (let sy = ry + p * 2; sy + p * 3 <= ry + rh - p; sy += shelfH) {
+                ctx.fillStyle = PALETTE['A'];
+                ctx.fillRect(rx + p * 2, sy, rw - p * 4, p * 3);
+                for (let bx = rx + p * 3; bx + p * 2 <= rx + rw - p * 3; bx += p * 3) {
+                    ctx.fillStyle = bookColors[idx % bookColors.length];
+                    ctx.fillRect(bx, sy, p * 2, p * 3);
+                    idx++;
+                }
+                ctx.fillStyle = PALETTE['8'];
+                ctx.fillRect(rx + p, sy + p * 3, rw - p * 2, p);
+            }
+        } else {
+            const shelfH = p * 7;
+            let idx = 0;
+            for (let sy = ry + p * 2; sy + p * 5 <= ry + rh - p; sy += shelfH) {
+                ctx.fillStyle = PALETTE['A'];
+                ctx.fillRect(rx + p * 2, sy, rw - p * 4, p * 4);
+                for (let bx = rx + p * 3; bx + p * 2 <= rx + rw - p * 3; bx += p * 3) {
+                    ctx.fillStyle = bookColors[idx % bookColors.length];
+                    ctx.fillRect(bx, sy + p, p * 2, p * 3);
+                    idx++;
+                }
+                ctx.fillStyle = PALETTE['8'];
+                ctx.fillRect(rx + p, sy + p * 4, rw - p * 2, p);
+            }
         }
     }
 
     // ============================================================================
     // Module: src/engine/scenarios.js
     // ============================================================================
-    // Map scenario definitions and full EarthBound environments
+    // Map scenario definitions aligned to uniform 3x pixel grid (zero sprite stretching)
     const scenarioConfigs = {
         cafeteria: {
             name:        'Virtual Cafeteria',
             floorType:   'checker',
-            floorColor:  '#2a1810',
-            tileAccent:  '#3d251a',
+            floorColor:  '#3a261c',
+            tileAccent:  '#473024',
             borderColor: '#b45309',
-            wallColor:   '#451a03',
-            gridColor:   'rgba(217, 119, 6, 0.15)',
-            themeColor:  '#f59e0b',
-            counter:     { x: 440, y: 40, w: 320, h: 56, label: '☕ Onett Espresso Bar' },
+            wallColor:   '#2b1810',
+            gridColor:   'rgba(0, 0, 0, 0.16)',
+            themeColor:  '#000080',
+            counter:     { x: 438, y: 42, w: 324, h: 54, label: '☕ Onett Espresso Bar' },
             desks: [
-                { x: 140, y: 180, w: 96, h: 52, type: 'laptop', label: 'Coffee Desk A' },
-                { x: 420, y: 200, w: 96, h: 52, type: 'book',   label: 'Central Table 1' },
-                { x: 680, y: 200, w: 96, h: 52, type: 'laptop', label: 'Central Table 2' },
-                { x: 960, y: 180, w: 96, h: 52, type: 'book',   label: 'Window Nook' },
-                { x: 180, y: 460, w: 104, h: 54, type: 'book',   label: 'Quiet Corner' },
-                { x: 480, y: 470, w: 104, h: 54, type: 'laptop', label: 'Study Station A' },
-                { x: 780, y: 470, w: 104, h: 54, type: 'book',   label: 'Study Station B' },
-                { x: 980, y: 460, w: 96,  h: 54, type: 'laptop', label: 'South Window' }
+                { x: 144, y: 180, w: 96, h: 54, type: 'laptop', label: 'Coffee Desk A' },
+                { x: 420, y: 201, w: 96, h: 54, type: 'book',   label: 'Central Table 1' },
+                { x: 684, y: 201, w: 96, h: 54, type: 'laptop', label: 'Central Table 2' },
+                { x: 960, y: 180, w: 96, h: 54, type: 'book',   label: 'Window Nook' },
+                { x: 180, y: 462, w: 96, h: 54, type: 'book',   label: 'Quiet Corner' },
+                { x: 480, y: 471, w: 96, h: 54, type: 'laptop', label: 'Study Station A' },
+                { x: 780, y: 471, w: 96, h: 54, type: 'book',   label: 'Study Station B' },
+                { x: 984, y: 462, w: 96, h: 54, type: 'laptop', label: 'South Window' }
             ],
             chairs: [
-                // Desk 1
-                { x: 100, y: 186, w: 30, h: 36, facing: 'right' },
-                { x: 244, y: 186, w: 30, h: 36, facing: 'left' },
-                // Desk 2
-                { x: 380, y: 206, w: 30, h: 36, facing: 'right' },
-                { x: 524, y: 206, w: 30, h: 36, facing: 'left' },
-                // Desk 3
-                { x: 640, y: 206, w: 30, h: 36, facing: 'right' },
-                { x: 784, y: 206, w: 30, h: 36, facing: 'left' },
-                // Desk 4
-                { x: 920, y: 186, w: 30, h: 36, facing: 'right' },
-                { x: 1064, y: 186, w: 30, h: 36, facing: 'left' },
-                // Desk 5
-                { x: 140, y: 468, w: 30, h: 36, facing: 'right' },
-                { x: 292, y: 468, w: 30, h: 36, facing: 'left' },
-                // Desk 6
-                { x: 440, y: 478, w: 30, h: 36, facing: 'right' },
-                { x: 592, y: 478, w: 30, h: 36, facing: 'left' },
-                // Desk 7
-                { x: 740, y: 478, w: 30, h: 36, facing: 'right' },
-                { x: 892, y: 478, w: 30, h: 36, facing: 'left' }
+                { x: 108,  y: 186, w: 30, h: 36, facing: 'right' },
+                { x: 246,  y: 186, w: 30, h: 36, facing: 'left' },
+                { x: 384,  y: 207, w: 30, h: 36, facing: 'right' },
+                { x: 522,  y: 207, w: 30, h: 36, facing: 'left' },
+                { x: 648,  y: 207, w: 30, h: 36, facing: 'right' },
+                { x: 786,  y: 207, w: 30, h: 36, facing: 'left' },
+                { x: 924,  y: 186, w: 30, h: 36, facing: 'right' },
+                { x: 1062, y: 186, w: 30, h: 36, facing: 'left' },
+                { x: 144,  y: 468, w: 30, h: 36, facing: 'right' },
+                { x: 282,  y: 468, w: 30, h: 36, facing: 'left' },
+                { x: 444,  y: 477, w: 30, h: 36, facing: 'right' },
+                { x: 582,  y: 477, w: 30, h: 36, facing: 'left' },
+                { x: 744,  y: 477, w: 30, h: 36, facing: 'right' },
+                { x: 882,  y: 477, w: 30, h: 36, facing: 'left' }
             ],
             plants: [
-                { x: 60,   y: 60,  w: 40, h: 44 },
-                { x: 1100, y: 60,  w: 40, h: 44 },
-                { x: 60,   y: 700, w: 40, h: 44 },
-                { x: 1100, y: 700, w: 40, h: 44 },
-                { x: 360,  y: 330, w: 36, h: 40 },
-                { x: 840,  y: 330, w: 36, h: 40 }
+                { x: 60,   y: 60,  w: 36, h: 42 },
+                { x: 1104, y: 60,  w: 36, h: 42 },
+                { x: 60,   y: 702, w: 36, h: 42 },
+                { x: 1104, y: 702, w: 36, h: 42 },
+                { x: 360,  y: 330, w: 36, h: 42 },
+                { x: 840,  y: 330, w: 36, h: 42 }
             ]
         },
 
         library: {
             name:        'Quiet Library',
             floorType:   'parquet',
-            floorColor:  '#1e1b4b',
-            tileAccent:  '#312e81',
-            borderColor: '#6366f1',
-            wallColor:   '#17153b',
-            gridColor:   'rgba(99, 102, 241, 0.14)',
-            themeColor:  '#818cf8',
-            counter:     { x: 440, y: 44, w: 320, h: 54, label: '📚 Twoson Library Archives' },
+            floorColor:  '#252a4a',
+            tileAccent:  '#2f365e',
+            borderColor: '#4f5d95',
+            wallColor:   '#181c36',
+            gridColor:   'rgba(0, 0, 0, 0.16)',
+            themeColor:  '#000080',
+            counter:     { x: 438, y: 45, w: 324, h: 54, label: '📚 Twoson Library Archives' },
             bookshelves: [
-                { x: 90,   y: 40, w: 280, h: 44 },
-                { x: 830,  y: 40, w: 280, h: 44 },
-                { x: 40,   y: 220, w: 44,  h: 180 },
-                { x: 40,   y: 460, w: 44,  h: 180 },
-                { x: 1116, y: 220, w: 44,  h: 180 },
-                { x: 1116, y: 460, w: 44,  h: 180 }
+                { x: 96,   y: 42,  w: 276, h: 45 },
+                { x: 828,  y: 42,  w: 276, h: 45 },
+                { x: 42,   y: 222, w: 45,  h: 180 },
+                { x: 42,   y: 462, w: 45,  h: 180 },
+                { x: 1113, y: 222, w: 45,  h: 180 },
+                { x: 1113, y: 462, w: 45,  h: 180 }
             ],
             desks: [
-                { x: 180, y: 200, w: 104, h: 54, type: 'book',   label: 'Carrel 1' },
-                { x: 450, y: 210, w: 104, h: 54, type: 'laptop', label: 'Research Table A' },
-                { x: 740, y: 210, w: 104, h: 54, type: 'book',   label: 'Research Table B' },
-                { x: 940, y: 200, w: 104, h: 54, type: 'laptop', label: 'Carrel 2' },
-                { x: 220, y: 480, w: 110, h: 56, type: 'laptop', label: 'Silent Pod 1' },
-                { x: 530, y: 490, w: 110, h: 56, type: 'book',   label: 'Silent Pod 2' },
-                { x: 840, y: 480, w: 110, h: 56, type: 'laptop', label: 'Silent Pod 3' }
+                { x: 180, y: 201, w: 96, h: 54, type: 'book',   label: 'Carrel 1' },
+                { x: 450, y: 210, w: 96, h: 54, type: 'laptop', label: 'Research Table A' },
+                { x: 738, y: 210, w: 96, h: 54, type: 'book',   label: 'Research Table B' },
+                { x: 942, y: 201, w: 96, h: 54, type: 'laptop', label: 'Carrel 2' },
+                { x: 222, y: 480, w: 96, h: 54, type: 'laptop', label: 'Silent Pod 1' },
+                { x: 534, y: 489, w: 96, h: 54, type: 'book',   label: 'Silent Pod 2' },
+                { x: 846, y: 480, w: 96, h: 54, type: 'laptop', label: 'Silent Pod 3' }
             ],
             chairs: [
-                // Desk 1
-                { x: 140, y: 208, w: 30, h: 36, facing: 'right' },
-                { x: 292, y: 208, w: 30, h: 36, facing: 'left' },
-                // Desk 2
-                { x: 410, y: 218, w: 30, h: 36, facing: 'right' },
-                { x: 562, y: 218, w: 30, h: 36, facing: 'left' },
-                // Desk 3
-                { x: 700, y: 218, w: 30, h: 36, facing: 'right' },
-                { x: 852, y: 218, w: 30, h: 36, facing: 'left' },
-                // Desk 4
-                { x: 900, y: 208, w: 30, h: 36, facing: 'right' },
-                { x: 1052, y: 208, w: 30, h: 36, facing: 'left' },
-                // Desk 5
-                { x: 180, y: 490, w: 30, h: 36, facing: 'right' },
-                { x: 338, y: 490, w: 30, h: 36, facing: 'left' },
-                // Desk 6
-                { x: 490, y: 500, w: 30, h: 36, facing: 'right' },
-                { x: 648, y: 500, w: 30, h: 36, facing: 'left' },
-                // Desk 7
-                { x: 800, y: 490, w: 30, h: 36, facing: 'right' },
-                { x: 958, y: 490, w: 30, h: 36, facing: 'left' }
+                { x: 144,  y: 207, w: 30, h: 36, facing: 'right' },
+                { x: 282,  y: 207, w: 30, h: 36, facing: 'left' },
+                { x: 414,  y: 216, w: 30, h: 36, facing: 'right' },
+                { x: 552,  y: 216, w: 30, h: 36, facing: 'left' },
+                { x: 702,  y: 216, w: 30, h: 36, facing: 'right' },
+                { x: 840,  y: 216, w: 30, h: 36, facing: 'left' },
+                { x: 906,  y: 207, w: 30, h: 36, facing: 'right' },
+                { x: 1044, y: 207, w: 30, h: 36, facing: 'left' },
+                { x: 186,  y: 486, w: 30, h: 36, facing: 'right' },
+                { x: 324,  y: 486, w: 30, h: 36, facing: 'left' },
+                { x: 498,  y: 495, w: 30, h: 36, facing: 'right' },
+                { x: 636,  y: 495, w: 30, h: 36, facing: 'left' },
+                { x: 810,  y: 486, w: 30, h: 36, facing: 'right' },
+                { x: 948,  y: 486, w: 30, h: 36, facing: 'left' }
             ],
             plants: [
-                { x: 100,  y: 690, w: 38, h: 42 },
-                { x: 1060, y: 690, w: 38, h: 42 },
-                { x: 340,  y: 350, w: 34, h: 38 },
-                { x: 820,  y: 350, w: 34, h: 38 }
+                { x: 102,  y: 690, w: 36, h: 42 },
+                { x: 1062, y: 690, w: 36, h: 42 },
+                { x: 342,  y: 351, w: 36, h: 42 },
+                { x: 822,  y: 351, w: 36, h: 42 }
             ]
         },
 
         garden: {
             name:        'Zen Garden',
             floorType:   'garden',
-            floorColor:  '#064e3b',
-            tileAccent:  '#047857',
-            borderColor: '#10b981',
-            wallColor:   '#022c22',
-            gridColor:   'rgba(16, 185, 129, 0.12)',
-            themeColor:  '#34d399',
-            counter:     { x: 440, y: 44, w: 320, h: 56, label: '🌸 Dalaam Tea Pavilion' },
+            floorColor:  '#1d543c',
+            tileAccent:  '#246649',
+            borderColor: '#2d8a4e',
+            wallColor:   '#123828',
+            gridColor:   'rgba(0, 0, 0, 0.12)',
+            themeColor:  '#008080',
+            counter:     { x: 438, y: 45, w: 324, h: 54, label: '🌸 Dalaam Tea Pavilion' },
             lanterns: [
-                { x: 160, y: 100, w: 36, h: 48 },
-                { x: 1000, y: 100, w: 36, h: 48 },
+                { x: 162, y: 102, w: 36, h: 48 },
+                { x: 1002, y: 102, w: 36, h: 48 },
                 { x: 180, y: 660, w: 36, h: 48 },
-                { x: 980, y: 660, w: 36, h: 48 }
+                { x: 984, y: 660, w: 36, h: 48 }
             ],
             steppingStones: [
-                { x: 580, y: 130, w: 40, h: 28 },
-                { x: 570, y: 200, w: 42, h: 28 },
-                { x: 590, y: 270, w: 38, h: 28 },
-                { x: 580, y: 340, w: 40, h: 28 },
-                { x: 560, y: 410, w: 44, h: 28 },
-                { x: 590, y: 480, w: 40, h: 28 },
-                { x: 580, y: 550, w: 42, h: 28 },
-                { x: 570, y: 620, w: 40, h: 28 },
-                { x: 580, y: 690, w: 44, h: 28 }
+                { x: 579, y: 132, w: 42, h: 27 },
+                { x: 573, y: 201, w: 42, h: 27 },
+                { x: 585, y: 270, w: 42, h: 27 },
+                { x: 579, y: 339, w: 42, h: 27 },
+                { x: 570, y: 408, w: 42, h: 27 },
+                { x: 585, y: 477, w: 42, h: 27 },
+                { x: 579, y: 546, w: 42, h: 27 },
+                { x: 573, y: 615, w: 42, h: 27 },
+                { x: 579, y: 684, w: 42, h: 27 }
             ],
             desks: [
-                { x: 180, y: 210, w: 100, h: 54, type: 'laptop', label: 'Bonsai Bench 1' },
-                { x: 780, y: 210, w: 100, h: 54, type: 'book',   label: 'Bonsai Bench 2' },
-                { x: 220, y: 450, w: 104, h: 54, type: 'book',   label: 'Lantern Arbor A' },
-                { x: 740, y: 450, w: 104, h: 54, type: 'laptop', label: 'Lantern Arbor B' },
-                { x: 380, y: 620, w: 96,  h: 52, type: 'book',   label: 'Stone Rest 1' },
-                { x: 700, y: 620, w: 96,  h: 52, type: 'laptop', label: 'Stone Rest 2' }
+                { x: 180, y: 210, w: 96, h: 54, type: 'laptop', label: 'Bonsai Bench 1' },
+                { x: 780, y: 210, w: 96, h: 54, type: 'book',   label: 'Bonsai Bench 2' },
+                { x: 222, y: 450, w: 96, h: 54, type: 'book',   label: 'Lantern Arbor A' },
+                { x: 744, y: 450, w: 96, h: 54, type: 'laptop', label: 'Lantern Arbor B' },
+                { x: 384, y: 621, w: 96, h: 54, type: 'book',   label: 'Stone Rest 1' },
+                { x: 702, y: 621, w: 96, h: 54, type: 'laptop', label: 'Stone Rest 2' }
             ],
             chairs: [
-                // Desk 1
-                { x: 140, y: 218, w: 30, h: 36, facing: 'right' },
-                { x: 288, y: 218, w: 30, h: 36, facing: 'left' },
-                // Desk 2
-                { x: 740, y: 218, w: 30, h: 36, facing: 'right' },
-                { x: 888, y: 218, w: 30, h: 36, facing: 'left' },
-                // Desk 3
-                { x: 180, y: 458, w: 30, h: 36, facing: 'right' },
-                { x: 332, y: 458, w: 30, h: 36, facing: 'left' },
-                // Desk 4
-                { x: 700, y: 458, w: 30, h: 36, facing: 'right' },
-                { x: 852, y: 458, w: 30, h: 36, facing: 'left' },
-                // Desk 5
-                { x: 340, y: 628, w: 30, h: 36, facing: 'right' },
-                { x: 484, y: 628, w: 30, h: 36, facing: 'left' },
-                // Desk 6
-                { x: 660, y: 628, w: 30, h: 36, facing: 'right' },
-                { x: 804, y: 628, w: 30, h: 36, facing: 'left' }
+                { x: 144, y: 216, w: 30, h: 36, facing: 'right' },
+                { x: 282, y: 216, w: 30, h: 36, facing: 'left' },
+                { x: 744, y: 216, w: 30, h: 36, facing: 'right' },
+                { x: 882, y: 216, w: 30, h: 36, facing: 'left' },
+                { x: 186, y: 456, w: 30, h: 36, facing: 'right' },
+                { x: 324, y: 456, w: 30, h: 36, facing: 'left' },
+                { x: 708, y: 456, w: 30, h: 36, facing: 'right' },
+                { x: 846, y: 456, w: 30, h: 36, facing: 'left' },
+                { x: 348, y: 627, w: 30, h: 36, facing: 'right' },
+                { x: 486, y: 627, w: 30, h: 36, facing: 'left' },
+                { x: 666, y: 627, w: 30, h: 36, facing: 'right' },
+                { x: 804, y: 627, w: 30, h: 36, facing: 'left' }
             ],
             plants: [
-                { x: 80,   y: 80,  w: 48, h: 52 },
-                { x: 1080, y: 80,  w: 48, h: 52 },
-                { x: 80,   y: 680, w: 48, h: 52 },
-                { x: 1080, y: 680, w: 48, h: 52 },
-                { x: 340,  y: 320, w: 42, h: 46 },
-                { x: 820,  y: 320, w: 42, h: 46 }
+                { x: 78,   y: 81,  w: 36, h: 42 },
+                { x: 1086, y: 81,  w: 36, h: 42 },
+                { x: 78,   y: 684, w: 36, h: 42 },
+                { x: 1086, y: 684, w: 36, h: 42 },
+                { x: 342,  y: 321, w: 36, h: 42 },
+                { x: 822,  y: 321, w: 36, h: 42 }
             ]
         }
     };
-
-    // Retrieve study seats list for dynamic NPC placement
     function getStudySeats(mapKey = 'cafeteria') {
         const config = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
         return config.chairs || [];
@@ -1648,8 +1616,6 @@
 
     const obstacleCache = new Map();
     const floorCache    = new Map();
-
-    // Retrieve bounding boxes for solid collision checking (memoized per scenario & world dimensions)
     function getObstacles(mapKey, width, height) {
         const cacheKey = `${mapKey}|${width}|${height}`;
         const cached   = obstacleCache.get(cacheKey);
@@ -1658,55 +1624,33 @@
         const config    = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
         const obstacles = [];
 
-        // Outer boundary walls (thickness 20px)
-        const wallThick = 20;
+        const wallThick = 21;
         obstacles.push({ x: 0, y: 0, w: width, h: wallThick });
         obstacles.push({ x: 0, y: height - wallThick, w: width, h: wallThick });
         obstacles.push({ x: 0, y: 0, w: wallThick, h: height });
         obstacles.push({ x: width - wallThick, y: 0, w: wallThick, h: height });
 
-        // Counter / Espresso Bar
         if (config.counter) {
-            obstacles.push({
-                x: config.counter.x,
-                y: config.counter.y,
-                w: config.counter.w,
-                h: config.counter.h
-            });
+            obstacles.push({ x: config.counter.x, y: config.counter.y, w: config.counter.w, h: config.counter.h });
         }
-
-        // Bookshelves
         if (config.bookshelves) {
-            config.bookshelves.forEach(b => {
-                obstacles.push({ x: b.x, y: b.y, w: b.w, h: b.h });
-            });
+            config.bookshelves.forEach(b => obstacles.push({ x: b.x, y: b.y, w: b.w, h: b.h }));
         }
-
-        // Desks
         if (config.desks) {
-            config.desks.forEach(d => {
-                obstacles.push({ x: d.x, y: d.y, w: d.w, h: d.h });
-            });
+            config.desks.forEach(d => obstacles.push({ x: d.x, y: d.y, w: d.w, h: d.h }));
         }
-
-        // Heavy Plants / Lanterns
         if (config.plants) {
-            config.plants.forEach(p => {
-                obstacles.push({ x: p.x + 4, y: p.y + 4, w: p.w - 8, h: p.h - 8 });
-            });
+            config.plants.forEach(p => obstacles.push({ x: p.x + 3, y: p.y + 6, w: p.w - 6, h: p.h - 9 }));
         }
-
         if (config.lanterns) {
-            config.lanterns.forEach(l => {
-                obstacles.push({ x: l.x, y: l.y, w: l.w, h: l.h });
-            });
+            config.lanterns.forEach(l => obstacles.push({ x: l.x, y: l.y, w: l.w, h: l.h }));
         }
 
         obstacleCache.set(cacheKey, obstacles);
         return obstacles;
     }
 
-    // Render scenario floor with authentic retro pixel tiles (cached to offscreen canvas)
+    // Render crisp flat pixel tiles onto offscreen canvas cache
     function renderScenarioFloor(ctx, width, height, mapKey = 'cafeteria') {
         const cacheKey = `${mapKey}|${width}|${height}`;
         let offscreen  = floorCache.get(cacheKey);
@@ -1716,6 +1660,7 @@
             offscreen.width  = width;
             offscreen.height = height;
             const octx       = offscreen.getContext('2d');
+            octx.imageSmoothingEnabled = false;
 
             const config   = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
             const tileSize = 48;
@@ -1728,7 +1673,7 @@
                 for (let y = 0; y < height; y += tileSize) {
                     for (let x = 0; x < width; x += tileSize) {
                         if (((x / tileSize) + (y / tileSize)) % 2 === 0) {
-                            octx.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
+                            octx.fillRect(x, y, tileSize, tileSize);
                         }
                     }
                 }
@@ -1737,9 +1682,9 @@
                 for (let y = 0; y < height; y += tileSize) {
                     for (let x = 0; x < width; x += tileSize) {
                         if (Math.floor(y / tileSize) % 2 === 0) {
-                            octx.fillRect(x + 2, y + 2, tileSize - 4, (tileSize >> 1) - 4);
+                            octx.fillRect(x + 3, y + 3, tileSize - 6, (tileSize >> 1) - 6);
                         } else {
-                            octx.fillRect(x + (tileSize >> 1) + 2, y + 2, (tileSize >> 1) - 4, tileSize - 4);
+                            octx.fillRect(x + (tileSize >> 1) + 3, y + 3, (tileSize >> 1) - 6, tileSize - 6);
                         }
                     }
                 }
@@ -1747,27 +1692,21 @@
                 octx.fillStyle = config.tileAccent;
                 for (let y = 24; y < height; y += 72) {
                     for (let x = 24; x < width; x += 72) {
-                        octx.fillRect(x, y, 16, 16);
-                        octx.fillRect(x + 8, y + 8, 12, 12);
+                        octx.fillRect(x, y, 12, 6);
+                        octx.fillRect(x + 6, y + 6, 12, 6);
                     }
                 }
             }
 
-            // Grid accent lines
-            octx.strokeStyle = config.gridColor;
-            octx.lineWidth   = 1;
-            octx.beginPath();
+            // Crisp 1px floor tile lines
+            octx.fillStyle = config.gridColor;
             for (let x = 0; x < width; x += tileSize) {
-                octx.moveTo(x, 0);
-                octx.lineTo(x, height);
+                octx.fillRect(x, 0, 1, height);
             }
             for (let y = 0; y < height; y += tileSize) {
-                octx.moveTo(0, y);
-                octx.lineTo(width, y);
+                octx.fillRect(0, y, width, 1);
             }
-            octx.stroke();
 
-            // Render zen stepping stones if present
             if (config.steppingStones) {
                 config.steppingStones.forEach(s => {
                     drawPixelSprite(octx, SPRITES.ZEN_STONE, s.x, s.y, s.w, s.h);
@@ -1778,18 +1717,18 @@
         }
 
         if (offscreen) {
+            ctx.imageSmoothingEnabled = false;
             ctx.drawImage(offscreen, 0, 0);
         }
     }
-
-
-    // Render scenario perimeter walls, furniture, chairs, and atmospheric props
     function renderScenarioEnvironment(ctx, width, height, mapKey = 'cafeteria') {
-        const config = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
+        const config    = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
+        const wallThick = 21;
 
-        // 1. Room Border Walls
-        const wallThick = 20;
-        ctx.fillStyle   = config.wallColor;
+        ctx.imageSmoothingEnabled = false;
+
+        // 1. Crisp Pixel Room Walls
+        ctx.fillStyle = config.wallColor;
         ctx.fillRect(0, 0, width, wallThick);
         ctx.fillRect(0, height - wallThick, width, wallThick);
         ctx.fillRect(0, 0, wallThick, height);
@@ -1799,92 +1738,92 @@
         ctx.lineWidth   = 3;
         ctx.strokeRect(wallThick, wallThick, width - wallThick * 2, height - wallThick * 2);
 
-        // 2. Bookshelves (Library)
+        // 2. Bookshelves (tiled crisp pixel blocks)
         if (config.bookshelves) {
             config.bookshelves.forEach(b => {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-                ctx.fillRect(b.x + 4, b.y + 4, b.w, b.h);
-                drawPixelSprite(ctx, SPRITES.BOOKSHELF, b.x, b.y, b.w, b.h);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+                ctx.fillRect(b.x + 3, b.y + 6, b.w, b.h);
+                drawPixelBookshelf(ctx, b.x, b.y, b.w, b.h);
             });
         }
 
-        // 3. Main Reception / Espresso Counter
+        // 3. Main Reception / Espresso Counter (modular crisp pixel grid)
         if (config.counter) {
             const c = config.counter;
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-            ctx.fillRect(c.x + 6, c.y + 6, c.w, c.h);
-            drawPixelSprite(ctx, SPRITES.COUNTER, c.x, c.y, c.w, c.h);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+            ctx.fillRect(c.x + 3, c.y + 6, c.w, c.h);
+            drawPixelCounter(ctx, c.x, c.y, c.w, c.h, mapKey);
 
-            // Counter Signboard Badge
-            ctx.fillStyle   = 'rgba(24, 20, 37, 0.9)';
-            ctx.strokeStyle = config.themeColor;
-            ctx.lineWidth   = 2;
-            const badgeW    = 240;
-            const badgeH    = 26;
-            const badgeX    = c.x + (c.w - badgeW) * 0.5;
-            const badgeY    = c.y - 14;
+            // Win98-style crisp signboard plaque
+            const badgeW = 240;
+            const badgeH = 22;
+            const badgeX = Math.round(c.x + (c.w - badgeW) * 0.5);
+            const badgeY = Math.round(c.y - 16);
+
+            ctx.fillStyle = '#c0c0c0';
             ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
-            ctx.strokeRect(badgeX, badgeY, badgeW, badgeH);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(badgeX, badgeY, badgeW - 1, 1);
+            ctx.fillRect(badgeX, badgeY, 1, badgeH - 1);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(badgeX, badgeY + badgeH - 1, badgeW, 1);
+            ctx.fillRect(badgeX + badgeW - 1, badgeY, 1, badgeH);
+            ctx.fillStyle = '#000080';
+            ctx.fillRect(badgeX + 2, badgeY + 2, badgeW - 4, badgeH - 4);
 
             let signLabel = c.label;
             if (mapKey === 'cafeteria') signLabel = i18n.t('signCafeteria');
             else if (mapKey === 'library') signLabel = i18n.t('signLibrary');
             else if (mapKey === 'garden') signLabel = i18n.t('signGarden');
 
-            ctx.fillStyle = '#f8fafc';
-            ctx.font      = 'bold 12px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.font      = 'bold 11px Tahoma, "MS Sans Serif", "MS PGothic", sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(signLabel, c.x + c.w * 0.5, badgeY + 17);
+            ctx.fillText(signLabel, badgeX + Math.round(badgeW * 0.5), badgeY + 15);
         }
 
-        // 4. Study Chairs (Rendered beneath character layers)
+        // 4. Study Chairs
         if (config.chairs) {
             config.chairs.forEach(ch => {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                ctx.fillRect(ch.x + 2, ch.y + 2, ch.w, ch.h);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                ctx.fillRect(ch.x + 3, ch.y + ch.h - 3, ch.w - 6, 6);
                 drawPixelSprite(ctx, SPRITES.CHAIR, ch.x, ch.y, ch.w, ch.h, null, null, ch.facing === 'left');
             });
         }
 
-        // 5. Study Desks with Props (Laptops / Textbooks / Lamps)
+        // 5. Study Desks
         if (config.desks) {
             config.desks.forEach(d => {
-                // Drop shadow under desk
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-                ctx.fillRect(d.x + 4, d.y + 4, d.w, d.h);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(d.x + 3, d.y + 6, d.w, d.h);
 
-                // Select sprite variant
                 let deskSprite = SPRITES.DESK_WOOD;
                 if (d.type === 'laptop') deskSprite = SPRITES.DESK_LAPTOP;
                 if (d.type === 'book')   deskSprite = SPRITES.DESK_BOOK;
 
                 drawPixelSprite(ctx, deskSprite, d.x, d.y, d.w, d.h);
 
-                // Subtle desk name tag
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-                ctx.font      = '9px Courier New';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+                ctx.font      = '10px Tahoma, "MS Sans Serif", sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(d.label, d.x + d.w * 0.5, d.y - 5);
+                ctx.fillText(d.label, Math.round(d.x + d.w * 0.5), Math.round(d.y - 5));
             });
         }
 
-        // 6. Zen Lanterns (Garden)
+        // 6. Zen Lanterns
         if (config.lanterns) {
             config.lanterns.forEach(l => {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-                ctx.fillRect(l.x + 3, l.y + 3, l.w, l.h);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(l.x + 3, l.y + l.h - 6, l.w - 6, 6);
                 drawPixelSprite(ctx, SPRITES.ZEN_LANTERN, l.x, l.y, l.w, l.h);
             });
         }
 
-        // 7. Potted Plants / Bonsai Trees
+        // 7. Potted Plants
         if (config.plants) {
             config.plants.forEach(p => {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-                ctx.beginPath();
-                ctx.ellipse(p.x + p.w * 0.5, p.y + p.h - 4, p.w * 0.45, 8, 0, 0, Math.PI * 2);
-                ctx.fill();
-
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(p.x + 6, p.y + p.h - 3, p.w - 12, 6);
                 drawPixelSprite(ctx, SPRITES.PLANT, p.x, p.y, p.w, p.h);
             });
         }
@@ -1965,43 +1904,84 @@
         draw(ctx, canvasWidth, canvasHeight) {
             if (!this.isOpen) return;
 
-            const boxW = Math.min(640, canvasWidth - 40);
-            const boxH = 110;
-            const boxX = (canvasWidth - boxW) * 0.5;
-            const boxY = canvasHeight - boxH - 24;
+            const boxW = Math.min(540, canvasWidth - 36);
+            const boxH = 128;
+            const boxX = Math.round((canvasWidth - boxW) * 0.5);
+            const boxY = Math.round(canvasHeight - boxH - 42);
 
-            // SNES Double-Border Frame
-            ctx.fillStyle   = 'rgba(24, 20, 37, 0.96)';
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth   = 3;
+            // Hard drop shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.38)';
+            ctx.fillRect(boxX + 4, boxY + 4, boxW, boxH);
+
+            // Classic Win98 Window Chrome
+            ctx.fillStyle = '#c0c0c0';
             ctx.fillRect(boxX, boxY, boxW, boxH);
-            ctx.strokeRect(boxX, boxY, boxW, boxH);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(boxX, boxY, boxW - 1, 2);
+            ctx.fillRect(boxX, boxY, 2, boxH - 1);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(boxX, boxY + boxH - 2, boxW, 2);
+            ctx.fillRect(boxX + boxW - 2, boxY, 2, boxH);
+            ctx.fillStyle = '#808080';
+            ctx.fillRect(boxX + 2, boxY + boxH - 3, boxW - 4, 1);
+            ctx.fillRect(boxX + boxW - 3, boxY + 2, 1, boxH - 4);
 
-            // Inner accent border
-            ctx.strokeStyle = '#60a5fa';
-            ctx.lineWidth   = 1.5;
-            ctx.strokeRect(boxX + 4, boxY + 4, boxW - 8, boxH - 8);
+            // Win98 Navy Gradient Titlebar
+            const barX = boxX + 4;
+            const barY = boxY + 4;
+            const barW = boxW - 8;
+            const barH = 22;
+            const grad = ctx.createLinearGradient(barX, barY, barX + barW, barY);
+            grad.addColorStop(0, '#000080');
+            grad.addColorStop(1, '#1084d0');
+            ctx.fillStyle = grad;
+            ctx.fillRect(barX, barY, barW, barH);
 
-            // Speaker Header Badge
-            if (this.speaker) {
-                ctx.fillStyle = '#facc15';
-                ctx.font      = 'bold 12px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
-                ctx.textAlign = 'left';
-                ctx.fillText(`[ ${this.speaker} ]`, boxX + 16, boxY + 24);
-            }
+            // Speaker in Titlebar
+            ctx.fillStyle = '#ffffff';
+            ctx.font      = 'bold 12px Tahoma, "MS Sans Serif", "MS PGothic", sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(this.speaker || 'Message', barX + 8, barY + 15);
+
+            // Tiny Win98 [X] button on titlebar right
+            const closeX = barX + barW - 18;
+            const closeY = barY + 3;
+            ctx.fillStyle = '#c0c0c0';
+            ctx.fillRect(closeX, closeY, 15, 15);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(closeX, closeY, 14, 1);
+            ctx.fillRect(closeX, closeY, 1, 14);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(closeX, closeY + 14, 15, 1);
+            ctx.fillRect(closeX + 14, closeY, 1, 15);
+            ctx.font      = 'bold 11px Tahoma, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('×', closeX + 7, closeY + 11);
+
+            // Classic Win98 Info Icon Box (left side)
+            const iconX = boxX + 16;
+            const iconY = boxY + 38;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(iconX, iconY, 26, 26);
+            ctx.strokeStyle = '#000080';
+            ctx.lineWidth   = 2;
+            ctx.strokeRect(iconX + 1, iconY + 1, 24, 24);
+            ctx.fillStyle = '#000080';
+            ctx.font      = 'bold 18px Georgia, serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('i', iconX + 13, iconY + 19);
 
             // Dialogue Body Text with Universal Multilingual Wrapping
-            const currentText = this.fullText.substring(0, this.displayedLen);
-            ctx.fillStyle     = '#f8fafc';
-            ctx.font          = '14px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
-            ctx.textAlign     = 'left';
+            const currentText  = this.fullText.substring(0, this.displayedLen);
+            ctx.fillStyle      = '#000000';
+            ctx.font           = '13px Tahoma, "MS Sans Serif", "MS PGothic", "Noto Sans JP", sans-serif';
+            ctx.textAlign      = 'left';
 
-            const startY       = this.speaker ? boxY + 46 : boxY + 34;
-            const maxLineWidth = boxW - 36;
+            const textStartX   = boxX + 54;
+            const maxLineWidth = boxW - 72;
             let line           = '';
-            let lineY          = startY;
+            let lineY          = boxY + 50;
 
-            // Universal character/word wrap
             const isCjk = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf]/.test(this.fullText);
 
             if (isCjk) {
@@ -2009,38 +1989,53 @@
                     const char = currentText[i];
                     const test = line + char;
                     if (ctx.measureText(test).width > maxLineWidth) {
-                        ctx.fillText(line, boxX + 16, lineY);
+                        ctx.fillText(line, textStartX, lineY);
                         line   = char;
-                        lineY += 22;
+                        lineY += 20;
                     } else {
                         line = test;
                     }
                 }
-                if (line) ctx.fillText(line, boxX + 16, lineY);
+                if (line) ctx.fillText(line, textStartX, lineY);
             } else {
                 const words = currentText.split(' ');
                 for (let i = 0; i < words.length; i++) {
                     const testLine  = line + words[i] + ' ';
                     const testWidth = ctx.measureText(testLine).width;
                     if (testWidth > maxLineWidth && i > 0) {
-                        ctx.fillText(line, boxX + 16, lineY);
+                        ctx.fillText(line, textStartX, lineY);
                         line   = words[i] + ' ';
-                        lineY += 20;
+                        lineY += 18;
                     } else {
                         line = testLine;
                     }
                 }
-                if (line) ctx.fillText(line, boxX + 16, lineY);
+                if (line) ctx.fillText(line, textStartX, lineY);
             }
 
-            // Animated retro continuation prompt arrow
-            if (!this.isTyping) {
-                const arrowBounce = Math.sin(performance.now() * 0.008) * 3;
-                ctx.fillStyle     = '#f43f5e';
-                ctx.font          = 'bold 13px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
-                ctx.textAlign     = 'right';
-                ctx.fillText('▼ [E / Space]', boxX + boxW - 16, boxY + boxH - 12 + arrowBounce);
-            }
+            // Raised Win98 [ OK ] Button at Bottom Right
+            const btnW = 92;
+            const btnH = 24;
+            const btnX = boxX + boxW - btnW - 14;
+            const btnY = boxY + boxH - btnH - 10;
+
+            ctx.fillStyle = '#c0c0c0';
+            ctx.fillRect(btnX, btnY, btnW, btnH);
+            ctx.fillStyle = '#000000';
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth   = 1;
+            ctx.strokeRect(btnX + 0.5, btnY + 0.5, btnW - 1, btnH - 1);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(btnX + 1, btnY + 1, btnW - 3, 1);
+            ctx.fillRect(btnX + 1, btnY + 1, 1, btnH - 3);
+            ctx.fillStyle = '#808080';
+            ctx.fillRect(btnX + 1, btnY + btnH - 2, btnW - 2, 1);
+            ctx.fillRect(btnX + btnW - 2, btnY + 1, 1, btnH - 2);
+
+            ctx.fillStyle = '#000000';
+            ctx.font      = 'bold 11px Tahoma, "MS Sans Serif", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(this.isTyping ? '...' : 'OK [E / Space]', btnX + Math.round(btnW * 0.5), btnY + 16);
         }
     }
     const dialogSystem = new DialogSystem();
@@ -2448,8 +2443,8 @@
 
             switch (interaction.type) {
                 case 'sit': {
-                    player.x           = interaction.chair.x;
-                    player.y           = interaction.chair.y - 4;
+                    player.x           = interaction.chair.x - 3;
+                    player.y           = interaction.chair.y - 3;
                     player.state       = 'STUDYING';
                     player.direction   = interaction.chair.facing === 'left' ? 'left' : 'right';
                     this.currentSeat   = interaction.chair;
@@ -2459,7 +2454,7 @@
                 }
                 case 'stand': {
                     player.state     = 'IDLE';
-                    player.y        += 16;
+                    player.y        += 18;
                     this.currentSeat = null;
                     sound.play('sit');
                     break;
@@ -2499,26 +2494,30 @@
                 return;
             }
 
-            ctx.font        = 'bold 11px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
+            ctx.font        = 'bold 11px Tahoma, "MS Sans Serif", "MS PGothic", sans-serif';
             const textWidth = ctx.measureText(interaction.label).width;
-            const boxW      = textWidth + 18;
+            const boxW      = Math.ceil(textWidth + 16);
             const boxH      = 22;
-            const boxX      = interaction.x - boxW * 0.5;
-            const boxY      = interaction.y - boxH - 10;
+            const boxX      = Math.round(interaction.x - boxW * 0.5);
+            const bounce    = Math.round(Math.sin(performance.now() * 0.008) * 2);
+            const boxY      = Math.round(interaction.y - boxH - 12 + bounce);
 
-            // Bouncing animation
-            const bounce = Math.sin(performance.now() * 0.008) * 3;
-            this.lastPromptBounds = { x: boxX, y: boxY + bounce, w: boxW, h: boxH };
+            this.lastPromptBounds = { x: boxX, y: boxY, w: boxW, h: boxH };
 
-            ctx.fillStyle   = 'rgba(24, 20, 37, 0.95)';
-            ctx.strokeStyle = '#facc15';
-            ctx.lineWidth   = 1.5;
-            ctx.fillRect(boxX, boxY + bounce, boxW, boxH);
-            ctx.strokeRect(boxX, boxY + bounce, boxW, boxH);
+            // Classic Windows 98 yellow tooltip with crisp 1px border and hard drop shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+            ctx.fillRect(boxX + 2, boxY + 2, boxW, boxH);
 
-            ctx.fillStyle = '#fde047';
+            ctx.fillStyle = '#ffffe1';
+            ctx.fillRect(boxX, boxY, boxW, boxH);
+
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth   = 1;
+            ctx.strokeRect(boxX + 0.5, boxY + 0.5, boxW - 1, boxH - 1);
+
+            ctx.fillStyle = '#000000';
             ctx.textAlign = 'center';
-            ctx.fillText(interaction.label, interaction.x, boxY + bounce + 15);
+            ctx.fillText(interaction.label, boxX + Math.round(boxW * 0.5), boxY + 15);
         }
     }
     const interactionManager = new InteractionManager();
@@ -2589,15 +2588,15 @@
 
         return {
             id:         `${i18n.t('studyBuddyPrefix')} ${index}`,
-            x:          x,
-            y:          y,
-            homeX:      x,
-            homeY:      y,
+            x:          x - 3,
+            y:          y - 3,
+            homeX:      x - 3,
+            homeY:      y - 3,
             homeFacing: facing,
-            targetX:    x,
-            targetY:    y,
-            width:      32,
-            height:     40,
+            targetX:    x - 3,
+            targetY:    y - 3,
+            width:      36,
+            height:     39,
             color:      npcColors[(index - 1) % npcColors.length],
             direction:  facing,
             archetype:  archetypes[(index - 1) % archetypes.length],
@@ -2633,8 +2632,8 @@
                 id:        pId,
                 x:         600,
                 y:         360,
-                width:     32,
-                height:    40,
+                width:     36,
+                height:    39,
                 color:     currentConfig.playerColor || '#3b82f6',
                 direction: 'down',
                 state:     'IDLE'
@@ -2823,23 +2822,24 @@
     }
     function drawPointerTarget(ctx) {
         if (!pointerTarget.active) return;
-        const pulse = 6 + Math.sin(performance.now() * 0.01) * 2.5;
-        ctx.save();
-        ctx.strokeStyle = 'rgba(250, 204, 21, 0.85)';
-        ctx.lineWidth   = 2;
-        ctx.beginPath();
-        ctx.ellipse(pointerTarget.x, pointerTarget.y, pulse * 1.4, pulse * 0.8, 0, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
+        const x    = Math.round(pointerTarget.x);
+        const y    = Math.round(pointerTarget.y);
+        const size = Math.floor(performance.now() / 250) % 2 === 0 ? 6 : 9;
+
+        ctx.fillStyle = '#ffff00';
+        ctx.fillRect(x - size, y - 1, size * 2, 3);
+        ctx.fillRect(x - 1, y - size, 3, size * 2);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(x - 1, y - 1, 3, 3);
     }
     function drawCharacterSprite(ctx, p) {
         const isPlayer = p === gameState.players['my_id'];
+        const rx       = Math.round(p.x);
+        const ry       = Math.round(p.y);
 
-        // Drop shadow under character
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-        ctx.beginPath();
-        ctx.ellipse(p.x + p.width * 0.5, p.y + p.height - 2, p.width * 0.45, 6, 0, 0, Math.PI * 2);
-        ctx.fill();
+        // Crisp flat pixel drop shadow under character
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+        ctx.fillRect(rx + 6, ry + p.height - 3, p.width - 12, 6);
 
         const dir       = p.direction || 'down';
         const isMoving  = p.state === 'WALKING' || (!isPlayer && (Math.abs((p.targetX ?? p.x) - p.x) > 2 || Math.abs((p.targetY ?? p.y) - p.y) > 2));
@@ -2875,34 +2875,35 @@
         }
 
         const mainColor   = isPlayer ? (currentConfig.playerColor || '#3b82f6') : (p.color || '#10b981');
-        const accentColor = isPlayer ? '#ef4444' : '#f59e0b';
+        const accentColor = isPlayer ? '#d93838' : '#e8b94f';
 
-        drawPixelSprite(ctx, spriteData, p.x, p.y, p.width, p.height, mainColor, accentColor, flipX);
+        drawPixelSprite(ctx, spriteData, rx, ry, p.width, p.height, mainColor, accentColor, flipX);
 
-        // Badge / Name Tag with dynamic activity icon
+        // Crisp Win98-style compact nameplate
         let statusIcon = '';
         if (!isPlayer) {
             statusIcon = p.state === 'BREAK' ? '☕ ' : '📖 ';
         } else if (isSitting) {
-            statusIcon = '🎯 ';
+            statusIcon = '★ ';
         }
         const tagText   = `${statusIcon}${p.id}`;
-        ctx.font        = 'bold 11px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
+        ctx.font        = 'bold 10px Tahoma, "MS Sans Serif", "MS PGothic", sans-serif';
         const textWidth = ctx.measureText(tagText).width;
-        const badgeW    = textWidth + 14;
-        const badgeH    = 18;
-        const badgeX    = p.x + p.width * 0.5 - badgeW * 0.5;
-        const badgeY    = p.y - 22;
+        const badgeW    = Math.ceil(textWidth + 10);
+        const badgeH    = 16;
+        const badgeX    = Math.round(rx + p.width * 0.5 - badgeW * 0.5);
+        const badgeY    = ry - 19;
 
-        ctx.fillStyle   = 'rgba(24, 20, 37, 0.9)';
-        ctx.strokeStyle = isPlayer ? (currentConfig.playerColor || '#60a5fa') : (p.state === 'BREAK' ? '#facc15' : '#34d399');
-        ctx.lineWidth   = 1.5;
+        ctx.fillStyle = isPlayer ? '#000080' : (p.state === 'BREAK' ? '#ffffe1' : '#c0c0c0');
         ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
-        ctx.strokeRect(badgeX, badgeY, badgeW, badgeH);
 
-        ctx.fillStyle = isPlayer ? '#ffffff' : (p.state === 'BREAK' ? '#fef08a' : '#a7f3d0');
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth   = 1;
+        ctx.strokeRect(badgeX + 0.5, badgeY + 0.5, badgeW - 1, badgeH - 1);
+
+        ctx.fillStyle = isPlayer ? '#ffffff' : '#000000';
         ctx.textAlign = 'center';
-        ctx.fillText(tagText, p.x + p.width * 0.5, badgeY + 13);
+        ctx.fillText(tagText, badgeX + Math.round(badgeW * 0.5), badgeY + 11);
     }
 
     // ============================================================================
@@ -2999,31 +3000,54 @@
         const seconds      = totalSeconds % 60;
         const timeStr      = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-        const hudW = Math.min(280, canvasWidth - 24);
-        const hudH = 78;
-        const hudX = (canvasWidth - hudW) * 0.5;
-        const hudY = 16;
+        const hudW = Math.min(274, canvasWidth - 24);
+        const hudH = 88;
+        const hudX = Math.round((canvasWidth - hudW) * 0.5);
+        const hudY = 12;
 
-        // SNES Double-Border Frame
-        ctx.fillStyle   = 'rgba(24, 20, 37, 0.96)';
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth   = 2;
+        // 1. Classic Windows 98 Raised Window Chrome
+        ctx.fillStyle = '#c0c0c0';
         ctx.fillRect(hudX, hudY, hudW, hudH);
-        ctx.strokeRect(hudX, hudY, hudW, hudH);
+        // Outer white highlight (top/left) & black shadow (bottom/right)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(hudX, hudY, hudW - 1, 2);
+        ctx.fillRect(hudX, hudY, 2, hudH - 1);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(hudX, hudY + hudH - 2, hudW, 2);
+        ctx.fillRect(hudX + hudW - 2, hudY, 2, hudH);
+        // Inner dark gray shadow
+        ctx.fillStyle = '#808080';
+        ctx.fillRect(hudX + 2, hudY + hudH - 3, hudW - 4, 1);
+        ctx.fillRect(hudX + hudW - 3, hudY + 2, 1, hudH - 4);
 
-        const themeColor = timer.mode === 'WORK' ? '#ef4444' : (timer.mode === 'LONG_BREAK' ? '#38bdf8' : '#10b981');
-        ctx.strokeStyle  = themeColor;
-        ctx.lineWidth    = 1;
-        ctx.strokeRect(hudX + 3, hudY + 3, hudW - 6, hudH - 6);
+        // 2. Classic Win98 Gradient Titlebar
+        const barX = hudX + 4;
+        const barY = hudY + 4;
+        const barW = hudW - 8;
+        const barH = 19;
+        const isPaused = !timer.isActive || isMenuOpen;
 
-        // Multilingual Scenario Title
+        const grad = ctx.createLinearGradient(barX, barY, barX + barW, barY);
+        if (isPaused) {
+            grad.addColorStop(0, '#808080');
+            grad.addColorStop(1, '#b5b5b5');
+        } else if (timer.mode === 'WORK') {
+            grad.addColorStop(0, '#000080');
+            grad.addColorStop(1, '#1084d0');
+        } else {
+            grad.addColorStop(0, '#006666');
+            grad.addColorStop(1, '#10a494');
+        }
+        ctx.fillStyle = grad;
+        ctx.fillRect(barX, barY, barW, barH);
+
+        // Multilingual Scenario + Mode in Titlebar
         let scenarioName = i18n.t('mapCafeteria');
         if (currentConfig.map === 'library') scenarioName = i18n.t('mapLibrary');
         else if (currentConfig.map === 'garden') scenarioName = i18n.t('mapGarden');
 
-        // Multilingual Mode Label
         let modeText = i18n.t('hudFocusSession');
-        if (!timer.isActive || isMenuOpen) {
+        if (isPaused) {
             modeText = i18n.t('hudPaused');
         } else if (timer.mode === 'BREAK') {
             modeText = i18n.t('hudShortBreak');
@@ -3031,34 +3055,68 @@
             modeText = i18n.t('hudLongBreak');
         }
 
-        ctx.fillStyle = (!timer.isActive || isMenuOpen) ? '#facc15' : themeColor;
-        ctx.font      = 'bold 11px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${scenarioName} • ${modeText}`, canvasWidth * 0.5, hudY + 20);
-
-        // Digital Clock
         ctx.fillStyle = '#ffffff';
-        ctx.font      = 'bold 26px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
-        ctx.fillText(timeStr, canvasWidth * 0.5, hudY + 48);
+        ctx.font      = 'bold 11px Tahoma, "MS Sans Serif", "MS PGothic", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`${scenarioName} - ${modeText}`, barX + 6, barY + 13, barW - 12);
 
-        // Cycle & Progress
+        // 3. Sunken LCD Clock Well
+        const wellX = hudX + 8;
+        const wellY = hudY + 28;
+        const wellW = hudW - 16;
+        const wellH = 34;
+
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(wellX, wellY, wellW, wellH);
+        ctx.fillStyle = '#808080';
+        ctx.fillRect(wellX, wellY, wellW, 1);
+        ctx.fillRect(wellX, wellY, 1, wellH);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(wellX, wellY + wellH - 1, wellW, 1);
+        ctx.fillRect(wellX + wellW - 1, wellY, 1, wellH);
+
+        // Crisp retro LCD digits
+        ctx.fillStyle = isPaused ? '#ffff00' : (timer.mode === 'WORK' ? '#00ff66' : '#52e0ff');
+        ctx.font      = 'bold 24px "Courier New", Courier, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(timeStr, hudX + Math.round(hudW * 0.5) - 18, wellY + 25);
+
+        const cycleText = `${i18n.t('hudCycle')} ${timer.currentCycle}/${timer.totalCycles}`;
+        ctx.fillStyle   = '#c0c0c0';
+        ctx.font        = 'bold 10px Tahoma, "MS Sans Serif", sans-serif';
+        ctx.textAlign   = 'right';
+        ctx.fillText(cycleText, wellX + wellW - 8, wellY + 21);
+
+        // 4. Classic Win98 Segmented Progress Bar
         let maxSeconds = currentConfig.focusTime * 60;
         if (timer.mode === 'BREAK') maxSeconds = currentConfig.breakTime * 60;
         if (timer.mode === 'LONG_BREAK') maxSeconds = currentConfig.breakTime * 60 * 2;
 
         const progress = Math.max(0, Math.min(1, timer.timerSeconds / Math.max(1, maxSeconds)));
 
-        ctx.fillStyle = '#334155';
-        ctx.fillRect(hudX + 12, hudY + hudH - 12, hudW - 24, 6);
+        const pX = hudX + 8;
+        const pY = hudY + 67;
+        const pW = hudW - 16;
+        const pH = 14;
 
-        ctx.fillStyle = themeColor;
-        ctx.fillRect(hudX + 12, hudY + hudH - 12, (hudW - 24) * progress, 6);
+        // Sunken white trough
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(pX, pY, pW, pH);
+        ctx.fillStyle = '#808080';
+        ctx.fillRect(pX, pY, pW, 1);
+        ctx.fillRect(pX, pY, 1, pH);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(pX + 1, pY + 1, pW - 2, 1);
+        ctx.fillRect(pX + 1, pY + 1, 1, pH - 2);
 
-        const cycleText = `${i18n.t('hudCycle')} ${timer.currentCycle}/${timer.totalCycles}`;
-        ctx.fillStyle   = '#94a3b8';
-        ctx.font        = 'bold 9px Courier New, "MS Gothic", "Noto Sans JP", monospace, sans-serif';
-        ctx.textAlign   = 'right';
-        ctx.fillText(cycleText, hudX + hudW - 12, hudY + 46);
+        // Segmented blue Win98 blocks
+        const blockW    = 8;
+        const blockGap  = 2;
+        const innerW    = Math.floor((pW - 6) * progress);
+        ctx.fillStyle   = isPaused ? '#808080' : '#000080';
+        for (let bx = 0; bx + blockW <= innerW; bx += blockW + blockGap) {
+            ctx.fillRect(pX + 3 + bx, pY + 3, blockW, pH - 6);
+        }
     }
 
     // ============================================================================
@@ -3072,8 +3130,9 @@
         if (canvas) {
             canvas.width  = window.innerWidth;
             canvas.height = window.innerHeight;
-            camera.viewportWidth  = canvas.width;
-            camera.viewportHeight = canvas.height;
+            ctx.imageSmoothingEnabled = false;
+            camera.viewportWidth      = canvas.width;
+            camera.viewportHeight     = canvas.height;
         }
     }
 
@@ -3160,10 +3219,11 @@
     }
 
     function draw() {
+        ctx.imageSmoothingEnabled = false;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.save();
-        ctx.translate(-camera.x, -camera.y);
+        ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
 
         renderScenarioFloor(ctx, WORLD_WIDTH, WORLD_HEIGHT, currentConfig.map);
         renderScenarioEnvironment(ctx, WORLD_WIDTH, WORLD_HEIGHT, currentConfig.map);
@@ -3601,16 +3661,21 @@
 
     bindClick('btn-play',           () => { sound.play('click'); showPanel('mode'); });
     bindClick('btn-mode-back',      () => { sound.play('click'); showPanel('main'); });
+    bindClick('btn-mode-close',     () => { sound.play('click'); showPanel('main'); });
     bindClick('btn-solo',           () => { sound.play('click'); lastMenuPanel = 'mode'; showPanel('config'); });
     bindClick('btn-config-back',    () => { sound.play('click'); showPanel(lastMenuPanel); });
+    bindClick('btn-config-close',   () => { sound.play('click'); showPanel(lastMenuPanel); });
     bindClick('btn-settings',       () => { sound.play('click'); lastMenuPanel = 'main'; showPanel('config'); });
     bindClick('btn-custom',         () => { sound.play('click'); showPanel('custom'); });
     bindClick('btn-custom-back',    () => { sound.play('click'); showPanel('main'); });
+    bindClick('btn-custom-close',   () => { sound.play('click'); showPanel('main'); });
     bindClick('btn-resume',         () => { sound.play('click'); lastTime = performance.now(); showPanel('none'); });
+    bindClick('btn-pause-close',    () => { sound.play('click'); lastTime = performance.now(); showPanel('none'); });
     bindClick('btn-pause-tasks',    () => { sound.play('click'); toggleTaskDrawer(true); });
     bindClick('btn-pause-settings', () => { sound.play('click'); lastMenuPanel = 'pause'; showPanel('config'); });
     bindClick('btn-exit-main',      () => { sound.play('click'); sound.stopAmbient(); showPanel('main'); });
     bindClick('btn-close-tasks',    () => toggleTaskDrawer(false));
+    bindClick('legend-menu',        () => { sound.play('click'); showPanel('pause'); });
     bindClick('btn-hud-play',       toggleTimerPlayPause);
     bindClick('btn-hud-skip',       skipPomodoroSession);
     bindClick('btn-hud-tasks',      () => toggleTaskDrawer());

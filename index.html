@@ -10,32 +10,59 @@
     </script>
     <style>
         body {
-            background-color: #0b0f19;
-            color: #f8fafc;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: #008080;
+            color: #000000;
+            font-family: Tahoma, 'MS Sans Serif', sans-serif;
+            font-size: 12px;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+        }
+        .win-box {
+            background-color: #c0c0c0;
+            border-top: 2px solid #ffffff;
+            border-left: 2px solid #ffffff;
+            border-right: 2px solid #000000;
+            border-bottom: 2px solid #000000;
+            padding: 3px;
+            width: 340px;
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+        }
+        .win-bar {
+            background: linear-gradient(90deg, #000080, #1084d0);
+            color: #ffffff;
+            font-weight: bold;
+            padding: 4px 6px;
+        }
+        .win-content {
+            padding: 16px 12px;
             text-align: center;
         }
         a {
-            color: #60a5fa;
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 12px;
+            background-color: #c0c0c0;
+            color: #000000;
             text-decoration: none;
             font-weight: bold;
-            margin-top: 1rem;
-            display: inline-block;
-        }
-        a:hover {
-            text-decoration: underline;
+            border-top: 2px solid #ffffff;
+            border-left: 2px solid #ffffff;
+            border-right: 2px solid #000000;
+            border-bottom: 2px solid #000000;
         }
     </style>
 </head>
 <body>
-    <h1>🍅 Pomodoro World 2D</h1>
-    <p>Redirecting to virtual study space...</p>
-    <a href="src/index.html">Click here to enter if not automatically redirected &rarr;</a>
+    <div class="win-box">
+        <div class="win-bar">🍅 Pomodoro98.exe</div>
+        <div class="win-content">
+            <p>Loading virtual study space...</p>
+            <a href="src/index.html">Open Pomodoro World 98 &rarr;</a>
+        </div>
+    </div>
 </body>
 </html>
+
