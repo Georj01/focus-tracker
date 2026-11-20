@@ -106,6 +106,7 @@ export const TRANSLATIONS = {
         promptBooks:       '[E] Read Study Wisdom 📚',
         promptZen:         '[E] Mindful Meditation 🌸',
         promptTalk:        '[E] Talk to',
+        promptPet:         '[E] Pet',
 
         // Dialogue System
         dialogStudyTitle:  'Study Desk',
@@ -137,6 +138,18 @@ export const TRANSLATIONS = {
             '"Ahh, break time! Stretching my legs and grabbing a fresh espresso."',
             '"Great focus session! Make sure to rest your eyes for a few minutes."',
             '"Nothing beats a quick breather after a solid block of deep work!"'
+        ],
+
+        catDialogues: [
+            'Purrr... The cafe cat leans softly into your hand and blinks slowly.',
+            'Meow~ It curls up peacefully near the desks, keeping the cafe calm.',
+            'Purrr... Soft whiskers twitch happily. Back to cozy focus!'
+        ],
+
+        dogDialogues: [
+            'Woof~ The cafe pup wags its tail gently and settles quietly by your feet.',
+            '*Gentle sniff* A warm, calm friend cheering on your study session.',
+            'The cafe dog gives a quiet happy sigh and rests peacefully on the warm floor.'
         ]
     },
 
@@ -244,6 +257,7 @@ export const TRANSLATIONS = {
         promptBooks:       '[E] Leer Sabiduría 📚',
         promptZen:         '[E] Meditación Consciente 🌸',
         promptTalk:        '[E] Hablar con',
+        promptPet:         '[E] Acariciar a',
 
         // Dialogue System
         dialogStudyTitle:  'Escritorio de Estudio',
@@ -275,6 +289,18 @@ export const TRANSLATIONS = {
             '"¡Hora de descansar! Estirando las piernas y tomando un café recién hecho."',
             '"¡Gran sesión de enfoque! Asegúrate de descansar la vista unos minutos."',
             '"¡Nada como un respiro después de un buen bloque de concentración!"'
+        ],
+
+        catDialogues: [
+            'Mrrr... El gatito de la cafetería se acurruca suavemente y parpadea tranquilo.',
+            'Miau~ Se queda descansando en paz cerca de los escritorios.',
+            'Prrr... Un ronroneo suave te devuelve la calma para seguir enfocado.'
+        ],
+
+        dogDialogues: [
+            'Guau~ El perrito mueve la cola despacio y se acomoda tranquilo a tu lado.',
+            '*Olfateo suave* Un amigo tranquilo te acompaña mientras estudias.',
+            'El perrito de la cafetería suspira feliz y descansa en el suelo cálido.'
         ]
     },
 
@@ -382,6 +408,7 @@ export const TRANSLATIONS = {
         promptBooks:       '[E] 本の言葉を読む 📚',
         promptZen:         '[E] 瞑想する 🌸',
         promptTalk:        '[E] 話しかける:',
+        promptPet:         '[E] なでる:',
 
         // Dialogue System
         dialogStudyTitle:  '学習デスク',
@@ -413,6 +440,18 @@ export const TRANSLATIONS = {
             '「休憩タイムだね！少し背伸びをしてコーヒーを飲んでくるよ。」',
             '「いい集中だったね！目を少し休めてリフレッシュしよう。」',
             '「集中した後の小休憩は最高だね！」'
+        ],
+
+        catDialogues: [
+            'ごろごろ… カフェの猫がやさしく目を細めて喉を鳴らしています。',
+            'にゃ〜 デスクの近くでのんびり丸くなっています。',
+            'ごろごろ… 穏やかな癒やしで、また静かに集中できそう。'
+        ],
+
+        dogDialogues: [
+            'わん〜 カフェの犬がゆっくりしっぽを振って足元でくつろいでいます。',
+            '静かに寄り添って、あなたの集中タイムを見守ってくれています。',
+            '安心したようにふぅと息をついて、床でのんびり休んでいます。'
         ]
     }
 };
@@ -477,6 +516,13 @@ class I18nManager {
         const dialogues = this.t(key) || TRANSLATIONS.en[key];
         return dialogues[Math.floor(Math.random() * dialogues.length)];
     }
+
+    getRandomPetDialogue(species = 'cat') {
+        const key = species === 'dog' ? 'dogDialogues' : 'catDialogues';
+        const dialogues = this.t(key) || TRANSLATIONS.en[key];
+        return dialogues[Math.floor(Math.random() * dialogues.length)];
+    }
 }
 
 export const i18n = new I18nManager();
+

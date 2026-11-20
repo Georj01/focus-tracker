@@ -12,7 +12,7 @@ class InteractionManager {
         this.currentSeat  = null;
     }
 
-    getNearbyInteraction(player, mapKey, npcs) {
+    getNearbyInteraction(player, mapKey, npcs, pets = []) {
         if (!player) return null;
         const config = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
 
@@ -114,6 +114,22 @@ class InteractionManager {
             }
         }
 
+        // 7. Check Nearby Cafeteria Pets (Cats & Dogs)
+        for (let i = 0; i < pets.length; i++) {
+            const pet  = pets[i];
+            const dist = Math.hypot(px - (pet.x + pet.width * 0.5), py - (pet.y + pet.height * 0.5));
+            if (dist < 46) {
+                const icon = pet.species === 'dog' ? '🐶' : '🐱';
+                return {
+                    type:  'pet',
+                    label: `${i18n.t('promptPet')} ${pet.name} ${icon}`,
+                    pet:   pet,
+                    x:     pet.x + pet.width * 0.5,
+                    y:     pet.y - 6
+                };
+            }
+        }
+
         return null;
     }
 
@@ -156,6 +172,18 @@ class InteractionManager {
                 const isBreak = interaction.npc && interaction.npc.state === 'BREAK';
                 const line    = i18n.getRandomNpcDialogue(isBreak);
                 dialogSystem.show(interaction.npc.id, line);
+                break;
+            }
+            case 'pet': {
+                const pet = interaction.pet;
+                if (!pet) break;
+                pet.state      = 'IDLE';
+                pet.waitTimer  = 8;
+                pet.heartTimer = 1.6;
+                pet.facing     = player.x >= pet.x ? 'right' : 'left';
+                sound.play(pet.species === 'dog' ? 'pet_dog' : 'pet_cat');
+                const icon = pet.species === 'dog' ? '🐶' : '🐱';
+                dialogSystem.show(`${icon} ${pet.name}`, i18n.getRandomPetDialogue(pet.species));
                 break;
             }
         }

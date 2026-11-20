@@ -228,6 +228,40 @@ class SoundEngine {
                 osc.stop(now + 0.15);
                 break;
             }
+            case 'pet_cat': {
+                // Soft gentle purr-chime
+                [520, 660].forEach((f, i) => {
+                    const osc  = actx.createOscillator();
+                    const gain = actx.createGain();
+                    osc.type   = 'sine';
+                    osc.frequency.setValueAtTime(f, now + i * 0.09);
+                    osc.frequency.linearRampToValueAtTime(f * 1.08, now + i * 0.09 + 0.1);
+                    gain.gain.setValueAtTime(vol * 0.08, now + i * 0.09);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.14);
+                    osc.connect(gain);
+                    gain.connect(actx.destination);
+                    osc.start(now + i * 0.09);
+                    osc.stop(now + i * 0.09 + 0.15);
+                });
+                break;
+            }
+            case 'pet_dog': {
+                // Soft warm friendly tail-wag tone
+                [280, 360].forEach((f, i) => {
+                    const osc  = actx.createOscillator();
+                    const gain = actx.createGain();
+                    osc.type   = 'triangle';
+                    osc.frequency.setValueAtTime(f, now + i * 0.08);
+                    osc.frequency.exponentialRampToValueAtTime(f * 0.78, now + i * 0.08 + 0.09);
+                    gain.gain.setValueAtTime(vol * 0.09, now + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.1);
+                    osc.connect(gain);
+                    gain.connect(actx.destination);
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.11);
+                });
+                break;
+            }
         }
     }
 

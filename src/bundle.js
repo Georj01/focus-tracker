@@ -187,6 +187,7 @@
             promptBooks:       '[E] Read Study Wisdom 📚',
             promptZen:         '[E] Mindful Meditation 🌸',
             promptTalk:        '[E] Talk to',
+            promptPet:         '[E] Pet',
 
             // Dialogue System
             dialogStudyTitle:  'Study Desk',
@@ -218,6 +219,18 @@
                 '"Ahh, break time! Stretching my legs and grabbing a fresh espresso."',
                 '"Great focus session! Make sure to rest your eyes for a few minutes."',
                 '"Nothing beats a quick breather after a solid block of deep work!"'
+            ],
+
+            catDialogues: [
+                'Purrr... The cafe cat leans softly into your hand and blinks slowly.',
+                'Meow~ It curls up peacefully near the desks, keeping the cafe calm.',
+                'Purrr... Soft whiskers twitch happily. Back to cozy focus!'
+            ],
+
+            dogDialogues: [
+                'Woof~ The cafe pup wags its tail gently and settles quietly by your feet.',
+                '*Gentle sniff* A warm, calm friend cheering on your study session.',
+                'The cafe dog gives a quiet happy sigh and rests peacefully on the warm floor.'
             ]
         },
 
@@ -325,6 +338,7 @@
             promptBooks:       '[E] Leer Sabiduría 📚',
             promptZen:         '[E] Meditación Consciente 🌸',
             promptTalk:        '[E] Hablar con',
+            promptPet:         '[E] Acariciar a',
 
             // Dialogue System
             dialogStudyTitle:  'Escritorio de Estudio',
@@ -356,6 +370,18 @@
                 '"¡Hora de descansar! Estirando las piernas y tomando un café recién hecho."',
                 '"¡Gran sesión de enfoque! Asegúrate de descansar la vista unos minutos."',
                 '"¡Nada como un respiro después de un buen bloque de concentración!"'
+            ],
+
+            catDialogues: [
+                'Mrrr... El gatito de la cafetería se acurruca suavemente y parpadea tranquilo.',
+                'Miau~ Se queda descansando en paz cerca de los escritorios.',
+                'Prrr... Un ronroneo suave te devuelve la calma para seguir enfocado.'
+            ],
+
+            dogDialogues: [
+                'Guau~ El perrito mueve la cola despacio y se acomoda tranquilo a tu lado.',
+                '*Olfateo suave* Un amigo tranquilo te acompaña mientras estudias.',
+                'El perrito de la cafetería suspira feliz y descansa en el suelo cálido.'
             ]
         },
 
@@ -463,6 +489,7 @@
             promptBooks:       '[E] 本の言葉を読む 📚',
             promptZen:         '[E] 瞑想する 🌸',
             promptTalk:        '[E] 話しかける:',
+            promptPet:         '[E] なでる:',
 
             // Dialogue System
             dialogStudyTitle:  '学習デスク',
@@ -494,6 +521,18 @@
                 '「休憩タイムだね！少し背伸びをしてコーヒーを飲んでくるよ。」',
                 '「いい集中だったね！目を少し休めてリフレッシュしよう。」',
                 '「集中した後の小休憩は最高だね！」'
+            ],
+
+            catDialogues: [
+                'ごろごろ… カフェの猫がやさしく目を細めて喉を鳴らしています。',
+                'にゃ〜 デスクの近くでのんびり丸くなっています。',
+                'ごろごろ… 穏やかな癒やしで、また静かに集中できそう。'
+            ],
+
+            dogDialogues: [
+                'わん〜 カフェの犬がゆっくりしっぽを振って足元でくつろいでいます。',
+                '静かに寄り添って、あなたの集中タイムを見守ってくれています。',
+                '安心したようにふぅと息をついて、床でのんびり休んでいます。'
             ]
         }
     };
@@ -555,6 +594,12 @@
 
         getRandomNpcDialogue(isBreak = false) {
             const key = isBreak ? 'npcBreakDialogues' : 'npcDialogues';
+            const dialogues = this.t(key) || TRANSLATIONS.en[key];
+            return dialogues[Math.floor(Math.random() * dialogues.length)];
+        }
+
+        getRandomPetDialogue(species = 'cat') {
+            const key = species === 'dog' ? 'dogDialogues' : 'catDialogues';
             const dialogues = this.t(key) || TRANSLATIONS.en[key];
             return dialogues[Math.floor(Math.random() * dialogues.length)];
         }
@@ -792,6 +837,40 @@
                     gain.connect(actx.destination);
                     osc.start(now);
                     osc.stop(now + 0.15);
+                    break;
+                }
+                case 'pet_cat': {
+                    // Soft gentle purr-chime
+                    [520, 660].forEach((f, i) => {
+                        const osc  = actx.createOscillator();
+                        const gain = actx.createGain();
+                        osc.type   = 'sine';
+                        osc.frequency.setValueAtTime(f, now + i * 0.09);
+                        osc.frequency.linearRampToValueAtTime(f * 1.08, now + i * 0.09 + 0.1);
+                        gain.gain.setValueAtTime(vol * 0.08, now + i * 0.09);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.14);
+                        osc.connect(gain);
+                        gain.connect(actx.destination);
+                        osc.start(now + i * 0.09);
+                        osc.stop(now + i * 0.09 + 0.15);
+                    });
+                    break;
+                }
+                case 'pet_dog': {
+                    // Soft warm friendly tail-wag tone
+                    [280, 360].forEach((f, i) => {
+                        const osc  = actx.createOscillator();
+                        const gain = actx.createGain();
+                        osc.type   = 'triangle';
+                        osc.frequency.setValueAtTime(f, now + i * 0.08);
+                        osc.frequency.exponentialRampToValueAtTime(f * 0.78, now + i * 0.08 + 0.09);
+                        gain.gain.setValueAtTime(vol * 0.09, now + i * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.1);
+                        osc.connect(gain);
+                        gain.connect(actx.destination);
+                        osc.start(now + i * 0.08);
+                        osc.stop(now + i * 0.08 + 0.11);
+                    });
                     break;
                 }
             }
@@ -1295,6 +1374,98 @@
             '0000000000',
             '0888888880',
             '0000000000'
+        ],
+
+        // ------------------------------------------------------------------------
+        // 4. CAFETERIA PETS: SIMPLE CATS & DOGS (10x9 -> 30x27 px at 3x scale)
+        // ------------------------------------------------------------------------
+        CAT_IDLE: [
+            '_____0__0_',
+            '____020020',
+            '_00_022220',
+            '020_022020',
+            '0200022220',
+            '_02222660_',
+            '_02222220_',
+            '_020__020_',
+            '_000__000_'
+        ],
+        CAT_WALK_1: [
+            '_____0__0_',
+            '____020020',
+            '00__022220',
+            '020_022020',
+            '_000022220',
+            '_02222660_',
+            '_02222220_',
+            '020____020',
+            '000____000'
+        ],
+        CAT_WALK_2: [
+            '_____0__0_',
+            '____020020',
+            '_00_022220',
+            '020_022020',
+            '0200022220',
+            '_02222660_',
+            '_02222220_',
+            '__020020__',
+            '__000000__'
+        ],
+        CAT_SLEEP: [
+            '__________',
+            '__________',
+            '__________',
+            '____0__0__',
+            '__0020020_',
+            '_022222220',
+            '0222222020',
+            '0222222220',
+            '_00000000_'
+        ],
+        DOG_IDLE: [
+            '____0000__',
+            '___027220_',
+            '___0272020',
+            '00_0272220',
+            '0200222000',
+            '_02222660_',
+            '_02222220_',
+            '_020__020_',
+            '_000__000_'
+        ],
+        DOG_WALK_1: [
+            '____0000__',
+            '___027220_',
+            '___0272020',
+            '_000272220',
+            '_020222000',
+            '_02222660_',
+            '_02222220_',
+            '020____020',
+            '000____000'
+        ],
+        DOG_WALK_2: [
+            '____0000__',
+            '___027220_',
+            '___0272020',
+            '00_0272220',
+            '0200222000',
+            '_02222660_',
+            '_02222220_',
+            '__020020__',
+            '__000000__'
+        ],
+        DOG_SLEEP: [
+            '__________',
+            '__________',
+            '__________',
+            '___00000__',
+            '_00227220_',
+            '0222272020',
+            '0222222220',
+            '0222222220',
+            '_00000000_'
         ]
     };
 
@@ -2333,7 +2504,7 @@
             this.currentSeat  = null;
         }
 
-        getNearbyInteraction(player, mapKey, npcs) {
+        getNearbyInteraction(player, mapKey, npcs, pets = []) {
             if (!player) return null;
             const config = scenarioConfigs[mapKey] || scenarioConfigs.cafeteria;
 
@@ -2435,6 +2606,22 @@
                 }
             }
 
+            // 7. Check Nearby Cafeteria Pets (Cats & Dogs)
+            for (let i = 0; i < pets.length; i++) {
+                const pet  = pets[i];
+                const dist = Math.hypot(px - (pet.x + pet.width * 0.5), py - (pet.y + pet.height * 0.5));
+                if (dist < 46) {
+                    const icon = pet.species === 'dog' ? '🐶' : '🐱';
+                    return {
+                        type:  'pet',
+                        label: `${i18n.t('promptPet')} ${pet.name} ${icon}`,
+                        pet:   pet,
+                        x:     pet.x + pet.width * 0.5,
+                        y:     pet.y - 6
+                    };
+                }
+            }
+
             return null;
         }
 
@@ -2477,6 +2664,18 @@
                     const isBreak = interaction.npc && interaction.npc.state === 'BREAK';
                     const line    = i18n.getRandomNpcDialogue(isBreak);
                     dialogSystem.show(interaction.npc.id, line);
+                    break;
+                }
+                case 'pet': {
+                    const pet = interaction.pet;
+                    if (!pet) break;
+                    pet.state      = 'IDLE';
+                    pet.waitTimer  = 8;
+                    pet.heartTimer = 1.6;
+                    pet.facing     = player.x >= pet.x ? 'right' : 'left';
+                    sound.play(pet.species === 'dog' ? 'pet_dog' : 'pet_cat');
+                    const icon = pet.species === 'dog' ? '🐶' : '🐱';
+                    dialogSystem.show(`${icon} ${pet.name}`, i18n.getRandomPetDialogue(pet.species));
                     break;
                 }
             }
@@ -2543,6 +2742,7 @@
     const currentConfig = { ...DEFAULT_CONFIG };
     const gameState = {
         players: {},
+        pets:    [],
         pomodoro: {
             mode:         'WORK', // 'WORK' | 'BREAK' | 'LONG_BREAK'
             timerSeconds: 1500,
@@ -2566,6 +2766,37 @@
     function clearPointerDestination() {
         pointerTarget.active       = false;
         pointerTarget.autoInteract = false;
+    }
+
+    function buildCafeteriaPets() {
+        if (currentConfig.map !== 'cafeteria') return [];
+
+        // 2 cats & 2 dogs placed in open cafeteria walkways with staggered calm timers
+        const presets = [
+            { name: 'Mochi',   species: 'cat', x: 260, y: 342, color: '#e08b3e', accent: '#d93838', facing: 'right', state: 'SLEEP', wait: 7.5 },
+            { name: 'Luna',    species: 'cat', x: 890, y: 342, color: '#606c7a', accent: '#e874b0', facing: 'left',  state: 'IDLE',  wait: 5.0 },
+            { name: 'Biscuit', species: 'dog', x: 345, y: 615, color: '#e6b34d', accent: '#3b82f6', facing: 'right', state: 'IDLE',  wait: 4.0 },
+            { name: 'Milo',    species: 'dog', x: 730, y: 615, color: '#9e6637', accent: '#2f8f4e', facing: 'left',  state: 'SLEEP', wait: 9.5 }
+        ];
+
+        return presets.map((p, idx) => ({
+            id:         `pet_${idx + 1}`,
+            name:       p.name,
+            species:    p.species,
+            x:          p.x,
+            y:          p.y,
+            width:      30,
+            height:     27,
+            color:      p.color,
+            accent:     p.accent,
+            facing:     p.facing,
+            state:      p.state, // 'IDLE' | 'WALK' | 'SLEEP'
+            targetX:    p.x,
+            targetY:    p.y,
+            waitTimer:  p.wait,
+            heartTimer: 0,
+            speed:      p.species === 'cat' ? 24 : 28
+        }));
     }
 
     function buildNpcEntity(index, seats) {
@@ -2623,6 +2854,11 @@
             }
             gameState.players = nextPlayers;
             gameState.pomodoro.totalCycles = currentConfig.cycles || 4;
+            if (currentConfig.map === 'cafeteria' && gameState.pets.length === 0) {
+                gameState.pets = buildCafeteriaPets();
+            } else if (currentConfig.map !== 'cafeteria') {
+                gameState.pets = [];
+            }
             syncNpcBreakState(gameState.pomodoro.mode);
             return;
         }
@@ -2646,6 +2882,8 @@
         for (let i = 1; i <= currentConfig.npcCount; i++) {
             gameState.players[`npc_${i}`] = buildNpcEntity(i, seats);
         }
+
+        gameState.pets = buildCafeteriaPets();
 
         const timer        = gameState.pomodoro;
         timer.mode         = 'WORK';
@@ -2684,10 +2922,96 @@
         );
     }
 
-    // Update player movement, click-to-move steering, and NPC lounge transitions
+    function isAreaClear(x, y, w, h, obstacles) {
+        for (let i = 0; i < obstacles.length; i++) {
+            if (checkAABB(x, y, w, h, obstacles[i])) return false;
+        }
+        return true;
+    }
+
+    // Gently wander or rest cafeteria cats & dogs without distracting the user
+    function updatePets(deltaTime, obstacles) {
+        if (!gameState.pets || gameState.pets.length === 0) return;
+
+        for (let i = 0; i < gameState.pets.length; i++) {
+            const pet = gameState.pets[i];
+
+            if (pet.heartTimer > 0) {
+                pet.heartTimer = Math.max(0, pet.heartTimer - deltaTime);
+            }
+
+            if (pet.state === 'WALK') {
+                const dx   = pet.targetX - pet.x;
+                const dy   = pet.targetY - pet.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist <= 2) {
+                    pet.x         = pet.targetX;
+                    pet.y         = pet.targetY;
+                    pet.state     = Math.random() < 0.55 ? 'SLEEP' : 'IDLE';
+                    pet.waitTimer = pet.state === 'SLEEP'
+                        ? 10 + Math.random() * 8
+                        : 7 + Math.random() * 6;
+                    continue;
+                }
+
+                const step  = Math.min(dist, pet.speed * deltaTime);
+                const nextX = pet.x + (dx / dist) * step;
+                const nextY = pet.y + (dy / dist) * step;
+
+                if (Math.abs(dx) > 1) {
+                    pet.facing = dx > 0 ? 'right' : 'left';
+                }
+
+                // Gentle obstacle check so pets never walk through desks or counters
+                if (isAreaClear(nextX + 3, nextY + 9, pet.width - 6, pet.height - 9, obstacles)) {
+                    pet.x = nextX;
+                    pet.y = nextY;
+                } else {
+                    // Stop peacefully if path is blocked
+                    pet.state     = 'IDLE';
+                    pet.waitTimer = 6 + Math.random() * 6;
+                }
+            } else {
+                pet.waitTimer -= deltaTime;
+                if (pet.waitTimer <= 0) {
+                    // Occasionally shift between sleeping and sitting without even moving
+                    if (Math.random() < 0.35) {
+                        pet.state     = pet.state === 'SLEEP' ? 'IDLE' : 'SLEEP';
+                        pet.waitTimer = 8 + Math.random() * 8;
+                        continue;
+                    }
+
+                    // Pick a nearby gentle destination within 50-130 px
+                    let chosen = false;
+                    for (let tries = 0; tries < 8; tries++) {
+                        const angle  = Math.random() * Math.PI * 2;
+                        const radius = 50 + Math.random() * 80;
+                        const candX  = Math.max(60, Math.min(WORLD_WIDTH - 90, pet.x + Math.cos(angle) * radius));
+                        const candY  = Math.max(120, Math.min(WORLD_HEIGHT - 70, pet.y + Math.sin(angle) * radius));
+
+                        if (isAreaClear(candX - 4, candY - 4, pet.width + 8, pet.height + 8, obstacles)) {
+                            pet.targetX = candX;
+                            pet.targetY = candY;
+                            pet.state   = 'WALK';
+                            chosen      = true;
+                            break;
+                        }
+                    }
+                    if (!chosen) {
+                        pet.waitTimer = 6 + Math.random() * 5;
+                    }
+                }
+            }
+        }
+    }
+
+    // Update player movement, click-to-move steering, NPC transitions, and gentle cafe pets
     function updateWorldEntities(deltaTime, isMenuOpen, nearbyInteract) {
         const player = gameState.players['my_id'];
         if (!player) return;
+
+        const obstacles = getObstacles(currentConfig.map, WORLD_WIDTH, WORLD_HEIGHT);
 
         // Update NPC positions smoothly toward their target coordinates
         Object.keys(gameState.players).forEach(key => {
@@ -2713,6 +3037,10 @@
                 }
             }
         });
+
+        if (!isMenuOpen) {
+            updatePets(deltaTime, obstacles);
+        }
 
         if (isMenuOpen || dialogSystem.isOpen) return;
 
@@ -2764,7 +3092,6 @@
                 player.state = 'IDLE';
             }
 
-            const obstacles     = getObstacles(currentConfig.map, WORLD_WIDTH, WORLD_HEIGHT);
             const hitboxMarginX = 6;
             const hitboxTopY    = 20;
             const hitboxW       = player.width - hitboxMarginX * 2;
@@ -2904,6 +3231,41 @@
         ctx.fillStyle = isPlayer ? '#ffffff' : '#000000';
         ctx.textAlign = 'center';
         ctx.fillText(tagText, badgeX + Math.round(badgeW * 0.5), badgeY + 11);
+    }
+
+    // Render calm cafeteria cats & dogs without distracting permanent text labels
+    function drawPetSprite(ctx, pet) {
+        const rx = Math.round(pet.x);
+        const ry = Math.round(pet.y);
+
+        // Crisp flat pixel shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+        ctx.fillRect(rx + 4, ry + pet.height - 3, pet.width - 8, 5);
+
+        const isDog     = pet.species === 'dog';
+        const walkFrame = Math.floor(performance.now() / 520) % 2 === 0;
+        let spriteData;
+
+        if (pet.state === 'SLEEP') {
+            spriteData = isDog ? SPRITES.DOG_SLEEP : SPRITES.CAT_SLEEP;
+        } else if (pet.state === 'WALK') {
+            spriteData = isDog
+                ? (walkFrame ? SPRITES.DOG_WALK_1 : SPRITES.DOG_WALK_2)
+                : (walkFrame ? SPRITES.CAT_WALK_1 : SPRITES.CAT_WALK_2);
+        } else {
+            spriteData = isDog ? SPRITES.DOG_IDLE : SPRITES.CAT_IDLE;
+        }
+
+        drawPixelSprite(ctx, spriteData, rx, ry, pet.width, pet.height, pet.color, pet.accent, pet.facing === 'left');
+
+        // Brief gentle heart feedback when petted
+        if (pet.heartTimer > 0) {
+            const rise = Math.round((1.6 - pet.heartTimer) * 10);
+            ctx.fillStyle = '#e03c3c';
+            ctx.font      = 'bold 12px Tahoma, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('♥', rx + Math.round(pet.width * 0.5), ry - 2 - rise);
+        }
     }
 
     // ============================================================================
@@ -3197,7 +3559,7 @@
         const npcs       = Object.values(gameState.players).filter(p => p !== player);
 
         nearbyInteract = !isMenuOpen
-            ? interactionManager.getNearbyInteraction(player, currentConfig.map, npcs)
+            ? interactionManager.getNearbyInteraction(player, currentConfig.map, npcs, gameState.pets)
             : null;
 
         if (btnHudInteract) {
@@ -3229,9 +3591,17 @@
         renderScenarioEnvironment(ctx, WORLD_WIDTH, WORLD_HEIGHT, currentConfig.map);
         drawPointerTarget(ctx);
 
-        const sortedChars = Object.values(gameState.players).sort((a, b) => (a.y + a.height) - (b.y + b.height));
-        for (let i = 0; i < sortedChars.length; i++) {
-            drawCharacterSprite(ctx, sortedChars[i]);
+        const renderables = [
+            ...Object.values(gameState.players).map(p => ({ kind: 'char', entity: p, footY: p.y + p.height })),
+            ...(gameState.pets || []).map(pet => ({ kind: 'pet', entity: pet, footY: pet.y + pet.height }))
+        ].sort((a, b) => a.footY - b.footY);
+
+        for (let i = 0; i < renderables.length; i++) {
+            if (renderables[i].kind === 'pet') {
+                drawPetSprite(ctx, renderables[i].entity);
+            } else {
+                drawCharacterSprite(ctx, renderables[i].entity);
+            }
         }
 
         if (nearbyInteract) {
@@ -3292,6 +3662,9 @@
             return true;
         }
         if (config.lanterns && config.lanterns.some(l => Math.hypot(wx - (l.x + l.w * 0.5), wy - (l.y + l.h * 0.5)) < 42)) {
+            return true;
+        }
+        if (gameState.pets && gameState.pets.some(p => Math.hypot(wx - (p.x + p.width * 0.5), wy - (p.y + p.height * 0.5)) < 36)) {
             return true;
         }
         const player = gameState.players['my_id'];

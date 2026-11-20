@@ -19,7 +19,8 @@ import {
     updateWorldEntities,
     setPointerDestination,
     drawPointerTarget,
-    drawCharacterSprite
+    drawCharacterSprite,
+    drawPetSprite
 } from './engine/world.js';
 import {
     syncTimerWallClock,
@@ -102,7 +103,7 @@ function update(deltaTime) {
     const npcs       = Object.values(gameState.players).filter(p => p !== player);
 
     nearbyInteract = !isMenuOpen
-        ? interactionManager.getNearbyInteraction(player, currentConfig.map, npcs)
+        ? interactionManager.getNearbyInteraction(player, currentConfig.map, npcs, gameState.pets)
         : null;
 
     if (btnHudInteract) {
@@ -134,9 +135,17 @@ function draw() {
     renderScenarioEnvironment(ctx, WORLD_WIDTH, WORLD_HEIGHT, currentConfig.map);
     drawPointerTarget(ctx);
 
-    const sortedChars = Object.values(gameState.players).sort((a, b) => (a.y + a.height) - (b.y + b.height));
-    for (let i = 0; i < sortedChars.length; i++) {
-        drawCharacterSprite(ctx, sortedChars[i]);
+    const renderables = [
+        ...Object.values(gameState.players).map(p => ({ kind: 'char', entity: p, footY: p.y + p.height })),
+        ...(gameState.pets || []).map(pet => ({ kind: 'pet', entity: pet, footY: pet.y + pet.height }))
+    ].sort((a, b) => a.footY - b.footY);
+
+    for (let i = 0; i < renderables.length; i++) {
+        if (renderables[i].kind === 'pet') {
+            drawPetSprite(ctx, renderables[i].entity);
+        } else {
+            drawCharacterSprite(ctx, renderables[i].entity);
+        }
     }
 
     if (nearbyInteract) {
@@ -197,6 +206,9 @@ function isInteractiveLocation(wx, wy) {
         return true;
     }
     if (config.lanterns && config.lanterns.some(l => Math.hypot(wx - (l.x + l.w * 0.5), wy - (l.y + l.h * 0.5)) < 42)) {
+        return true;
+    }
+    if (gameState.pets && gameState.pets.some(p => Math.hypot(wx - (p.x + p.width * 0.5), wy - (p.y + p.height * 0.5)) < 36)) {
         return true;
     }
     const player = gameState.players['my_id'];
